@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.mapbius_server.mapper.LoginMapper">
+
+<!--    &lt;!&ndash; 아이디로 사용자 조회 &ndash;&gt;
+    <select id="findUserById" parameterType="String" resultType="com.example.mapbius_server.domain.User">
+        SELECT *
+        FROM users
+        WHERE id = #{id}
+    </select>
+
+    &lt;!&ndash; 이메일로 사용자 조회 &ndash;&gt;
+    <select id="findUserByEmail" parameterType="String" resultType="com.example.mapbius_server.domain.User">
+        SELECT *
+        FROM users
+        WHERE email = #{email}
+    </select>-->
+
+    <!-- 로그인 인증 (아이디와 비밀번호 확인) -->
+    <select id="authenticate" parameterType="map" resultType="com.example.mapbius_server.domain.User">
+        SELECT * FROM users WHERE id = #{id} AND pw = #{pw}
+    </select>
+
+</mapper>
