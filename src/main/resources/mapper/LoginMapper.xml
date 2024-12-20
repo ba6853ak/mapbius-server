@@ -4,7 +4,7 @@
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.example.mapbius_server.mapper.LoginMapper">
 
-    <resultMap id="UserResultMap" type="com.example.mapbius_server.domain.User">
+    <resultMap id="LoginResultMap" type="com.example.mapbius_server.domain.User">
         <result property="seq" column="seq"/>
         <result property="id" column="id"/>
         <result property="email" column="email"/>
@@ -23,7 +23,7 @@
     </select>
 
     <!-- 로그인 후 사용자 정보 가져오기 -->
-    <select id="getUserInformation" parameterType="map" resultMap="UserResultMap" resultType="com.example.mapbius_server.domain.User">
+    <select id="getUserInformation" parameterType="map" resultMap="LoginResultMap" resultType="com.example.mapbius_server.domain.User">
         SELECT seq, id, email, kakao_id, nick_name, profile_image, birth_date, gender, created_at, updated_at
         FROM users
         WHERE id = #{id} AND pw = #{pw}

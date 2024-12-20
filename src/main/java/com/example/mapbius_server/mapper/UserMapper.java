@@ -2,6 +2,8 @@ package com.example.mapbius_server.mapper;
 
 import com.example.mapbius_server.domain.User;
 import org.apache.ibatis.annotations.Mapper;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.List;
 
@@ -12,4 +14,6 @@ public interface UserMapper {
      * @return User 객체 리스트
      */
     List<User> findAll();
+
+    void insertUser(User user);
 }

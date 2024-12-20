@@ -4,6 +4,7 @@ import com.example.mapbius_server.common.ResponseData;
 import com.example.mapbius_server.domain.User;
 import com.example.mapbius_server.dto.LoginRequest;
 import com.example.mapbius_server.service.LoginService;
+import com.example.mapbius_server.util.JwtUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.http.client.ClientHttpRequestFactorySettings;
 import org.springframework.http.ResponseEntity;
@@ -17,20 +18,27 @@ import java.util.Map;
 public class LoginController {
 
     public final LoginService loginService;
-    private final ClientHttpRequestFactorySettings clientHttpRequestFactorySettings;
+
+    public final JwtUtil jwtUtil;
+
+
+    // private final ClientHttpRequestFactorySettings clientHttpRequestFactorySettings;
+
+
+
 
     @Autowired
-    public LoginController(LoginService loginService, ClientHttpRequestFactorySettings clientHttpRequestFactorySettings) {
+    // public LoginController(LoginService loginService, ClientHttpRequestFactorySettings clientHttpRequestFactorySettings) {
+    public LoginController(LoginService loginService) {
         this.loginService = loginService;
-        this.clientHttpRequestFactorySettings = clientHttpRequestFactorySettings;
+        this.jwtUtil = new JwtUtil();
+        // this.clientHttpRequestFactorySettings = clientHttpRequestFactorySettings;
     }
 
-
-
-    @PostMapping("/login")
+    @PostMapping("/api/login")
     public ResponseEntity<?> handleLogin(@RequestBody User loginRequest) {
 
-        User userData = new User();
+        User userData;
 
         ResponseData responseData = new ResponseData();
 
@@ -39,16 +47,13 @@ public class LoginController {
 
         boolean loginSuccess = loginService.login(id, pw);
 
-
-
-
         if (loginSuccess) {
-
             System.out.println("Login successful");
+            String jwtToken = jwtUtil.generateToken(loginRequest.getId()); // Jwt 토큰 생성
             responseData.setCode(200);
             responseData.setMessage("로그인 성공");
             responseData.setTimestamp(new Timestamp(System.currentTimeMillis()));
-
+            responseData.setToken(jwtToken);
 
             userData = loginService.getUserInfo(id, pw);
             System.out.println(userData);
@@ -59,8 +64,5 @@ public class LoginController {
             return ResponseEntity.status(401).body("");
         }
     }
-
-
-
 
 }

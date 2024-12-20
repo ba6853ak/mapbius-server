@@ -12,7 +12,6 @@ public class User {
     private String kakaoId; // 카카오 고유번호
     private String nickName; // 닉네임
     private String profileImage; // 프로필 이미지 URL
-    private String address; // 주소 정보
     private Date birthDate; // 생년월일
     private String gender; // 성별 (male, female)
     private Timestamp createdAt; // 계정 생성 일자
@@ -74,14 +73,6 @@ public class User {
         this.profileImage = profileImage;
     }
 
-    public String getAddress() {
-        return address;
-    }
-
-    public void setAddress(String address) {
-        this.address = address;
-    }
-
     public Date getBirthDate() {
         return birthDate;
     }
@@ -124,7 +115,6 @@ public class User {
                 ", kakaoId='" + kakaoId + '\'' +
                 ", nickName='" + nickName + '\'' +
                 ", profileImage='" + profileImage + '\'' +
-                ", address='" + address + '\'' +
                 ", birthDate=" + birthDate +
                 ", gender='" + gender + '\'' +
                 ", createdAt=" + createdAt +
