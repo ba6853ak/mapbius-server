@@ -30,5 +30,10 @@ public class LoginService {
         }
     }
 
+    public User getUserInfo(String id, String pw) {
+        User user = loginMapper.getUserInformation(id, pw);
+        return user;
+    }
+
 
 }
