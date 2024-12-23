@@ -16,4 +16,9 @@ public interface UserMapper {
     List<User> findAll();
 
     void insertUser(User user);
+
+    int selectUserId(String id);
+
+    int selectUserEmail(String email);
+
 }
