@@ -12,7 +12,7 @@ public class User {
     private String kakaoId; // 카카오 고유번호
     private String nickName; // 닉네임
     private String profileImage; // 프로필 이미지 URL
-    private Date birthDate; // 생년월일
+    private String birthDate; // 생년월일
     private String gender; // 성별 (male, female)
     private Timestamp createdAt; // 계정 생성 일자
     private Timestamp updatedAt; // 개인 정보 수정 일자
@@ -73,11 +73,11 @@ public class User {
         this.profileImage = profileImage;
     }
 
-    public Date getBirthDate() {
+    public String getBirthDate() {
         return birthDate;
     }
 
-    public void setBirthDate(Date birthDate) {
+    public void setBirthDate(String birthDate) {
         this.birthDate = birthDate;
     }
 

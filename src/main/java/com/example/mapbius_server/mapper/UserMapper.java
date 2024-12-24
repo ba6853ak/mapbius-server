@@ -21,4 +21,6 @@ public interface UserMapper {
 
     int selectUserEmail(String email);
 
+    int selectUserNickName(String nm);
+
 }

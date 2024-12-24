@@ -9,7 +9,7 @@ public class JoinRequest {
     private String pw; // 암호화된 비밀번호
     private String email; // 이메일
     private String nickName; // 닉네임
-    private Date birthDate; // 생년월일
+    private String birthDate; // 생년월일
     private String gender; // 성별 (male, female)
 
     public String getId() {
@@ -44,11 +44,11 @@ public class JoinRequest {
         this.nickName = nickName;
     }
 
-    public Date getBirthDate() {
+    public String getBirthDate() {
         return birthDate;
     }
 
-    public void setBirthDate(Date birthDate) {
+    public void setBirthDate(String birthDate) {
         this.birthDate = birthDate;
     }
 

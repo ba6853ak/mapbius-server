@@ -36,25 +36,18 @@ public class UserController {
     public ResponseEntity<?> joinProcess(@RequestBody User user) {
         ResponseData responseData = new ResponseData();
 
-        if(userService.isValidId(user.getId())) {
-            if (userService.insertUser(user)) {
-                responseData.setCode(200);
-                responseData.setMessage("회원가입 성공");
-                return ResponseEntity.ok(responseData);
-            } else {
-                responseData.setCode(401);
-                responseData.setMessage("회원가입 실패");
-                return ResponseEntity.status(401).body(responseData);
-            }
+        if (userService.isJoinValid(user)) {
+            userService.insertUser(user);
+            responseData.setCode(200);
+            responseData.setMessage("회원가입 성공");
+            return ResponseEntity.ok(responseData);
         } else {
-            responseData.setCode(409);
-            responseData.setMessage("이미 존재하거나, 사용할 수 없는 아이디입니다.");
-            return ResponseEntity.status(409).body(responseData);
-
+            responseData.setCode(401);
+            responseData.setMessage("회원가입 실패");
+            return ResponseEntity.status(401).body(responseData);
         }
 
-
-            }
+    }
 
 
 

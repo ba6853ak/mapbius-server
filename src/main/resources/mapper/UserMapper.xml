@@ -37,6 +37,11 @@
         SELECT count(1) FROM users WHERE email = #{email};
     </select>
 
+    <!-- 닉네임 존재 확인 -->
+    <select id="selectUserNickName" resultType="int">
+        SELECT count(1) FROM users WHERE nick_name = #{nm};
+    </select>
+
 
 
 </mapper>
