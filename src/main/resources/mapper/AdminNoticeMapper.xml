@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.mapbius_server.mapper.AdminNoticeMapper">
+
+
+    <!-- 관리자 공지사항 등록 -->
+    <insert id="insertUser" parameterType="com.example.mapbius_server.domain.User">
+        INSERT INTO users (id, pw, email, nick_name, birth_date, gender) VALUES (#{id}, #{pw}, #{email}, #{nickName}, #{birthDate}, #{gender})
+    </insert>
+
+    <!-- 관리자 공지사항 수정 -->
+    <select id="selectFindEmail" resultType="String">
+        SELECT email FROM users WHERE email = #{email};
+    </select>
+
+    <!-- 관리자 공지사항 삭제 -->
+    <select id="selectUserId" resultType="String">
+        SELECT id FROM users WHERE email = #{email};
+    </select>
+
+
+
+</mapper>

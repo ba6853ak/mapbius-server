@@ -36,4 +36,13 @@ public class LoginService {
     }
 
 
+    public boolean adminCheck(String id) {
+        if(loginMapper.selectAdminUserCheck(id) > 0){
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+
 }

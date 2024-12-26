@@ -65,4 +65,18 @@ public class LoginController {
         }
     }
 
+    // 관리자 체크
+    @PostMapping("/api/public/login-admin")
+    public ResponseEntity<?> adminConfirm(@RequestBody User user) {
+
+
+        if(loginService.adminCheck(user.getId())) {
+            return ResponseEntity.ok().build();
+        } else {
+            return ResponseEntity.status(401).build(); // HTTP 401 반환
+        }
+
+    }
+
+
 }
