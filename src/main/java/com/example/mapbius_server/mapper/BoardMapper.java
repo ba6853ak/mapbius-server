@@ -6,7 +6,7 @@ import org.apache.ibatis.annotations.Mapper;
 @Mapper
 public interface BoardMapper {
 
-    boolean insertBoard(Board boardRequest);
+    boolean insertNotice(Board board);
 
     boolean selectBoardDetail(Board boardRequest);
 

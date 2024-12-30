@@ -28,8 +28,8 @@ public class JwtUtil {
                  * 토큰의 서명과 서버가 계산한 서명이 같으면, 톸느이 진짜임을 확인한다.
                  * .claim("user-email", "john.doe@example.com") // 추가 정보 입력 메서드
                  */
-                .signWith(key, SignatureAlgorithm.HS256) // JWT에 디지털 서명을 추가함.
-                .compact(); // 최종적으로 암호화된 토큰이 완성되며, JWT를 문자열로 반환.
+                .signWith(key, SignatureAlgorithm.HS256) // 토큰에 디지털 서명을 추가함.
+                .compact(); // 암호화된 토큰을 문자열로 반환.
     }
 
     // JWT 검증

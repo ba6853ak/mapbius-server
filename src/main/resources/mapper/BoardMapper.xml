@@ -4,21 +4,24 @@
 <mapper namespace="com.example.mapbius_server.mapper.BoardMapper">
 
     <resultMap id="NoticeResultMap" type="com.example.mapbius_server.domain.Board">
-        <result column="id" property="id" />
-        <result column="title" property="title" />
-        <result column="content" property="content" />
-        <result column="author" property="author" />
-        <result column="created_date" property="createdDate" />
-        <result column="updated_date" property="updatedDate" />
+        <result column="id" property="boardIdx" />
+        <result column="title" property="boardTitle" />
+        <result column="content" property="boardContent" />
+        <result column="author" property="boardAuthor" />
+        <result column="created_date" property="boardCreatedDate" />
+        <result column="updated_date" property="boardUpdatedDate" />
     </resultMap>
-
-
 
     <!-- 공지사항 등록 -->
     <insert id="insertNotice" parameterType="com.example.mapbius_server.domain.Board">
-        INSERT INTO notices (title, content, author, created_date, updated_date)
-        VALUES (#{title}, #{content}, #{author}, NOW(), NOW());
+        INSERT INTO notices (title, content, author, created_date)
+        VALUES (#{boardTitle}, #{boardContent}, #{boardAuthor}, NOW());
     </insert>
+
+
+
+
+
 
     <!-- 공지사항 삭제 -->
     <delete id="deleteNotice">

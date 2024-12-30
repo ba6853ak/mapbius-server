@@ -35,7 +35,7 @@ public class LoginController {
         // this.clientHttpRequestFactorySettings = clientHttpRequestFactorySettings;
     }
 
-    @PostMapping("/api/login")
+    @PostMapping("/api/public/login")
     public ResponseEntity<?> handleLogin(@RequestBody User loginRequest) {
 
         User userData;

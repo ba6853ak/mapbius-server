@@ -5,7 +5,6 @@ import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
@@ -16,11 +15,13 @@ import java.io.IOException;
 @Component // 누구든지 api 요청시 해당 필터가 가장 먼저 동작하여 토큰 유효성 검사
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
-    @Autowired
     private JwtUtil jwtUtil; // JwtUtil 주입, 토큰이 진짜인지 검사
-
-    @Autowired
     private JwtTokenProvider jwtTokenProvider; // 티켓을 보고 누구인지 알려주는 도구.
+
+    public JwtAuthenticationFilter(JwtUtil jwtUtil, JwtTokenProvider jwtTokenProvider) {
+        this.jwtUtil = jwtUtil;
+        this.jwtTokenProvider = jwtTokenProvider;
+    }
 
 
     // request로 사용자가 보낸 Authorization 헤더 확인. (Jwt 토큰, 게시글 제목, 내용, 사용자 정보 조회 등)
