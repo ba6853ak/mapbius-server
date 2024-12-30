@@ -70,6 +70,17 @@ public class UserService {
         }
     }
 
+/*    public String findPw(User user) {
+
+
+
+
+    }*/
+
+
+
+
+
     public boolean isNickNameAvailable(String setNickName) {
         boolean result = userMapper.selectUserNickName(setNickName) > 0; // 이메일 존재 여부.
         if (result) {

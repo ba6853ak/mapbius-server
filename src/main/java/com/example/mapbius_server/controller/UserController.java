@@ -2,9 +2,6 @@ package com.example.mapbius_server.controller;
 
 import com.example.mapbius_server.common.ResponseData;
 import com.example.mapbius_server.domain.User;
-import com.example.mapbius_server.dto.IdRequest;
-import com.example.mapbius_server.dto.JoinRequest;
-import com.example.mapbius_server.mapper.UserMapper;
 import com.example.mapbius_server.service.FindService;
 import com.example.mapbius_server.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -110,10 +107,10 @@ public class UserController {
     }
 
     // 비밀번호 찾기
-    @PostMapping("/api/public/forget-pw")
+/*    @PostMapping("/api/public/forget-pw")
     public ResponseEntity<?> ForgetPw(@RequestBody User user) {
         ResponseData responseData = new ResponseData();
-        if (userService.isEmailAvailable(user.getEmail())) {
+        if (userService.findPw(user)) {
             responseData.setCode(200);
             responseData.setMessage("사용 가능한 이메일입니다.");
             return ResponseEntity.ok(responseData);
@@ -122,7 +119,7 @@ public class UserController {
             responseData.setMessage("이미 사용중인 이메일입니다.");
             return ResponseEntity.status(409).body(responseData);
         }
-    }
+    }*/
 
 
 

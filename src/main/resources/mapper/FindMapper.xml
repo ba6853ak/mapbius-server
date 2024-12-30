@@ -19,10 +19,16 @@
         SELECT email FROM users WHERE email = #{email};
     </select>
 
-    <!-- 이메일 존재 확인 -->
+    <!-- 사용자 아이디 찾기 -->
     <select id="selectUserId" resultType="String">
         SELECT id FROM users WHERE email = #{email};
     </select>
+
+    <!-- 사용자 비밀번호 찾기 -->
+    <select id="selectFindPw" resultType="String">
+        SELECT email FROM users WHERE email = #{email};
+    </select>
+
 
 
 </mapper>
