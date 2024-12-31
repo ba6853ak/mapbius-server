@@ -30,18 +30,19 @@ public class BoardController {
 
     }*/
 
-
+    // 공지사항 목록 반환
     @GetMapping("/api/public/notices")
     public Map<String, Object> getNotices(
-            @RequestParam(defaultValue = "0") int curpage, // 현재 페이지
+            @RequestParam(defaultValue = "1") int curpage, // 현재 페이지 (1부터 시작)
             @RequestParam(defaultValue = "5") int size    // 한 페이지에 표시할 게시글 수
     ) {
-        return boardService.getNotices(curpage, size);
+        // curpage를 0부터 시작하도록 변환
+        int zeroBasedPage = curpage - 1;
+        return boardService.getNotices(zeroBasedPage, size);
     }
 
 
-
-
+    // 공지사항 게시글 등록
     @PostMapping("/api/private/notice-post")
     public ResponseEntity<?> noticePost(@RequestHeader("Authorization") String authorizationHeader, @RequestBody Board board) {
 
@@ -69,6 +70,34 @@ public class BoardController {
         }
 
     }
+
+    // 공지사항 게시글 수정
+    @PostMapping("/api/private/notice-update")
+    public ResponseEntity<?> noticeUpdate(@RequestHeader("Authorization") String authorizationHeader, @RequestBody Board board) {
+
+        String token = authorizationHeader.replace("Bearer ", ""); // 토큰 추출
+        String jwtLog = jwtUtil.validateToken(token).getSubject(); // 토큰 검증
+        System.out.println("공지사항 수정 동작");
+        System.out.println("Extracted userId from JWT: " + jwtLog);
+
+
+
+
+        responseData = new ResponseData();
+        responseData.setCode(200);
+        return ResponseEntity.status(200).body(responseData);
+    }
+
+
+    // 공지사항 게시글 삭제
+    @PostMapping("/api/private/notice-delete")
+    public ResponseEntity<?> noticeDelete(@RequestHeader("Authorization") String authorizationHeader, @RequestBody Board board) {
+        String token = authorizationHeader.replace("Bearer ", "");
+        responseData = new ResponseData();
+        responseData.setCode(200);
+        return ResponseEntity.status(200).body(responseData);
+    }
+
 
 
 

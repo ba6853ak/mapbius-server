@@ -9,7 +9,13 @@ import java.util.List;
 @Mapper
 public interface BoardMapper {
 
+    // 공지사랑 등록
     boolean insertNotice(Board board);
+
+    boolean updateNotice(Board board);
+
+    boolean deleteNotice(int id);
+
 
 
     // 공지사항 목록 조회 (페이지네이션 포함)

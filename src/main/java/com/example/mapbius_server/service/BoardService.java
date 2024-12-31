@@ -32,9 +32,11 @@ public class BoardService {
         return count;
     }
 
-    public Map<String, Object> getNotices(int curpage, int size) {
 
-        int offset = curpage * size; // 현재 페이지의 시작 위치 계산
+    // 공지사항 목록 불러오기
+    public Map<String, Object> getNotices(int curpage, int size) {
+        // 현재 페이지의 시작 위치 계산
+        int offset = curpage * size;
 
         // 데이터 조회
         List<Object> items = boardMapper.selectNotices(size, offset);
@@ -45,13 +47,14 @@ public class BoardService {
 
         // 응답 데이터 구성
         Map<String, Object> response = new HashMap<>();
-        response.put("items", items);
-        response.put("maxpage", maxpage);
+        response.put("items", items);    // 현재 페이지의 데이터 목록
+        response.put("maxpage", maxpage); // 전체 페이지 수
 
         System.out.println("Size: " + size + " / Offset: " + offset);
 
         return response;
     }
+
 
 
 

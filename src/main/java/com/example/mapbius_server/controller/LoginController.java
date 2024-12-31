@@ -39,7 +39,6 @@ public class LoginController {
     public ResponseEntity<?> handleLogin(@RequestBody User loginRequest) {
 
         User userData;
-
         ResponseData responseData = new ResponseData();
 
         String id = loginRequest.getId();
@@ -49,7 +48,6 @@ public class LoginController {
 
         if (loginSuccess) {
             System.out.println("Login successful");
-
             // 관리자인지 확인
             boolean isAdmin = loginService.adminCheck(id);
             // JWT 생성 (관리자라면 ROLE_ADMIN 추가)
