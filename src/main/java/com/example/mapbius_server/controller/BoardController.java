@@ -71,31 +71,54 @@ public class BoardController {
 
     }
 
+
     // 공지사항 게시글 수정
     @PostMapping("/api/private/notice-update")
     public ResponseEntity<?> noticeUpdate(@RequestHeader("Authorization") String authorizationHeader, @RequestBody Board board) {
 
         String token = authorizationHeader.replace("Bearer ", ""); // 토큰 추출
-        String jwtLog = jwtUtil.validateToken(token).getSubject(); // 토큰 검증
+        String tokenOwner = jwtUtil.validateToken(token).getSubject(); // 토큰 주인이 누구인가?
         System.out.println("공지사항 수정 동작");
-        System.out.println("Extracted userId from JWT: " + jwtLog);
-
-
-
+        System.out.println("Extracted userId from JWT: " + tokenOwner);
 
         responseData = new ResponseData();
-        responseData.setCode(200);
-        return ResponseEntity.status(200).body(responseData);
+
+        if (boardService.noticeUpdate(board)) {
+            responseData.setCode(200);
+            responseData.setMessage("공지사항 수정 성공!");
+            return ResponseEntity.status(200).body(responseData);
+        } else {
+            responseData.setCode(400);
+            responseData.setMessage("공지사항 수정 실패!");
+            return ResponseEntity.status(400).body(responseData);
+        }
+
+
     }
 
 
     // 공지사항 게시글 삭제
     @PostMapping("/api/private/notice-delete")
-    public ResponseEntity<?> noticeDelete(@RequestHeader("Authorization") String authorizationHeader, @RequestBody Board board) {
+    public ResponseEntity<?> noticeDelete(@RequestHeader("Authorization") String authorizationHeader, @RequestBody int noticeIdx) {
         String token = authorizationHeader.replace("Bearer ", "");
+        String jwtLog = jwtUtil.validateToken(token).getSubject(); // 토큰 검증
+        System.out.println("공지사항 삭제 동작");
+        System.out.println("Extracted userId from JWT: " + jwtLog);
         responseData = new ResponseData();
-        responseData.setCode(200);
-        return ResponseEntity.status(200).body(responseData);
+
+        if(boardService.noticeDelete(noticeIdx)) {
+            responseData.setCode(200);
+            responseData.setMessage("공지사항 삭제 성공!");
+            System.out.println("공지사항 삭제 성공");
+            return ResponseEntity.status(200).body(responseData);
+        }
+        else {
+            responseData.setCode(400);
+            responseData.setMessage("공지사항 삭제 실패!");
+            System.out.println("공지사항 삭제 실패");
+            return ResponseEntity.status(400).body(responseData);
+        }
+
     }
 
 

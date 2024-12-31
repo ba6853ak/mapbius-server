@@ -19,5 +19,7 @@ public class Board {
     private String boardCreatedDate;
 
     private String boardUpdatedDate;
+
+    private String nickName;
 }
 

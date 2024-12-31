@@ -5,6 +5,7 @@ import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
+import java.util.Map;
 
 @Mapper
 public interface BoardMapper {
@@ -12,28 +13,19 @@ public interface BoardMapper {
     // 공지사랑 등록
     boolean insertNotice(Board board);
 
-    boolean updateNotice(Board board);
+    // 공지사항 삭제
+    int deleteNotice(int id);
 
-    boolean deleteNotice(int id);
-
-
+    // 공지사항 수정
+    int updateNotice(Board board);
 
     // 공지사항 목록 조회 (페이지네이션 포함)
-    List<Object> selectNotices(@Param("size") int size, @Param("offset") int offset);
+    List<Map<String, Object>> selectNotices(@Param("size") int size, @Param("offset") int offset);
 
     // 공지사항 전체 개수 조회
     int selectNoticeCount();
 
-
-    boolean selectNoticeList(Board board);
-
-    boolean selectBoardDetail(Board boardRequest);
-
-    boolean deleteBoard(Board boardRequest);
-
-    boolean updateBoard(Board boardRequest);
-
-    boolean selectBoardList(Board boardRequest);
+    String selectUserIdToUserNm(String id);
 
 
 }
