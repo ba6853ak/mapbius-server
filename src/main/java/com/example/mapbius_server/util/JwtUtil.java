@@ -15,9 +15,9 @@ public class JwtUtil {
     private final Key key = Keys.hmacShaKeyFor(SECRET_KEY.getBytes());
 
     // JWT 생성
-    public String generateToken(String username) {
+    public String generateToken(String id) {
         return Jwts.builder() // JWT 만들기 시작점
-                .setSubject(username) // 사용자의 ID를 토큰의 주인으로 설정
+                .setSubject(id) // 사용자의 ID를 토큰의 주인으로 설정
                 .setIssuedAt(new Date()) // 토근 생성 시간
                 .setExpiration(new Date(System.currentTimeMillis() + EXPIRATION_TIME)) // 토근 만료 시간
                 // key는 서버만 알고 있어야 하는 열쇠이며 서명을 만들 때 사용.
@@ -31,6 +31,20 @@ public class JwtUtil {
                 .signWith(key, SignatureAlgorithm.HS256) // 토큰에 디지털 서명을 추가함.
                 .compact(); // 암호화된 토큰을 문자열로 반환.
     }
+
+    public String generateTokenWithRole(String id, String role) {
+        Claims claims = Jwts.claims().setSubject(id);
+        claims.put("role", role); // 역할 정보 추가
+
+        return Jwts.builder()
+                .setSubject(id) // 사용자의 ID를 토큰의 주인으로 설정
+                .setClaims(claims)
+                .setIssuedAt(new Date())
+                .setExpiration(new Date(System.currentTimeMillis() + EXPIRATION_TIME))
+                .signWith(key, SignatureAlgorithm.HS256) // 토큰에 디지털 서명을 추가함.
+                .compact();
+    }
+
 
     // JWT 검증
     public Claims validateToken(String token) {

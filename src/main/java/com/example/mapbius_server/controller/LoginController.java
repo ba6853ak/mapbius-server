@@ -49,7 +49,12 @@ public class LoginController {
 
         if (loginSuccess) {
             System.out.println("Login successful");
-            String jwtToken = jwtUtil.generateToken(loginRequest.getId()); // Jwt 토큰 생성
+
+            // 관리자인지 확인
+            boolean isAdmin = loginService.adminCheck(id);
+            // JWT 생성 (관리자라면 ROLE_ADMIN 추가)
+            String role = isAdmin ? "ROLE_ADMIN" : "ROLE_USER";
+            String jwtToken = jwtUtil.generateTokenWithRole(id, role);
             responseData.setCode(200);
             responseData.setMessage("로그인 성공");
             responseData.setTimestamp(new Timestamp(System.currentTimeMillis()));
@@ -65,18 +70,7 @@ public class LoginController {
         }
     }
 
-    // 관리자 체크
-    @PostMapping("/api/public/login-admin")
-    public ResponseEntity<?> adminConfirm(@RequestBody User user) {
 
-
-        if(loginService.adminCheck(user.getId())) {
-            return ResponseEntity.ok().build();
-        } else {
-            return ResponseEntity.status(401).build(); // HTTP 401 반환
-        }
-
-    }
 
 
 }

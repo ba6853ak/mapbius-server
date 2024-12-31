@@ -9,6 +9,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.HashMap;
+import java.util.Map;
+
 @RestController
 public class BoardController {
 
@@ -19,6 +22,25 @@ public class BoardController {
     ResponseData responseData;
     @Autowired
     public BoardController(BoardService boardService) { this.jwtUtil = new JwtUtil(); this.boardService = boardService; }
+
+
+/*    @GetMapping("/api/public/notices")
+    public ResponseEntity<ResponseData> getNotices() {
+        responseData = new ResponseData();
+
+    }*/
+
+
+    @GetMapping("/api/public/notices")
+    public Map<String, Object> getNotices(
+            @RequestParam(defaultValue = "0") int curpage, // 현재 페이지
+            @RequestParam(defaultValue = "5") int size    // 한 페이지에 표시할 게시글 수
+    ) {
+        return boardService.getNotices(curpage, size);
+    }
+
+
+
 
     @PostMapping("/api/private/notice-post")
     public ResponseEntity<?> noticePost(@RequestHeader("Authorization") String authorizationHeader, @RequestBody Board board) {

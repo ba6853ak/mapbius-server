@@ -9,14 +9,45 @@
         <result column="content" property="boardContent" />
         <result column="author" property="boardAuthor" />
         <result column="created_date" property="boardCreatedDate" />
-        <result column="updated_date" property="boardUpdatedDate" />
     </resultMap>
+
+    <!-- 공지사항 목록 조회 -->
+    <select id="selectNoticeList" resultType="com.example.mapbius_server.domain.Board">
+        SELECT id, title, content, author, created_date, updated_date
+        FROM notices
+        ORDER BY id DESC;
+    </select>
 
     <!-- 공지사항 등록 -->
     <insert id="insertNotice" parameterType="com.example.mapbius_server.domain.Board">
         INSERT INTO notices (title, content, author, created_date)
         VALUES (#{boardTitle}, #{boardContent}, #{boardAuthor}, NOW());
     </insert>
+
+    <!-- 공지사항 전체 게시글 개수 -->
+    <select id="selectNoticeCount" resultType="int">
+        SELECT COUNT(*) FROM NOTICES;
+    </select>
+
+    <!-- 공지사항 목록 조회 (페이지네이션 포함) -->
+    <select id="selectNotices" resultMap="NoticeResultMap">
+        SELECT *
+        FROM notices
+        ORDER BY created_date DESC
+        LIMIT #{size} OFFSET #{offset};
+    </select>
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -37,12 +68,7 @@
         WHERE id = #{id};
     </update>
 
-    <!-- 공지사항 목록 조회 -->
-    <select id="selectNoticeList" resultType="com.example.mapbius_server.domain.Board">
-        SELECT id, title, content, author, created_date, updated_date
-        FROM notices
-        ORDER BY created_date DESC;
-    </select>
+
 
     <!-- 공지사항 상세 조회 -->
     <select id="selectNoticeById" parameterType="int" resultType="com.example.mapbius_server.domain.Board">
