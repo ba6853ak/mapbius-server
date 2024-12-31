@@ -2,6 +2,7 @@ package com.example.mapbius_server.controller;
 
 import com.example.mapbius_server.common.ResponseData;
 import com.example.mapbius_server.domain.Board;
+import com.example.mapbius_server.mapper.BoardMapper;
 import com.example.mapbius_server.service.BoardService;
 import com.example.mapbius_server.util.JwtUtil;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,10 +19,13 @@ public class BoardController {
     private final BoardService boardService;
 
     public final JwtUtil jwtUtil;
+    private final BoardMapper boardMapper;
 
     ResponseData responseData;
     @Autowired
-    public BoardController(BoardService boardService) { this.jwtUtil = new JwtUtil(); this.boardService = boardService; }
+    public BoardController(BoardService boardService, BoardMapper boardMapper) { this.jwtUtil = new JwtUtil(); this.boardService = boardService;
+        this.boardMapper = boardMapper;
+    }
 
 
 /*    @GetMapping("/api/public/notices")
@@ -41,6 +45,29 @@ public class BoardController {
         return boardService.getNotices(zeroBasedPage, size);
     }
 
+
+    // 공지사항 게시글 상세보기
+
+    @GetMapping("/api/public/notices/{id}")
+    public Object getNoticeById(@PathVariable("id") int id) {
+        System.out.println("요청된 id: " + id);
+        Board result = boardService.noticeDetail(id);
+        ResponseData responseData = new ResponseData(); // ResponseData 초기화
+        if(result != null){
+            responseData.setCode(200);
+            responseData.setObjData(result);
+            responseData.setMessage("공지사항 상세보기 반환");
+            System.out.println("공지사항 상세보기 반환");
+            return ResponseEntity.status(200).body(responseData);
+        } else {
+            responseData.setCode(400);
+            System.out.println(result);
+            responseData.setObjData(result);
+            responseData.setMessage("공지사항 상세보기 반환 실패");
+            System.out.println("공지사항 상세보기 반환 실패");
+            return ResponseEntity.status(400).body(responseData);
+        }
+    }
 
     // 공지사항 게시글 등록
     @PostMapping("/api/private/notice-post")

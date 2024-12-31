@@ -50,6 +50,11 @@
         SELECT nick_name from users WHERE id = #{id};
     </select>
 
+    <!-- 공지사항 게시글 상세보기 가져오기 -->
+    <select id="selectNoticeDetail" parameterType="int" resultType="com.example.mapbius_server.domain.Board">
+        SELECT id, title, content, author, created_date from notices where id = #{id};
+    </select>
+
 
 
 

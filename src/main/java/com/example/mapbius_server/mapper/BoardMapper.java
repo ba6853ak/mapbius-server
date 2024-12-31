@@ -25,7 +25,10 @@ public interface BoardMapper {
     // 공지사항 전체 개수 조회
     int selectNoticeCount();
 
+    // 사용자 아이디 -> 사용자 닉네임 전환
     String selectUserIdToUserNm(String id);
 
+    // 공지사항 게시글 상세보기
+    Board selectNoticeDetail(int id);
 
 }

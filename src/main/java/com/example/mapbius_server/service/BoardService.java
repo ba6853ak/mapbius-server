@@ -51,10 +51,16 @@ public class BoardService {
 
     }
 
-/*    // 공지사항 수정
-    public boolean noticeUpdate(Board board) {
+    // 공지사항 상세보기
+    public Board noticeDetail(int noticeIdx) {
+        Board boardResult = boardMapper.selectNoticeDetail(noticeIdx);
 
-    }*/
+        if(boardResult != null) {
+            return boardResult;
+        } else {
+            return null;
+        }
+    }
 
 
 
