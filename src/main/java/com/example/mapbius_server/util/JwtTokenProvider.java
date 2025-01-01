@@ -1,6 +1,8 @@
 package com.example.mapbius_server.util;
 
 import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.SignatureAlgorithm;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
@@ -10,6 +12,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 
 import java.util.Collections;
+import java.util.Date;
 import java.util.List;
 
 @Component
@@ -38,6 +41,33 @@ public class JwtTokenProvider {
         // Authentication 객체 생성
         return new UsernamePasswordAuthenticationToken(userDetails, token, userDetails.getAuthorities());
     }
+
+
+    private final String secretKey = "my-secret-key"; // 환경 변수로 관리하는 것이 안전
+    private final long expirationTime = 3600000; // 1시간 (밀리초)
+
+    public String createToken(String userId) {
+        Date now = new Date();
+        Date expiryDate = new Date(now.getTime() + expirationTime);
+
+        return Jwts.builder()
+                .setSubject(userId) // 사용자 ID
+                .claim("role", "ROLE_USER") // 사용자 역할 (예제)
+                .setIssuedAt(now) // 생성 시간
+                .setExpiration(expiryDate) // 만료 시간
+                .signWith(SignatureAlgorithm.HS256, secretKey) // 서명
+                .compact();
+    }
+
+    // 토큰 검증 및 클레임 추출
+    public Claims validateToken(String token) {
+        return Jwts.parser()
+                .setSigningKey(secretKey.getBytes())
+                .parseClaimsJws(token)
+                .getBody();
+    }
+
+
 
 
 

@@ -9,6 +9,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.annotation.web.configuration.WebSecurityCustomizer;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
@@ -40,6 +41,7 @@ public class SecurityConfig {
                 // .cors(cors -> cors.disable()) // CORS 활성화
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/api/public/**").permitAll()
+                        .requestMatchers("/oauth/kakao/**").permitAll()
                         .requestMatchers("/api/private/**").authenticated()
                         .anyRequest().authenticated()
 
@@ -53,6 +55,14 @@ public class SecurityConfig {
 
     }
 
+
+    // 추가! WebSecurityCustomizer (Spring Security 6.x 이전)
+    @Bean
+    public WebSecurityCustomizer webSecurityCustomizer() {
+        return (web) -> web.ignoring().requestMatchers(
+                "/oauth/kakao/**"  // 여기를 필터체인 무시
+        );
+    }
 
 
 

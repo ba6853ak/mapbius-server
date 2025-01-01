@@ -8,6 +8,8 @@ public class MapbiusServerApplication {
 	public static void main(String[] args) {
 		SpringApplication.run(MapbiusServerApplication.class, args);
 
+
+
 	}
 
 }

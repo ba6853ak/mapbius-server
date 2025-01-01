@@ -19,6 +19,9 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     private JwtTokenProvider jwtTokenProvider; // 티켓을 보고 누구인지 알려주는 도구.
 
     public JwtAuthenticationFilter(JwtUtil jwtUtil, JwtTokenProvider jwtTokenProvider) {
+
+
+
         this.jwtUtil = jwtUtil;
         this.jwtTokenProvider = jwtTokenProvider;
     }
@@ -29,25 +32,29 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
             throws ServletException, IOException {
 
-        /**
-         * resolveToken 동작
-         */
-        String token = resolveToken(request); // 요청에서 JWT 토큰 추출
+        String path = request.getRequestURI();
+
+        // "/oauth/kakao/" 로 시작하는 모든 요청은 토큰 검증 로직을 스킵
+        if (path.startsWith("/oauth/kakao")) {
+            filterChain.doFilter(request, response);
+            return;
+        }
+
+        // 일반 로그인 요청 토큰 처리
+        String token = resolveToken(request);
 
         if (token != null) {
             try {
-                // 토큰 검증
                 jwtUtil.validateToken(token); // 유효하지 않으면 예외 발생
                 Authentication auth = jwtTokenProvider.getAuthentication(token); // 토큰에서 사용자 정보 추출 및 인증 생성
                 SecurityContextHolder.getContext().setAuthentication(auth); // SecurityContext에 인증 정보 설정
             } catch (JwtException e) {
-                // 유효하지 않은 토큰 처리
                 response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Invalid JWT token");
                 return;
             }
         }
 
-        filterChain.doFilter(request, response); // 사용자가 보낸 토큰의 검증이 성공하면 다음 단계로 넘김.
+        filterChain.doFilter(request, response); // 검증이 성공하면 다음 단계로 넘김
     }
 
 
@@ -56,6 +63,8 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
      */
     private String resolveToken(HttpServletRequest request) {
         String bearerToken = request.getHeader("Authorization");
+        // String bearerToken = request.getHeader("Refresh-Token");
+
         if (bearerToken != null && bearerToken.startsWith("Bearer ")) {
             return bearerToken.substring(7);
         }

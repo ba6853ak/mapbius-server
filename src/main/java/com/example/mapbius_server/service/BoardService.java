@@ -55,7 +55,12 @@ public class BoardService {
     public Board noticeDetail(int noticeIdx) {
         Board boardResult = boardMapper.selectNoticeDetail(noticeIdx);
 
-        if(boardResult != null) {
+        if (boardResult != null) {
+            String boardAuthor = boardResult.getBoardAuthor();
+            if (boardAuthor != null) {
+                String nickName = boardMapper.selectUserIdToUserNm(boardAuthor);
+                boardResult.setNickName(nickName);
+            }
             return boardResult;
         } else {
             return null;
