@@ -34,15 +34,15 @@ public class BoardController {
     @GetMapping("/api/public/notices/")
     public ResponseEntity<ResponseData> getNotices(
             @RequestParam(defaultValue = "1") int curpage,  // 현재 페이지
-            @RequestParam(defaultValue = "5") int size,     // 페이지당 게시물 수
             @RequestParam(value = "keyword", required = false) String keyword, // 검색어 (옵션)
             @RequestParam(value = "type", required = false) String type        // 검색 타입 (옵션: title, content)
     ) {
+        final int PAGEPERARTICLESIZE = 5;
         ResponseData responseData = new ResponseData(); // ResponseData 초기화
         System.out.println("오류 발생");
         responseData.setMessage("공지사항 데이터 반환 성공!");
         responseData.setCode(200);
-        responseData.setObjData(boardService.getNotices(curpage - 1, size, keyword, type)); // 1부터 시작 변환
+        responseData.setObjData(boardService.getNotices(curpage - 1, PAGEPERARTICLESIZE, keyword, type)); // 1부터 시작 변환
         return ResponseEntity.status(200).body(responseData);
     }
 
