@@ -62,6 +62,10 @@ public class UserService {
     // isValidId에 종속됨.
     public boolean isIdAvailable(String userId) {
         boolean result = userMapper.selectUserId(userId) > 0; // 아이디 존재 여부.
+        System.out.println("아이디 확인 동작");
+        System.out.println(result);
+        System.out.println(userId);
+        System.out.println(userMapper.selectUserId(userId));
         if (result) {
             return false; // 아이디가 이미 존재하여 이용할 수 없음.
         } else {
@@ -264,68 +268,35 @@ public class UserService {
 
 
 
+
     public boolean isValidBirthday(String birthDate) {
-
         // 현재 날짜 가져오기
-        LocalDate localDate = LocalDate.now();
-        int currentYear = localDate.getYear();
-        int currentMonth = localDate.getMonthValue();
-        int currentDay = localDate.getDayOfMonth();
+        LocalDate currentDate = LocalDate.now();
 
-        // yyyy-MM-dd 형식을 검증하는 정규식
-        String regex = "^\\d{4}-\\d{2}-\\d{2}$";
+        // yyyy-MM-dd 형식의 날짜를 검증하는 DateTimeFormatter
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
 
-/*        SimpleDateFormat dateFormatter = new SimpleDateFormat("yyyy-MM-dd"); // SimpleDateFormat을 사용하여 yyyy-MM-dd 형식 지정
-        String formattedDate = dateFormatter.format(birthDate); // Date 객체를 문자열로 변환*/
-
-        boolean isValid = birthDate.matches(regex); // yyyy-MM-dd 형식 검증
-
-        // String에서 사용자가 입력한 년, 월, 일 추출
-        String yearStr = birthDate.substring(0, 4);
-        String monthStr = birthDate.substring(5, 7);
-        String dayStr = birthDate.substring(8, 10);
-
-        // 추출한 년, 월, 일을 int로 변환
-        int yearInt = Integer.parseInt(yearStr);
-        int monthInt = Integer.parseInt(monthStr);
-        int dayInt = Integer.parseInt(dayStr);
-
-        // 날짜 형식 검증
-        if(!isValid || !(regex.length() != 10)) {
-            System.out.println("잘못된 생년월일 입력 형식");
-            System.out.println("yyyy-mm-dd 여야함.");
+        LocalDate parsedDate;
+        try {
+            // 입력된 문자열을 LocalDate로 변환 (유효성 검증 포함)
+            parsedDate = LocalDate.parse(birthDate, formatter);
+        } catch (DateTimeParseException e) {
+            System.out.println("잘못된 생년월일 입력 형식: yyyy-MM-dd 여야 함.");
             return false;
         }
 
-        // 년도 검증
-        if (yearInt < 1900 || yearInt > currentYear) {
-            System.out.println("1900년 이하 이거나 현재 년도를 초과함.");
+        // 년도 검증: 1900년 이상 현재 날짜 이하인지 확인
+        if (parsedDate.getYear() < 1900 || parsedDate.isAfter(currentDate)) {
+            System.out.println("년도는 1900년 이상, 현재 날짜 이하만 허용됨.");
             return false;
         }
 
-        // 월 검증
-        if (yearInt == currentYear) {
-            // 사용자가 현재 연도를 입력한 경우
-            if (monthInt > currentMonth) {
-                System.out.println("현재 년도의 월을 초과함.");
-                return false;
-            }
-        } else if (yearInt < currentYear) {
-            // 사용자가 과거 연도를 입력한 경우 (모든 월 허용)
-            if (monthInt < 1 || monthInt > 12) {
-                System.out.println("월은 1~12 사이여야함.");
-                return false;
-            }
-        }
+        // 월 검증 및 일자 검증은 LocalDate.parse에서 이미 처리됨
+        // 추가 검증은 필요하지 않음
 
-        YearMonth yearMonth = YearMonth.of(yearInt, monthInt); // YearMonth 객체 생성
-        int maxDay = yearMonth.lengthOfMonth(); // 년도와 월에 따른 유효한 최대 일수
-        if( (1 > dayInt) || (dayInt > maxDay) || (dayInt > currentDay)) {
-            System.out.println("년과 월에 따른 유효하지 않은 day 이거나 미래 날짜");
-            return false;
-        }
-        return true;
+        return true; // 모든 검증을 통과하면 true 반환
     }
+
 
 
 

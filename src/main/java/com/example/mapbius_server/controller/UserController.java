@@ -4,12 +4,10 @@ import com.example.mapbius_server.common.ResponseData;
 import com.example.mapbius_server.domain.User;
 import com.example.mapbius_server.service.FindService;
 import com.example.mapbius_server.service.UserService;
+import com.example.mapbius_server.util.JwtUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -20,12 +18,14 @@ public class UserController {
 
     private final FindService findService;
 
+
     ResponseData responseData;
 
     @Autowired
     public UserController(UserService userService, FindService findService) {
         this.userService = userService;
         this.findService = findService;
+
     }
 
 

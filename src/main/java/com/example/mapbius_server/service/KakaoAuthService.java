@@ -105,12 +105,11 @@ public class KakaoAuthService {
 
         // 이미 존재하는 회원인지 체크
         if(userService.isIdAvailable(kakaoId)) {
+            return jwtUtil.generateTokenWithRole(kakaoId, "ROLE_USER", kakaoNickName);
+        } else {
             System.out.println("카카오로 가입한 계정입니다.");
             // 3. JWT 생성 후 반환
             return jwtUtil.generateTokenWithRole(kakaoId, "ROLE_USER", kakaoNickName);
-        } else {
-            System.out.println("카카오로 가입한 정보가 없습니다.");
-            return "registNeedKakaoAccount";
         }
 
 
