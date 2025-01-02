@@ -103,6 +103,10 @@ public class BoardService {
                 boardMapper.selectNoticeCountByKeyword(keyword, type) :
                 boardMapper.selectNoticeCount();
 
+        System.out.println("키워드 : " + keyword);
+        System.out.println("타입 : " + type);
+        System.out.println("전체 수: " + totalNotices);
+        System.out.println("페이지 당 게시글 수: " + size);
         // 전체 페이지 수 계산
         int maxpage = (int) Math.ceil((double) totalNotices / size);
 
