@@ -5,12 +5,14 @@ import com.example.mapbius_server.domain.Board;
 import com.example.mapbius_server.mapper.BoardMapper;
 import com.example.mapbius_server.service.BoardService;
 import com.example.mapbius_server.util.JwtUtil;
+import com.mysql.cj.protocol.x.Notice;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 @RestController
@@ -28,22 +30,22 @@ public class BoardController {
     }
 
 
-/*    @GetMapping("/api/public/notices")
-    public ResponseEntity<ResponseData> getNotices() {
-        responseData = new ResponseData();
-
-    }*/
-
     // 공지사항 목록 반환
-    @GetMapping("/api/public/notices")
-    public Map<String, Object> getNotices(
-            @RequestParam(defaultValue = "1") int curpage, // 현재 페이지 (1부터 시작)
-            @RequestParam(defaultValue = "5") int size    // 한 페이지에 표시할 게시글 수
+    @GetMapping("/api/public/notices/")
+    public ResponseEntity<ResponseData> getNotices(
+            @RequestParam(defaultValue = "1") int curpage,  // 현재 페이지
+            @RequestParam(defaultValue = "5") int size,     // 페이지당 게시물 수
+            @RequestParam(value = "keyword", required = false) String keyword, // 검색어 (옵션)
+            @RequestParam(value = "type", required = false) String type        // 검색 타입 (옵션: title, content)
     ) {
-        // curpage를 0부터 시작하도록 변환
-        int zeroBasedPage = curpage - 1;
-        return boardService.getNotices(zeroBasedPage, size);
+        ResponseData responseData = new ResponseData(); // ResponseData 초기화
+        System.out.println("오류 발생");
+        responseData.setMessage("공지사항 데이터 반환 성공!");
+        responseData.setCode(200);
+        responseData.setObjData(boardService.getNotices(curpage - 1, size, keyword, type)); // 1부터 시작 변환
+        return ResponseEntity.status(200).body(responseData);
     }
+
 
 
     // 공지사항 게시글 상세보기
@@ -68,6 +70,9 @@ public class BoardController {
             return ResponseEntity.status(400).body(responseData);
         }
     }
+
+
+
 
     // 공지사항 게시글 등록
     @PostMapping("/api/private/notice-post")
@@ -147,7 +152,6 @@ public class BoardController {
         }
 
     }
-
 
 
 

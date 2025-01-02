@@ -32,22 +32,70 @@
         DELETE FROM notices WHERE id = #{id};
     </delete>
 
-    <!-- 공지사항 목록 조회 (페이지네이션 포함) -->
+<!--    &lt;!&ndash; 공지사항 목록 조회 (페이지네이션 포함) &ndash;&gt;
     <select id="selectNotices" resultType="map" >
         SELECT *
         FROM notices
         ORDER BY created_date DESC
             LIMIT #{size} OFFSET #{offset};
+    </select>-->
+
+    <!-- 공지사항 목록 조회 -->
+    <select id="selectNotices" resultType="map">
+        SELECT * FROM notices ORDER BY created_date DESC LIMIT #{size} OFFSET #{offset}
     </select>
 
-    <!-- 공지사항 전체 게시글 개수 반환 -->
+    <!-- 제목으로 검색 -->
+    <select id="selectNoticesByTitle" resultType="map">
+        SELECT * FROM notices
+        WHERE title LIKE CONCAT('%', #{keyword}, '%')
+            LIMIT #{size} OFFSET #{offset}
+    </select>
+
+    <!-- 내용으로 검색 -->
+    <select id="selectNoticesByContent" resultType="map">
+        SELECT * FROM notices
+        WHERE content LIKE CONCAT('%', #{keyword}, '%')
+            LIMIT #{size} OFFSET #{offset}
+    </select>
+
+    <!-- 전체 공지사항 수 조회 -->
     <select id="selectNoticeCount" resultType="int">
-        SELECT COUNT(*) FROM NOTICES;
+        SELECT COUNT(*) FROM notices
     </select>
 
-    <!-- 유저 아이디로 닉네임 가져오기 -->
-    <select id="selectUserIdToUserNm" resultType="String">
-        SELECT nick_name from users WHERE id = #{id};
+    <!-- 제목 또는 내용으로 검색 -->
+    <select id="selectNoticesByTitleOrContent" resultType="map">
+        SELECT * FROM notices
+        WHERE title LIKE CONCAT('%', #{keyword}, '%')
+           OR content LIKE CONCAT('%', #{keyword}, '%')
+            LIMIT #{size} OFFSET #{offset}
+    </select>
+
+    <!-- 검색 조건에 따른 공지사항 수 조회 -->
+    <select id="selectNoticeCountByKeyword" resultType="int">
+        SELECT COUNT(*)
+        FROM notices
+        <where>
+            <if test="type == 'title'">
+                title LIKE CONCAT('%', #{keyword}, '%')
+            </if>
+            <if test="type == 'content'">
+                content LIKE CONCAT('%', #{keyword}, '%')
+            </if>
+            <if test="type == null">
+                title LIKE CONCAT('%', #{keyword}, '%')
+                OR content LIKE CONCAT('%', #{keyword}, '%')
+            </if>
+        </where>
+    </select>
+
+
+    <!-- 사용자 ID로 닉네임 조회 -->
+    <select id="selectUserIdToUserNm" resultType="string">
+        SELECT nick_name
+        FROM users
+        WHERE id = #{userId}
     </select>
 
     <!-- 공지사항 게시글 상세보기 가져오기 -->

@@ -23,4 +23,6 @@ public interface UserMapper {
 
     int selectUserNickName(String nm);
 
+    int insertKakaoUser(User user);
+
 }

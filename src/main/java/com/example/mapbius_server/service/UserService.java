@@ -49,6 +49,15 @@ public class UserService {
         }
     }
 
+    public boolean registKakaoUser(User getUser) {
+        User setUser = new User();
+        setUser.setId(getUser.getId());
+        setUser.setPw("empty");
+        setUser.setNickName(getUser.getNickName());
+        setUser.setEmail(getUser.getEmail());
+        return insertUser(setUser);
+    }
+
 
     // isValidId에 종속됨.
     public boolean isIdAvailable(String userId) {
