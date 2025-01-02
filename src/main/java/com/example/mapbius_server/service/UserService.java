@@ -1,9 +1,15 @@
 package com.example.mapbius_server.service;
 
+import com.example.mapbius_server.common.ResponseData;
 import com.example.mapbius_server.domain.User;
 
 import com.example.mapbius_server.dto.JoinRequest;
 import com.example.mapbius_server.mapper.UserMapper;
+import com.example.mapbius_server.util.JwtTokenProvider;
+import com.example.mapbius_server.util.JwtUtil;
+import io.jsonwebtoken.Claims;
+import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.sql.Date;
@@ -19,14 +25,19 @@ import java.util.List;
 
 @Service
 public class UserService {
-    private final UserMapper userMapper;
 
-    public UserService(UserMapper userMapper) {
+    private final UserMapper userMapper;
+    private JwtTokenProvider jtp;
+
+    public UserService(UserMapper userMapper, JwtTokenProvider jtp) {
         this.userMapper = userMapper;
+        this.jtp = jtp;
     }
+
 
     public List<User> getAllUsers() {
         return userMapper.findAll();
+
     }
 
     public boolean insertUser(User getUser) {
@@ -49,13 +60,33 @@ public class UserService {
         }
     }
 
-    public boolean registKakaoUser(User getUser) {
-        User setUser = new User();
-        setUser.setId(getUser.getId());
-        setUser.setPw("empty");
-        setUser.setNickName(getUser.getNickName());
-        setUser.setEmail(getUser.getEmail());
-        return insertUser(setUser);
+
+
+    public boolean registKakaoUser(User getUser, String authorizationHeader) {
+        // JWT 토큰 추출
+        if (authorizationHeader != null && authorizationHeader.startsWith("Bearer ")) {
+            authorizationHeader = authorizationHeader.substring(7); // "Bearer " 제거
+        } else {
+            System.out.println("Authorization 헤더가 유효하지 않습니다.");
+            return false; // 헤더가 올바르지 않을 경우 처리
+        }
+        System.out.println("authorizationHeader: " +authorizationHeader);
+        Claims claims = jtp.validateToken(authorizationHeader);
+        System.out.println("claims: " +claims);
+        String kakaoId = claims.getSubject(); // 토큰의 주인 (카카오 아이디)
+        String kakaoEmail = claims.get("email", String.class);
+        User user = new User();
+        System.out.println("kakaoEmail: " + kakaoEmail);
+        user.setEmail(kakaoEmail);
+        user.setKakaoId(kakaoId);
+        user.setNickName(getUser.getNickName());
+        user.setBirthDate(getUser.getBirthDate());
+        user.setGender(getUser.getGender());
+        if(userMapper.insertKakaoUser(user) > 0){
+            return true; // 성공
+        } else {
+            return false; // 실패
+        }
     }
 
 

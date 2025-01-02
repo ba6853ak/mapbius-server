@@ -1,6 +1,8 @@
 package com.example.mapbius_server.controller;
 
 import com.example.mapbius_server.common.ResponseData;
+import com.example.mapbius_server.domain.User;
+import com.example.mapbius_server.mapper.UserMapper;
 import com.example.mapbius_server.service.KakaoAuthService;
 import com.example.mapbius_server.service.UserService;
 import lombok.RequiredArgsConstructor;
@@ -18,6 +20,7 @@ public class KakaoAuthController {
     private final KakaoAuthService kakaoAuthService;
 
     private final UserService userService;
+    private final UserMapper userMapper;
 
     // 카카오 계정 로그인 (카카오 토큰 생성)
     @PostMapping("/oauth/kakao/login")
@@ -57,13 +60,24 @@ public class KakaoAuthController {
     }
 
 
-/*    @PostMapping("/api/private/")
-    public ResponseEntity<?> kakaoAccountRegister(@RequestBody Map<String, String> request) {
+    @PostMapping("/api/private/kakao/join")
+    public ResponseEntity<?> kakaoAccountRegister(@RequestHeader("Authorization") String authorizationHeader, @RequestBody User user) {
         ResponseData responseData = new ResponseData();
-        responseData.setCode(200);
+        if(userService.registKakaoUser(user, authorizationHeader)){ // 회원가입 정보와 함께 헤더를 넘겨줌.
+            responseData.setCode(200);
+            responseData.setMessage("카카오 계정으로 회원가입 성공!");
+            return ResponseEntity
+                    .status(200) // 숫자로 상태 코드 지정
+                    .body(responseData);
+        } else {
+            responseData.setCode(404);
+            responseData.setMessage("카카오 계정으로 회원가입 실패!");
+            return ResponseEntity
+                    .status(404) // 숫자로 상태 코드 지정
+                    .body(responseData);
+        }
 
-
-    }*/
+    }
 
 
 

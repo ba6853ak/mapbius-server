@@ -21,7 +21,6 @@
         SELECT * FROM user;
     </select>
 
-
     <!-- 일반 회원가입 -->
     <insert id="insertUser" parameterType="com.example.mapbius_server.domain.User">
         INSERT INTO users (id, pw, email, nick_name, birth_date, gender) VALUES (#{id}, #{pw}, #{email}, #{nickName}, #{birthDate}, #{gender})
@@ -29,7 +28,7 @@
 
     <!-- 카카오 계정 회원가입 -->
     <insert id="insertKakaoUser" parameterType="com.example.mapbius_server.domain.User">
-        INSERT INTO users (id, pw, email, nick_name, birth_date, gender) VALUES (#{id}, #{pw}, #{email}, #{nickName}, #{birthDate}, #{gender})
+        INSERT INTO users (email, kakao_id, nick_name, birth_date, gender) VALUES (#{email}, #{kakaoId}, #{nickName}, #{birthDate}, #{gender})
     </insert>
 
     <!-- 아이디 존재 확인 -->

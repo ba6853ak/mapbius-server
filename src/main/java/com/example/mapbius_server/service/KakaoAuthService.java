@@ -97,19 +97,19 @@ public class KakaoAuthService {
 
         Map<String, Object> userInfo = userInfoResponse.getBody();
         Map<String, Object> properties = (Map<String, Object>) userInfo.get("properties");
-
+        Map<String, Object> kakaoAccount = (Map<String, Object>) userInfo.get("kakao_account"); // 이메일 정보 등
         System.out.println("userInfo: " + userInfo);
         String kakaoId = String.valueOf(userInfo.get("id")); // 카카오 ID 반환
-        String kakaoNickName = String.valueOf(properties.get("nickname")); // 카카오 닉네임 반환
-        System.out.println("kakaoNickName: " + kakaoNickName);
+        String kakaoEmail = String.valueOf(kakaoAccount.get("email")); // 이메일 반환
+        System.out.println("kakaoEmail: " + kakaoEmail);
 
         // 이미 존재하는 회원인지 체크
         if(userService.isIdAvailable(kakaoId)) {
-            return jwtUtil.generateTokenWithRole(kakaoId, "ROLE_USER", kakaoNickName);
+            return jwtUtil.generateTokenWithRole(kakaoId, "ROLE_USER" , kakaoEmail);
         } else {
             System.out.println("카카오로 가입한 계정입니다.");
             // 3. JWT 생성 후 반환
-            return jwtUtil.generateTokenWithRole(kakaoId, "ROLE_USER", kakaoNickName);
+            return jwtUtil.generateTokenWithRole(kakaoId, "ROLE_USER" , kakaoEmail);
         }
 
 
