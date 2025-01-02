@@ -20,7 +20,8 @@ public class BoardService {
     // 공지사항 등록
     public boolean noticeEnroll(Board board) {
 
-        if(board.getBoardTitle() != null && board.getBoardTitle().equals("") && board.getBoardContent() != null && board.getBoardContent().equals("")) {
+        if ((board.getBoardTitle() == null || board.getBoardTitle().isEmpty()) ||
+                (board.getBoardContent() == null || board.getBoardContent().isEmpty())) {
             return false;
         }
 
