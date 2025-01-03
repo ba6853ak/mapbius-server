@@ -36,10 +36,16 @@ public class KakaoAuthController {
         ResponseData responseData = new ResponseData();
         Claims claims = jwtUtil.validateToken(token);
         logger.info(claims.toString());
+
         String state = (String) claims.get("state");
         logger.info("추출된 state : " + state);
 
+
         if (state.equals("guest")) {
+            // guest에서 다른 토큰으로 재생성함.
+            String kakaoId = claims.getSubject();
+            String kakaoEmail = claims.get("email", String.class);
+            token = jwtUtil.generateTokenWithRole(kakaoId, "USER_ROLE", kakaoEmail, state); // 토큰을 재생성함.
             responseData.setCode(200);
             responseData.setMessage("카카오 계정으로 가입된 계정이 없습니다."); // 카카오 계정 등록 필요 응답
             responseData.setObjData(token);
@@ -47,11 +53,11 @@ public class KakaoAuthController {
                     .status(200) // 숫자로 상태 코드 지정
                     .body(responseData);
         } else {
-            responseData.setCode(404);
+            responseData.setCode(226);
             responseData.setMessage("카카오 계정이 등록되어 있습니다. 로그인을 시도합니다."); // 정상 로그인 처리
             responseData.setObjData(token);
             return ResponseEntity
-                    .status(404) // 숫자로 상태 코드 지정
+                    .status(226) // 숫자로 상태 코드 지정
                     .body(responseData);
         }
     }
