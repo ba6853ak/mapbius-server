@@ -22,10 +22,12 @@ import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.util.List;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 @Service
 public class UserService {
-
+    private static final Logger logger = LoggerFactory.getLogger(UserService.class);
     private final UserMapper userMapper;
     private JwtTokenProvider jtp;
 
@@ -61,7 +63,6 @@ public class UserService {
     }
 
 
-
     public boolean registKakaoUser(User getUser, String authorizationHeader) {
         // JWT 토큰 추출
         if (authorizationHeader != null && authorizationHeader.startsWith("Bearer ")) {
@@ -71,11 +72,18 @@ public class UserService {
             return false; // 헤더가 올바르지 않을 경우 처리
         }
         System.out.println("authorizationHeader: " +authorizationHeader);
+
+        // JWT 토큰 디코드 - kakaoId, kakaoEmail 추출
         Claims claims = jtp.validateToken(authorizationHeader);
-        System.out.println("claims: " +claims);
         String kakaoId = claims.getSubject(); // 토큰의 주인 (카카오 아이디)
         String kakaoEmail = claims.get("email", String.class);
+
         User user = new User();
+        // 유효성 검사
+        isValidEmail(kakaoEmail);
+        isValidBirthday(getUser.getBirthDate());
+        isValidGender(getUser.getGender());
+
         System.out.println("kakaoEmail: " + kakaoEmail);
         user.setEmail(kakaoEmail);
         user.setKakaoId(kakaoId);
@@ -103,6 +111,24 @@ public class UserService {
             return true; // 아이디가 존재하지 않아 이용할 수 있음.
         }
     }
+
+    // isValidId에 종속됨.
+    public boolean isKakaoIdAvailable(String kakaoId) {
+        boolean result = userMapper.selectKakaoId(kakaoId) > 0; // 아이디 존재 여부.
+        logger.info("카카오 계정으로 회원가입 되었는지 검사중");
+        System.out.println(result);
+        System.out.println(kakaoId);
+        System.out.println(userMapper.selectKakaoId(kakaoId));
+        if (result) {
+            logger.info("카카오 아이디 존재가 확인됨.");
+            return false; // 아이디가 이미 존재하여 이용할 수 없음.
+        } else {
+            logger.info("카카오 아이디가 존재하지 않음.");
+            return true; // 아이디가 존재하지 않아 이용할 수 있음.
+        }
+    }
+
+
 
 
     public boolean isEmailAvailable(String setEmail) {
@@ -185,7 +211,7 @@ public class UserService {
     }
 
     public boolean isValidEmail(String setEmail) {
-
+        logger.info("이메일 유효성 검사 시작");
         // 이메일 정규식 정의
         final String emailRegex =
                 "(?i)^(([^<>()\\[\\]\\\\.,;:\\s@\"]+(\\.[^<>()\\[\\]\\\\.,;:\\s@\"]+)*)|(\".+\"))@(([^<>()\\[\\]\\\\.,;:\\s@\"]+\\.)+[^<>()\\[\\]\\\\.,;:\\s@\"]{2,})$";
@@ -209,11 +235,12 @@ public class UserService {
             System.out.println("이메일 중복 발견");
             return false;
         }
+        logger.info("이메일 유효성 검사 통과");
         return true;
     }
 
     public boolean isValidNickName(String setNickName) {
-
+        logger.info("닉네임 유효성 검사 시작");
         System.out.println("입력된 닉네임: " + setNickName);
         if (setNickName == null || setNickName.equals("")) {
             System.out.println("비어 있는 문자열 처리");
@@ -232,6 +259,7 @@ public class UserService {
             System.out.println("닉네임 중복 발견");
             return false;
         }*/
+        logger.info("닉네임 유효성 검사 통과");
         return true;
     }
 

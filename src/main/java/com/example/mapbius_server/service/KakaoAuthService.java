@@ -1,8 +1,11 @@
 package com.example.mapbius_server.service;
 
+import com.example.mapbius_server.common.ResponseData;
 import com.example.mapbius_server.mapper.UserMapper;
 import com.example.mapbius_server.util.JwtUtil;
 import lombok.RequiredArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.*;
 import org.springframework.stereotype.Service;
@@ -17,11 +20,12 @@ import java.util.Map;
 
 @RequiredArgsConstructor // AutoWired를 안 쓰고 스프링이 자동으로 의존성을 주입해줌.
 public class KakaoAuthService {
-
+    private static final Logger logger = LoggerFactory.getLogger(UserService.class);
     private final RestTemplate restTemplate;
     private final JwtUtil jwtUtil;
     private final UserMapper userMapper;
     private final UserService userService;
+    private final LoginService loginService;
 
 
     // 카카오 인증 코드를 받고 동작
@@ -29,6 +33,9 @@ public class KakaoAuthService {
         // 1. 카카오에서 AccessToken 발급
         String tokenUri = "https://kauth.kakao.com/oauth/token"; // 카카오의 토큰 발급 앤드포인트
 
+
+        String state;
+        ResponseData responseData = new ResponseData();
 
         // HTTP 요청의 헤더 정보를 저장하는 객체 -> HttpHeaders
         // 데이터를 url-인코딩 양식으로 보낸다
@@ -43,7 +50,7 @@ public class KakaoAuthService {
         MultiValueMap<String, String> body = new LinkedMultiValueMap<>();
         body.add("grant_type", "authorization_code"); // OAuth 2.0의 기본적인 인증 유형
         body.add("client_id", "0624842a8b478e278f6669ab5bc1a6c5"); // Kakao REST API 키
-        body.add("redirect_uri", "http://localhost:3000/"); // 카카오가 인증 후 반환할 URL
+        body.add("redirect_uri", "http://localhost:3000/kakao-register"); // 카카오가 인증 후 반환할 URL
         body.add("code", authorizationCode); // 웹으로부터 받은 코드
 
         //  HttpEntity는 Java에서 HTTP 요청의 헤더와 바디를 한 번에 묶어 관리하는 객체
@@ -103,13 +110,17 @@ public class KakaoAuthService {
         String kakaoEmail = String.valueOf(kakaoAccount.get("email")); // 이메일 반환
         System.out.println("kakaoEmail: " + kakaoEmail);
 
+
         // 이미 존재하는 회원인지 체크
-        if(userService.isIdAvailable(kakaoId)) {
-            return jwtUtil.generateTokenWithRole(kakaoId, "ROLE_USER" , kakaoEmail);
+        if(userService.isKakaoIdAvailable(kakaoId)) {
+            logger.info("카카오 계정으로 가입되어 있지 않음.");
+            state = "guest"; // 계정상태
+            return jwtUtil.generateTokenWithRole(kakaoId, "USER_ROLE", kakaoEmail, state);
         } else {
-            System.out.println("카카오로 가입한 계정입니다.");
+            logger.info("카카오 계정으로 가입되어 있음.");
             // 3. JWT 생성 후 반환
-            return jwtUtil.generateTokenWithRole(kakaoId, "ROLE_USER" , kakaoEmail);
+            state = "activate"; // 계정상태
+            return jwtUtil.generateTokenWithRole(kakaoId, "USER_ROLE" , kakaoEmail, state);
         }
 
 
@@ -117,3 +128,4 @@ public class KakaoAuthService {
 
     }
 }
+

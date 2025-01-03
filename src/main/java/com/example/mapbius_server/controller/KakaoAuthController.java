@@ -5,8 +5,12 @@ import com.example.mapbius_server.domain.User;
 import com.example.mapbius_server.mapper.UserMapper;
 import com.example.mapbius_server.service.KakaoAuthService;
 import com.example.mapbius_server.service.UserService;
+import com.example.mapbius_server.util.JwtUtil;
+import io.jsonwebtoken.Claims;
 import lombok.RequiredArgsConstructor;
 import org.apache.coyote.Response;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -16,11 +20,12 @@ import java.util.Map;
 @RequiredArgsConstructor // final 필드에 대해 자동으로 생성자를 만드는 lombok 어노테이션
 
 public class KakaoAuthController {
-
+    private static final Logger logger = LoggerFactory.getLogger(UserService.class);
     private final KakaoAuthService kakaoAuthService;
 
     private final UserService userService;
     private final UserMapper userMapper;
+    private final JwtUtil jwtUtil;
 
     // 카카오 계정 로그인 (카카오 토큰 생성)
     @PostMapping("/oauth/kakao/login")
@@ -29,23 +34,28 @@ public class KakaoAuthController {
         String token = kakaoAuthService.processKakaoLogin(code);
 
         ResponseData responseData = new ResponseData();
+        Claims claims = jwtUtil.validateToken(token);
+        logger.info(claims.toString());
+        String state = (String) claims.get("state");
+        logger.info("추출된 state : " + state);
 
-        if ("registNeedKakaoAccount".equals(token)) {
-            responseData.setCode(404);
-            responseData.setMessage("카카오 계정으로 가입된 계정이 없습니다."); // 카카오 계정 등록 필요 응답
-            responseData.setObjData(token);
-            return ResponseEntity
-                    .status(404) // 숫자로 상태 코드 지정
-                    .body(responseData);
-        } else {
+        if (state.equals("guest")) {
             responseData.setCode(200);
-            responseData.setMessage("카카오 계정이 등록되어 있습니다. 로그인을 시도합니다."); // 정상 로그인 처리
+            responseData.setMessage("카카오 계정으로 가입된 계정이 없습니다."); // 카카오 계정 등록 필요 응답
             responseData.setObjData(token);
             return ResponseEntity
                     .status(200) // 숫자로 상태 코드 지정
                     .body(responseData);
+        } else {
+            responseData.setCode(404);
+            responseData.setMessage("카카오 계정이 등록되어 있습니다. 로그인을 시도합니다."); // 정상 로그인 처리
+            responseData.setObjData(token);
+            return ResponseEntity
+                    .status(404) // 숫자로 상태 코드 지정
+                    .body(responseData);
         }
     }
+
 
     // 토큰 체크, 실패 시 403
     @PostMapping("/api/private/token-check")
@@ -59,7 +69,7 @@ public class KakaoAuthController {
                 .body(responseData);
     }
 
-
+    // 카카오 계정으로 추가정보 입력하여 회원가입
     @PostMapping("/api/private/kakao/join")
     public ResponseEntity<?> kakaoAccountRegister(@RequestHeader("Authorization") String authorizationHeader, @RequestBody User user) {
         ResponseData responseData = new ResponseData();

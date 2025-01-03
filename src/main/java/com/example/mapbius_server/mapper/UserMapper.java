@@ -25,4 +25,9 @@ public interface UserMapper {
 
     int insertKakaoUser(User user);
 
+    int selectKakaoId(String id);
+
+
+
+
 }

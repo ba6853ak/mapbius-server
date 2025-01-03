@@ -31,6 +31,12 @@
         INSERT INTO users (email, kakao_id, nick_name, birth_date, gender) VALUES (#{email}, #{kakaoId}, #{nickName}, #{birthDate}, #{gender})
     </insert>
 
+    <!-- 카카오 아이디 존재 확인 -->
+    <select id="selectKakaoId" resultType="int">
+        SELECT count(1) FROM users WHERE kakao_id = #{kakaoId};
+    </select>
+
+
     <!-- 아이디 존재 확인 -->
     <select id="selectUserId" resultType="int">
         SELECT count(1) FROM users WHERE id = #{id};
