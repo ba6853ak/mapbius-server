@@ -32,7 +32,8 @@ public class JwtUtil {
                 .compact(); // 암호화된 토큰을 문자열로 반환.
     }
 
-    public String generateTokenWithRole(String id, String role, String email, String state) {
+    // 로그인 시 사용
+    public String generateJWTToken(String id, String role, String email, String state) {
         Claims claims = Jwts.claims().setSubject(id);
         claims.put("role", role); // 역할 정보 추가
         claims.put("email", email); // 이메일 추가

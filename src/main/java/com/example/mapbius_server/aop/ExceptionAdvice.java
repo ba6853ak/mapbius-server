@@ -9,11 +9,8 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 public class ExceptionAdvice {
 
     @ExceptionHandler(Exception.class)
-    public ResponseEntity<ResponseData> exception(Exception e) {
-        ResponseData responseData = new ResponseData();
-        responseData.setCode(500);
-        responseData.setMessage("error");
+    public ResponseEntity exception(Exception e) {
         e.printStackTrace();
-        return ResponseEntity.status(500).body(responseData);
+        return ResponseEntity.status(500).body("Server Error");
     }
 }

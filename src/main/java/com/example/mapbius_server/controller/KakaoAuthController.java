@@ -28,10 +28,18 @@ public class KakaoAuthController {
     private final JwtUtil jwtUtil;
 
     // 카카오 계정 로그인 (카카오 토큰 생성)
+
+    /**
+     *  클라이언트에서 카카오 계정 로그인 후 코드를 서버로 받음.
+     *  받은 코드를 카카오 토큰 서버와 인증하여 카카오 토큰을 받음.
+     *  카카오 토큰에서 추출한 정보로 JWT에 담아 다시 클라이언트로 전송.
+     */
+
     @PostMapping("/oauth/kakao/login")
     public ResponseEntity<?> kakaoLogin(@RequestBody Map<String, String> request) {
+
         String code = request.get("code");
-        String token = kakaoAuthService.processKakaoLogin(code);
+        Object token = kakaoAuthService.processKakaoLogin(code);
 
         ResponseData responseData = new ResponseData();
         Claims claims = jwtUtil.validateToken(token);
@@ -45,7 +53,11 @@ public class KakaoAuthController {
             // guest에서 다른 토큰으로 재생성함.
             String kakaoId = claims.getSubject();
             String kakaoEmail = claims.get("email", String.class);
-            token = jwtUtil.generateTokenWithRole(kakaoId, "USER_ROLE", kakaoEmail, state); // 토큰을 재생성함.
+            token = jwtUtil.generateJWTToken(kakaoId, "ROLE_USER", kakaoEmail, state); // 토큰을 재생성함.
+
+            Object data = new Object();
+
+
             responseData.setCode(200);
             responseData.setMessage("카카오 계정으로 가입된 계정이 없습니다."); // 카카오 계정 등록 필요 응답
             responseData.setObjData(token);
