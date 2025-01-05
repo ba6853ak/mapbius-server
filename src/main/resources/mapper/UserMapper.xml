@@ -28,7 +28,7 @@
 
     <!-- 카카오 계정 회원가입 -->
     <insert id="insertKakaoUser" parameterType="com.example.mapbius_server.domain.User">
-        INSERT INTO users (email, kakao_id, nick_name, birth_date, gender) VALUES (#{email}, #{kakaoId}, #{nickName}, #{birthDate}, #{gender})
+        INSERT INTO users (id, email, kakao_id, nick_name, birth_date, gender) VALUES (#{id}, #{email}, #{kakaoId}, #{nickName}, #{birthDate}, #{gender})
     </insert>
 
     <!-- 카카오 아이디 존재 확인 -->

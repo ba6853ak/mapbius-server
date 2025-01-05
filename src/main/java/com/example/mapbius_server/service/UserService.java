@@ -85,6 +85,7 @@ public class UserService {
         isValidGender(getUser.getGender());
 
         System.out.println("kakaoEmail: " + kakaoEmail);
+        user.setId(kakaoId);
         user.setEmail(kakaoEmail);
         user.setKakaoId(kakaoId);
         user.setNickName(getUser.getNickName());

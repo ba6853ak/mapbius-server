@@ -32,15 +32,13 @@ public class JwtUtil {
                 .compact(); // 암호화된 토큰을 문자열로 반환.
     }
 
-    // 로그인 시 사용
-    public String generateJWTToken(String id, String role, String email, String state) {
-        Claims claims = Jwts.claims().setSubject(id);
-        claims.put("role", role); // 역할 정보 추가
-        claims.put("email", email); // 이메일 추가
-        claims.put("state", state); // 이메일 추가
-/*        if (nickName != null && !nickName.isEmpty()) {
-            claims.put("nickName", nickName);
-        }*/
+
+    // 일반/카카오 로그인 시, JWT 토큰 생성 및 반환
+    public String generateJWTToken(String id, String userRole, String userEmail, String userState) {
+        Claims claims = Jwts.claims().setSubject(id); // Claims 객체는 JWT에서 사용자 정보를 저장하는 공간이다.
+        claims.put("role", userRole); // 유저 계정 권한 추가
+        claims.put("email", userEmail); // 유저 이메일 추가
+        claims.put("state", userState); // 유저 계정 상태 추가
 
         return Jwts.builder()
                 .setSubject(id) // 사용자의 ID를 토큰의 주인으로 설정

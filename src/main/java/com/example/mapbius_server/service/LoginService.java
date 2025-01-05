@@ -18,11 +18,9 @@ public class LoginService {
 
         User user = loginMapper.authenticate(id, pw);
         if(user!=null && user.getId().equals(id) && user.getPw().equals(pw)){
-            System.out.println("true");
             return true;
         }
         else if(user==null) {
-            System.out.println("false");
             return false;
         }
         else{

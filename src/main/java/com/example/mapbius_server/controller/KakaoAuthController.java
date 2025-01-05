@@ -38,10 +38,11 @@ public class KakaoAuthController {
     @PostMapping("/oauth/kakao/login")
     public ResponseEntity<?> kakaoLogin(@RequestBody Map<String, String> request) {
 
-        String code = request.get("code");
-        Object token = kakaoAuthService.processKakaoLogin(code);
-
         ResponseData responseData = new ResponseData();
+        String code = request.get("code");
+        String token = kakaoAuthService.processKakaoLogin(code);
+
+
         Claims claims = jwtUtil.validateToken(token);
         logger.info(claims.toString());
 

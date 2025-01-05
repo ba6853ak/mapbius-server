@@ -24,12 +24,14 @@ public class KakaoAuthService {
     private final JwtUtil jwtUtil;
     private final RestTemplate restTemplate;
     private final UserService userService;
+    private final LoginService loginService;
 
     // 카카오 인증 코드를 받고 신규/기존 회원 모두 동작.
-    public Object processKakaoLogin(String code) {
+    public String processKakaoLogin(String code) {
 
         String kakaoTokenURL = "https://kauth.kakao.com/oauth/token"; // 카카오에서 AccessToken 발급 받을 앤드포인트
         String userState = "guest";
+        String userRole = "ROLE_USER";
 
         HttpHeaders headers = new HttpHeaders(); // HTTP 요청의 헤더 정보를 저장하는 객체
         headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED); // 데이터를 URL-인코딩 방식으로 보낸다.
@@ -73,34 +75,35 @@ public class KakaoAuthService {
                 Map.class // 반환 형식
         );
 
-
         Map<String, Object> userInfo = userInfoResponse.getBody();
         logger.info("Kakao 정보 요청 성공: " + userInfo);
         // Map<String, Object> properties = (Map<String, Object>) userInfo.get("properties");
         Map<String, Object> kakaoAccount = (Map<String, Object>) userInfo.get("kakao_account");
 
         String kakaoId = String.valueOf(userInfo.get("id")); // kakaoId 반환
-        logger.info("인증된 kakaoId: " + kakaoId);
         String kakaoEmail = String.valueOf(kakaoAccount.get("email")); // 이메일 반환
-        logger.info("인증된 kakaoEmail: " + kakaoEmail);
+        logger.info("인증된 kakaoId: " + kakaoId+" / "+"인증된 kakaoEmail: " + kakaoEmail);
 
-        // 관리자 권한을 가진 유저인지 체크
-        userService.
-
-        // 이미 존재하는 회원인지 체크
+        // 계정 존재 및 상태 체크
         if(userService.isKakaoIdAvailable(kakaoId)) { // 카카오 아이디로 가입한 계정이 존재하지 않음.
-            logger.info("카카오 계정으로 가입되어 있지 않음.");
-            userState = "guest"; // 미가입 상태
-            return jwtUtil.generateJWTToken(kakaoId, "USER_ROLE", kakaoEmail, userState);
-        } else { // 카카오 아이디로 가입한 계정이 존재함.
-            logger.info("카카오 계정으로 가입되어 있음.");
-            userState = "activate"; // 가입 상태
-            return jwtUtil.generateJWTToken(kakaoId, "USER_ROLE" , kakaoEmail, userState);
+            logger.info("카카오 계정으로 등록되어 있지 않습니다.");
+            return jwtUtil.generateJWTToken(kakaoId, userRole, kakaoEmail, userState);
         }
+        else { // 카카오 아이디로 가입한 계정이 존재함.
+            logger.info("카카오 계정으로 등록되어 있습니다.");
 
+            // 계정 관리자 권한 체크
+            if(loginService.adminCheck(kakaoId)){
+                logger.info("["+kakaoId+"]"+"님은 관리자 계정입니다.");
+                userRole = "ROLE_ADMIN";
+            } else {
+                logger.info("["+kakaoId+"]"+"님은 일반 사용자입니다.");
+                userRole = "ROLE_USER";
+            }
 
-
-
+            userState = "activate"; // 가입 상태
+            return jwtUtil.generateJWTToken(kakaoId, userRole , kakaoEmail, userState);
+        }
     }
 }
 
