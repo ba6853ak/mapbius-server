@@ -29,6 +29,12 @@
         SELECT email FROM users WHERE email = #{email};
     </select>
 
+    <!-- 이메일 존재 확인 -->
+    <select id="selectExistEmail" parameterType="com.example.mapbius_server.domain.User" resultType="int">
+        SELECT count(1) FROM users WHERE email = #{email} AND id = #{id};
+    </select>
+
+
 
 
 </mapper>

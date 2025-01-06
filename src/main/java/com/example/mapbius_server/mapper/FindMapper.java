@@ -12,4 +12,6 @@ public interface FindMapper {
 
     String selectUserId(String email);
 
+    int selectExistEmail(User user);
+
 }

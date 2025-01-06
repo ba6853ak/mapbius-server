@@ -1,10 +1,15 @@
 package com.example.mapbius_server.controller;
 
 import com.example.mapbius_server.common.ResponseData;
+import com.example.mapbius_server.domain.Email;
 import com.example.mapbius_server.domain.User;
+import com.example.mapbius_server.service.EmailService;
 import com.example.mapbius_server.service.FindService;
 import com.example.mapbius_server.service.UserService;
 import com.example.mapbius_server.util.JwtUtil;
+import jakarta.mail.MessagingException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -13,25 +18,21 @@ import java.util.List;
 
 @RestController
 public class UserController {
-
+    private static final Logger logger = LoggerFactory.getLogger(UserService.class);
     private final UserService userService;
 
     private final FindService findService;
 
+    private final EmailService emailService;
 
     ResponseData responseData;
 
     @Autowired
-    public UserController(UserService userService, FindService findService) {
+    public UserController(UserService userService, FindService findService, EmailService emailService) {
         this.userService = userService;
         this.findService = findService;
-
+        this.emailService = emailService;
     }
-
-
-
-
-
 
     @GetMapping("/users")
     public List<User> getUsers() {
@@ -105,6 +106,52 @@ public class UserController {
             return ResponseEntity.status(409).body(responseData);
         }
     }
+
+    // 비밀번호 찾기 시 계정 존재 여부
+    @GetMapping("/api/public/account-exist")
+    public ResponseEntity<?> ForgetPwd(@RequestBody User user) throws MessagingException {
+        ResponseData responseData = new ResponseData();
+        if(findService.existEmail(user)) {
+            responseData.setCode(200);
+            responseData.setMessage("해당 정보로 가입한 계정이 존재합니다.");
+            logger.info("[비밀번호 찾기] " + user.getEmail() + " 로 가입한 정보가 존재함.");
+            return ResponseEntity.status(200).body(responseData);
+        } else {
+            responseData.setCode(404);
+            responseData.setMessage("해당 정보로 가입한 계정이 없습니다.");
+            logger.info("[비밀번호 찾기] " + user.getEmail() + " 로 가입한 정보가 존재하지 않음.");
+            return ResponseEntity.status(404).body(responseData);
+        }
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
     // 비밀번호 찾기
 /*    @PostMapping("/api/public/forget-pw")

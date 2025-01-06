@@ -71,6 +71,7 @@ public class KakaoAuthService {
         ResponseEntity<Map> userInfoResponse = restTemplate.exchange( // RestTemplate의 역할은 택배기사에 비유할 수 있다.
                 "https://kapi.kakao.com/v2/user/me", // 토큰을 통해 사용자 정보를 요청할 카카오 서버
                 HttpMethod.GET, // HTTP 메서드
+
                 userInfoRequest, // 요청 데이터
                 Map.class // 반환 형식
         );
