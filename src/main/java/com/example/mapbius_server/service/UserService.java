@@ -24,7 +24,7 @@ import java.time.format.DateTimeParseException;
 import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
+import java.security.SecureRandom;
 @Service
 public class UserService {
     private static final Logger logger = LoggerFactory.getLogger(UserService.class);
@@ -357,8 +357,51 @@ public class UserService {
         return true; // 모든 검증을 통과하면 true 반환
     }
 
+    // 카카오 제외 임시 비밀번호 생성 메서드
+    private static final String UPPERCASE = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+    private static final String LOWERCASE = "abcdefghijklmnopqrstuvwxyz";
+    private static final String DIGITS = "0123456789";
+    private static final String SPECIAL_CHARACTERS = "!@#$%^&*";
+    private static final String ALL_CHARACTERS = UPPERCASE + LOWERCASE + DIGITS + SPECIAL_CHARACTERS;
+    private static final SecureRandom RANDOM = new SecureRandom();
 
 
+    public String generateTemporaryPassword() {
+        int length = 8; // 임시 비밀번호 길이
+
+        StringBuilder password = new StringBuilder(length);
+
+        // 각 카테고리에서 최소 하나의 문자 추가
+        password.append(UPPERCASE.charAt(RANDOM.nextInt(UPPERCASE.length())));
+        password.append(LOWERCASE.charAt(RANDOM.nextInt(LOWERCASE.length())));
+        password.append(DIGITS.charAt(RANDOM.nextInt(DIGITS.length())));
+        password.append(SPECIAL_CHARACTERS.charAt(RANDOM.nextInt(SPECIAL_CHARACTERS.length())));
+
+        // 나머지 자리는 모든 문자 중에서 랜덤하게 선택
+        for (int i = 4; i < length; i++) {
+            password.append(ALL_CHARACTERS.charAt(RANDOM.nextInt(ALL_CHARACTERS.length())));
+        }
+
+        // 비밀번호 섞기
+        char[] passwordArray = password.toString().toCharArray();
+        for (int i = passwordArray.length - 1; i > 0; i--) {
+            int j = RANDOM.nextInt(i + 1);
+            char temp = passwordArray[i];
+            passwordArray[i] = passwordArray[j];
+            passwordArray[j] = temp;
+        }
+
+        return new String(passwordArray);
+    }
+
+    public boolean mailToPwdUpdate(String to, String pwd) {
+
+        if(userMapper.updatePasswordByEmail(to, pwd) > 0){
+            return true;
+        } else {
+            return false;
+        }
+    }
 
 
 

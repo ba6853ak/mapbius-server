@@ -52,6 +52,13 @@
         SELECT count(1) FROM users WHERE nick_name = #{nm};
     </select>
 
+    <!-- 이메일로 비밀번호 업데이트 -->
+    <update id="updatePasswordByEmail">
+        UPDATE users
+        SET pw = #{pw}
+        WHERE email = #{email}
+    </update>
+
 
 
 </mapper>

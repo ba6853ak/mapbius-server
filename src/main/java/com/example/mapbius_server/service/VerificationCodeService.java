@@ -1,5 +1,6 @@
 package com.example.mapbius_server.service;
 
+import com.example.mapbius_server.domain.Email;
 import org.springframework.stereotype.Service;
 
 import java.util.Map;
@@ -32,15 +33,20 @@ public class VerificationCodeService {
     }
 
     // 인증 코드 검증
-    public boolean validateCode(String email, String code) {
+    public boolean validateCode(Email email) {
         // 유효 시간 체크
-        Long expirationTime = expirationStore.get(email);
+        Long expirationTime = expirationStore.get(email.getTo());
         if (expirationTime == null || expirationTime < System.currentTimeMillis()) {
             return false; // 코드 만료
         }
 
-        // 코드 확인
-        return code.equals(codeStore.get(email));
+        boolean valid = codeStore.get(email.getTo()).equals(email.getCode());
+        if(valid){
+            invalidateCode(email.getTo()); // 인증 성공 시 인증코드 삭제
+            return valid;
+        } else {
+            return valid;
+        }
     }
 
     // 인증 코드 삭제

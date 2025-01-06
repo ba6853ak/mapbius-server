@@ -27,6 +27,8 @@ public interface UserMapper {
 
     int selectKakaoId(String id);
 
+    // 이메일로 비밀번호 변경
+    int updatePasswordByEmail(String email, String pw);
 
 
 

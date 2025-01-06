@@ -108,13 +108,16 @@ public class UserController {
     }
 
     // 비밀번호 찾기 시 계정 존재 여부
-    @GetMapping("/api/public/account-exist")
+    @PostMapping("/api/public/account-exist/pw-update")
     public ResponseEntity<?> ForgetPwd(@RequestBody User user) throws MessagingException {
         ResponseData responseData = new ResponseData();
         if(findService.existEmail(user)) {
             responseData.setCode(200);
-            responseData.setMessage("해당 정보로 가입한 계정이 존재합니다.");
+            responseData.setMessage("해당 정보로 가입한 계정이 존재하며 임시 비밀번호를 발급합니다.");
             logger.info("[비밀번호 찾기] " + user.getEmail() + " 로 가입한 정보가 존재함.");
+
+            findService.sendPwEmail(user.getEmail(), userService.generateTemporaryPassword());
+
             return ResponseEntity.status(200).body(responseData);
         } else {
             responseData.setCode(404);
@@ -125,32 +128,7 @@ public class UserController {
     }
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+    }
 
 
     // 비밀번호 찾기
@@ -173,4 +151,4 @@ public class UserController {
 
 
 
-}
+
