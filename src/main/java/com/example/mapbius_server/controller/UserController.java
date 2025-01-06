@@ -107,7 +107,7 @@ public class UserController {
         }
     }
 
-    // 비밀번호 찾기 시 계정 존재 여부
+    // 비밀번호 찾기 시 계정 존재 및 이메일로 비밀번호 재설정
     @PostMapping("/api/public/account-exist/pw-update")
     public ResponseEntity<?> ForgetPwd(@RequestBody User user) throws MessagingException {
         ResponseData responseData = new ResponseData();

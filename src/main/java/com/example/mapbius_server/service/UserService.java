@@ -7,9 +7,11 @@ import com.example.mapbius_server.dto.JoinRequest;
 import com.example.mapbius_server.mapper.UserMapper;
 import com.example.mapbius_server.util.JwtTokenProvider;
 import com.example.mapbius_server.util.JwtUtil;
+import com.example.mapbius_server.util.PasswordUtil;
 import io.jsonwebtoken.Claims;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.sql.Date;
@@ -30,10 +32,12 @@ public class UserService {
     private static final Logger logger = LoggerFactory.getLogger(UserService.class);
     private final UserMapper userMapper;
     private JwtTokenProvider jtp;
+    private final PasswordUtil passwordUtil;
 
-    public UserService(UserMapper userMapper, JwtTokenProvider jtp) {
+    public UserService(UserMapper userMapper, JwtTokenProvider jtp, PasswordUtil passwordUtil) {
         this.userMapper = userMapper;
         this.jtp = jtp;
+        this.passwordUtil = passwordUtil;
     }
 
 
@@ -46,7 +50,9 @@ public class UserService {
 
         User setUser = new User();
         setUser.setId(getUser.getId());
-        setUser.setPw(getUser.getPw());
+        String normalPw = getUser.getPw(); // 암호화 전 PW
+        String encodePw = passwordUtil.encodePassword(normalPw); // 암호화 후 PW
+        setUser.setPw(encodePw);
         setUser.setNickName(getUser.getNickName());
         setUser.setEmail(getUser.getEmail());
         setUser.setBirthDate(getUser.getBirthDate());

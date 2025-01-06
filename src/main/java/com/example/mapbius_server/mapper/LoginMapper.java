@@ -8,7 +8,7 @@ import org.apache.ibatis.annotations.Param;
 public interface LoginMapper {
 
     // 사용자 로그인
-    User authenticate(@Param("id") String id, @Param("pw") String pw);
+    User authenticate(@Param("id") String id);
 
     /**
      * 로그인 후 사용자 정보 가져오기

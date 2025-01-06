@@ -19,7 +19,7 @@
 
     <!-- 로그인 인증 (아이디와 비밀번호 확인) -->
     <select id="authenticate" parameterType="map" resultType="com.example.mapbius_server.domain.User">
-        SELECT id, pw FROM users WHERE id = #{id} AND pw = #{pw}
+        SELECT id, pw FROM users WHERE id = #{id}
     </select>
 
     <!-- 로그인 후 사용자 정보 가져오기 -->

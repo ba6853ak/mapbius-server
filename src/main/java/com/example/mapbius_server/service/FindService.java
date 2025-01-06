@@ -4,12 +4,14 @@ import com.example.mapbius_server.domain.Email;
 import com.example.mapbius_server.domain.User;
 import com.example.mapbius_server.mapper.FindMapper;
 import com.example.mapbius_server.mapper.UserMapper;
+import com.example.mapbius_server.util.PasswordUtil;
 import jakarta.mail.MessagingException;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.support.AbstractPlatformTransactionManager;
 
 @Service
 public class FindService {
@@ -18,13 +20,17 @@ public class FindService {
     private final EmailService emailService;
     private static final Logger logger = LoggerFactory.getLogger(UserService.class);
     private final UserService userService;
+    private final PasswordUtil passwordUtil;
+    private final AbstractPlatformTransactionManager abstractPlatformTransactionManager;
 
     @Autowired
-    public FindService(VerificationCodeService verificationCodeService, VerificationCodeService verificationCodeService1, FindMapper findMapper, EmailService emailService, UserService userService) {
+    public FindService(VerificationCodeService verificationCodeService, VerificationCodeService verificationCodeService1, FindMapper findMapper, EmailService emailService, UserService userService, PasswordUtil passwordUtil, AbstractPlatformTransactionManager abstractPlatformTransactionManager) {
         this.verificationCodeService = verificationCodeService1;
         this.findMapper = findMapper;
         this.emailService = emailService;
         this.userService = userService;
+        this.passwordUtil = passwordUtil;
+        this.abstractPlatformTransactionManager = abstractPlatformTransactionManager;
     }
 
     public String findEmail(String email) {
@@ -48,10 +54,12 @@ public class FindService {
         }
     }
 
-    public boolean sendPwEmail(String to, String ramdomPwd) throws MessagingException {
+    public boolean sendPwEmail(String to, String rdPwd) throws MessagingException {
 
             Email email = new Email();
             // HTML 콘텐츠 생성
+
+            String ecdRdPwd = passwordUtil.encodePassword(rdPwd);
 
             String htmlContent = "<!DOCTYPE html>" +
                     "<html>" +
@@ -64,7 +72,7 @@ public class FindService {
                     "            요청하신 내용에 따라 임시 비밀번호를 발급해드립니다.<br>" +
                     "        </div>" +
                     "        <div style=\"font-size: 20px; font-weight: bold; color: #ff6600; text-align: center; margin: 20px 0;\">" +
-                    "            임시 비밀번호: " + ramdomPwd + "</div>" +
+                    "            임시 비밀번호: " + rdPwd + "</div>" +
                     "        <div style=\"font-size: 16px; color: #555555; line-height: 1.5; margin-bottom: 20px;\">" +
                     "            임시 비밀번호를 사용하여 로그인하신 후, 반드시 새로운 비밀번호로 변경해주세요.<br>" +
                     "        </div>" +
@@ -76,7 +84,7 @@ public class FindService {
             email.setText(htmlContent);
             email.setTo(to);
             email.setSubject("Mapbius 임시 비밀번호를 발급해드립니다.");
-            userService.mailToPwdUpdate(to, ramdomPwd); // 비밀번호 변경
+            userService.mailToPwdUpdate(to, ecdRdPwd); // 비밀번호 변경
             emailService.sendHtmlMail(email);
             return true;
 
