@@ -63,7 +63,7 @@ public class LoginController {
 
             userData = loginService.getUserInfo(id);
             System.out.println(userData);
-            responseData.setObjData(userData);
+            responseData.setObjData(userData.getId());
             return ResponseEntity.ok(responseData);
         } else {
             System.out.println("아이디 또는 비밀번호가 잘못 되었습니다.");
