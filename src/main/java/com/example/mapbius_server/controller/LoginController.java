@@ -70,7 +70,7 @@ public class LoginController {
             responseData.setCode(401);
             responseData.setMessage("로그인 실패!");
             responseData.setTimestamp(new Timestamp(System.currentTimeMillis()));
-            return ResponseEntity.status(401).body("");
+            return ResponseEntity.status(401).body(responseData);
         }
     }
 

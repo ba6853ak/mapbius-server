@@ -33,6 +33,47 @@ public class AccountController {
     @Autowired
     private UserService userService;
 
+    // 회원 정보 수정
+    @PostMapping("/api/private/account/update")
+    public ResponseEntity<?> accountUpdate(@RequestHeader("Authorization") String header, @RequestBody User user) {
+        ResponseData responseData = new ResponseData();
+        String token = header.substring(7).trim(); // Bearer 접두사 및 공백 제거
+        Claims claims = jwtTokenProvider.validateToken(token); // 검증 및 토큰 데이터 집합 추출
+        String userId = (String) claims.get("sub"); // 토큰에서 아이디 추출
+        String loginType = (String) claims.get("login_type"); // 로그인 유형
+        user.setId(userId); // 토큰에서 추출한 아이디를 user 객체에 삽입.
+        // 카카오 계정 정보 변경 시 유효성 검사
+        if(loginType.equals("kakao")){
+            if(!user.getPw().isEmpty() || !user.getPw().equals("") || !user.getEmail().isEmpty() || !user.getEmail().equals("") ){
+                responseData.setCode(404);
+                responseData.setMessage("수정할 수 없는 정보가 포함되어 있습니다.");
+                responseData.setTimestamp(new Timestamp(System.currentTimeMillis()));
+                return ResponseEntity.status(404).body(responseData);
+            }
+        }
+
+
+        if(accountService.updateInfo(user)){
+            responseData.setCode(200);
+            responseData.setMessage("개인정보 수정 성공!");
+            responseData.setTimestamp(new Timestamp(System.currentTimeMillis()));
+            return ResponseEntity.status(200).body(responseData);
+        } else {
+            responseData.setCode(404);
+            responseData.setMessage("개인정보 수정 실패!");
+            responseData.setTimestamp(new Timestamp(System.currentTimeMillis()));
+            return ResponseEntity.status(404).body(responseData);
+        }
+
+    }
+
+
+
+
+
+
+
+
     // (카카오 및 일반 사용자) 비밀번호 확인 후(카카오 사용자는 미확인) 회원정보 반환
     @PostMapping("/api/private/account/confirm")
     public ResponseEntity<?> accountConfirm(@RequestHeader("Authorization") String header, @RequestBody(required = false) User user) {

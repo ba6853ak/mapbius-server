@@ -10,4 +10,22 @@
         WHERE id = #{id} and is_deleted = 0;
     </update>
 
+    <!-- 사용자 업데이트 -->
+    <update id="updateAccount" parameterType="com.example.mapbius_server.domain.User">
+        UPDATE users
+        <set>
+            <if test="nm != null and nm != ''">
+                nick_name = #{nm},
+            </if>
+            <if test="pw != null and pw != ''">
+                pw = #{pw},
+            </if>
+            <if test="email != null and email != ''">
+                email = #{email},
+            </if>
+            updated_at = NOW()
+        </set>
+        WHERE id = #{id}
+    </update>
+
 </mapper>

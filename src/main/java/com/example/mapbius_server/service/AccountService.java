@@ -37,6 +37,22 @@ public class AccountService {
     @Autowired
     private LoginService loginService;
 
+    // 개인 정보 수정
+    public boolean updateInfo(User user) {
+        String encodedPwd = user.getPw() != null && !user.getPw().isEmpty() && !user.getPw().equals("")
+                ? passwordUtil.encodePassword(user.getPw())
+                : "";
+
+        int setResult = accountMapper.updateAccount(user.getNickName(), encodedPwd, user.getEmail(), user.getId());
+        logger.info("setResult : " + setResult);
+        if(setResult > 0){
+            return true;
+        } else {
+            return false;
+        }
+
+    }
+
 
     // 비밀번호 확인
     public boolean confirmPw(@RequestHeader("Authorization") String header, String inputPw) {
@@ -60,14 +76,15 @@ public class AccountService {
         }
     }
 
-
+    // 계정 탈퇴
     public boolean deleteAccount(@RequestHeader("Authorization") String header) {
 
         String token = header.substring(7).trim(); // Bearer 접두사 및 공백 제거
         Claims claims = jwtTokenProvider.validateToken(token); // 검증 및 토큰 데이터 집합 추출
         String userId = (String) claims.get("sub"); // 토큰에서 아이디 추출
-
-        if(accountMapper.updateDeleteAccount(userId) > 0){
+        int setResult = accountMapper.updateDeleteAccount(userId);
+        logger.info("setResult: " + setResult);
+        if(setResult > 0){
             return true;
         } else {
             return false;

@@ -39,7 +39,6 @@ public class BoardController {
     ) {
         final int PAGEPERARTICLESIZE = 5;
         ResponseData responseData = new ResponseData(); // ResponseData 초기화
-        System.out.println("오류 발생");
         responseData.setMessage("공지사항 데이터 반환 성공!");
         responseData.setCode(200);
         responseData.setObjData(boardService.getNotices(curpage - 1, PAGEPERARTICLESIZE, keyword, type)); // 1부터 시작 변환

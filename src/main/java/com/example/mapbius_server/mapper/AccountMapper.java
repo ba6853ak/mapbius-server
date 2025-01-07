@@ -9,5 +9,9 @@ public interface AccountMapper {
 
     int updateDeleteAccount(@Param("id") String id);
 
+    int updateAccount(@Param("nm") String nm,
+                      @Param("pw") String pw,
+                      @Param("email") String email,
+                      @Param("id") String id);
 
 }
