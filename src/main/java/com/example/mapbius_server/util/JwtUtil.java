@@ -37,8 +37,14 @@ public class JwtUtil {
     public String generateJWTToken(String id, String userRole, String userEmail, String userState) {
         Claims claims = Jwts.claims().setSubject(id); // Claims 객체는 JWT에서 사용자 정보를 저장하는 공간이다.
         claims.put("role", userRole); // 유저 계정 권한 추가
-        claims.put("email", userEmail); // 유저 이메일 추가
+        // claims.put("email", userEmail); // 유저 이메일 추가
         claims.put("state", userState); // 유저 계정 상태 추가
+        // 숫자로만 구성된 10자리 아이디는 카카오 계정 회원임.
+        if (id.length() >= 10 && id.matches("\\d+")) {
+            claims.put("login_type", "kakao");
+        } else {
+            claims.put("login_type", "normal");
+        }
 
         return Jwts.builder()
                 .setSubject(id) // 사용자의 ID를 토큰의 주인으로 설정

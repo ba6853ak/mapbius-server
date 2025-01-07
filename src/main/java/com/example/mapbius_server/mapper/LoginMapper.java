@@ -13,7 +13,7 @@ public interface LoginMapper {
     /**
      * 로그인 후 사용자 정보 가져오기
      */
-    User getUserInformation(@Param("id") String id, @Param("pw") String pw);
+    User getUserInformation(@Param("id") String id);
 
     // 관리자 로그인 확인
     int selectAdminUserCheck(String id);

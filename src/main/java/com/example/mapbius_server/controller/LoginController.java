@@ -61,7 +61,7 @@ public class LoginController {
             responseData.setTimestamp(new Timestamp(System.currentTimeMillis()));
             responseData.setToken(jwtToken);
 
-            userData = loginService.getUserInfo(id, pw);
+            userData = loginService.getUserInfo(id);
             System.out.println(userData);
             responseData.setObjData(userData);
             return ResponseEntity.ok(responseData);

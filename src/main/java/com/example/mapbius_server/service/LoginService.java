@@ -34,8 +34,8 @@ public class LoginService {
         }
     }
 
-    public User getUserInfo(String id, String pw) {
-        User user = loginMapper.getUserInformation(id, pw);
+    public User getUserInfo(String id) {
+        User user = loginMapper.getUserInformation(id);
         return user;
     }
 

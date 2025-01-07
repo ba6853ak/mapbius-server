@@ -26,7 +26,7 @@
     <select id="getUserInformation" parameterType="map" resultMap="LoginResultMap" resultType="com.example.mapbius_server.domain.User">
         SELECT seq, id, email, kakao_id, nick_name, profile_image, birth_date, gender, created_at, updated_at
         FROM users
-        WHERE id = #{id} AND pw = #{pw}
+        WHERE id = #{id}
     </select>
 
     <!-- 관리자 인증 -->

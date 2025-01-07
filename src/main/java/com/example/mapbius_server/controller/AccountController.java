@@ -4,6 +4,7 @@ package com.example.mapbius_server.controller;
 import com.example.mapbius_server.common.ResponseData;
 import com.example.mapbius_server.domain.User;
 import com.example.mapbius_server.service.AccountService;
+import com.example.mapbius_server.service.LoginService;
 import com.example.mapbius_server.service.UserService;
 import com.example.mapbius_server.util.JwtTokenProvider;
 import io.jsonwebtoken.Claims;
@@ -16,6 +17,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.sql.Timestamp;
+
 @RestController
 public class AccountController {
 
@@ -25,6 +28,76 @@ public class AccountController {
     AccountService accountService;
     @Autowired
     JwtTokenProvider jwtTokenProvider;
+    @Autowired
+    private LoginService loginService;
+    @Autowired
+    private UserService userService;
+
+    // (카카오 및 일반 사용자) 비밀번호 확인 후(카카오 사용자는 미확인) 회원정보 반환
+    @PostMapping("/api/private/account/confirm")
+    public ResponseEntity<?> accountConfirm(@RequestHeader("Authorization") String header, @RequestBody(required = false) User user) {
+        ResponseData responseData = new ResponseData();
+        String token = header.substring(7).trim(); // Bearer 접두사 및 공백 제거
+        Claims claims = jwtTokenProvider.validateToken(token); // 검증 및 토큰 데이터 집합 추출
+        String userId = (String) claims.get("sub"); // 토큰에서 아이디 추출
+        User getUserObj = loginService.getUserInfo(userId);
+
+        if(user == null || user.getPw() == null || user.getPw().isEmpty()){ // 만약 카카오 사용자 일경우 PW을 받지 않음.
+            logger.info("실행!");
+            if(getUserObj.getKakaoId() == null || getUserObj.getKakaoId().isEmpty()){
+                responseData.setCode(404);
+                responseData.setMessage("카카오 계정 사용자가 아니므로 정보를 불러올 수 없습니다.");
+                responseData.setTimestamp(new Timestamp(System.currentTimeMillis()));
+                return ResponseEntity.status(404).body(responseData);
+            }
+            logger.info(getUserObj.getId() + "님의 정보를 반환되었습니다.");
+            responseData.setCode(200);
+            responseData.setMessage("카카오 계정 사용자의 회원정보를 불러옵니다.");
+            responseData.setObjData(getUserObj);
+            responseData.setTimestamp(new Timestamp(System.currentTimeMillis()));
+            return ResponseEntity.status(200).body(responseData);
+        } else { // 만약 일반 사용자 일경우 PW을 받음
+            if(accountService.confirmPw(header, user.getPw())){
+                responseData.setCode(200);
+                responseData.setMessage("사용자의 비밀번호가 일치하며 회원정보를 반환합니다.");
+                responseData.setTimestamp(new Timestamp(System.currentTimeMillis()));
+                responseData.setObjData(getUserObj);
+                return ResponseEntity.status(200).body(responseData);
+            } else {
+                responseData.setCode(404);
+                responseData.setMessage("사용자의 비밀번호가 일치하지 않습니다.");
+                responseData.setTimestamp(new Timestamp(System.currentTimeMillis()));
+                return ResponseEntity.status(404).body(responseData);
+            }
+        }
+    }
+
+    // (카카오 사용자) 비밀번호 확인 없이 회원정보 반환
+    @PostMapping("/api/private/account/kakao/get-info")
+    public ResponseEntity<?> NonAccountConfirmAndGetInfo(@RequestHeader("Authorization") String header) {
+        ResponseData responseData = new ResponseData();
+        String token = header.substring(7).trim(); // Bearer 접두사 및 공백 제거
+        Claims claims = jwtTokenProvider.validateToken(token); // 검증 및 토큰 데이터 집합 추출
+        String userId = (String) claims.get("sub"); // 토큰에서 아이디 추출
+        User getUserObj = loginService.getUserInfo(userId);
+        if(getUserObj.getKakaoId() == null || getUserObj.getKakaoId().isEmpty()){
+
+            responseData.setCode(404);
+            responseData.setMessage("카카오 계정 사용자가 아니므로 정보를 불러올 수 없습니다.");
+            responseData.setTimestamp(new Timestamp(System.currentTimeMillis()));
+            return ResponseEntity.status(404).body(responseData);
+        }
+        logger.info(getUserObj.getId() + "님의 정보를 반환되었습니다.");
+        responseData.setCode(200);
+        responseData.setMessage("카카오 계정 사용자의 회원정보를 불러옵니다.");
+        responseData.setObjData(getUserObj);
+        responseData.setTimestamp(new Timestamp(System.currentTimeMillis()));
+        return ResponseEntity.status(200).body(responseData);
+
+    }
+
+
+
 
     // 계정 삭제
     @PostMapping("/api/private/account/delete")
