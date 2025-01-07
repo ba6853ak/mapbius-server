@@ -42,6 +42,19 @@ public class AccountController {
         String userId = (String) claims.get("sub"); // 토큰에서 아이디 추출
         String loginType = (String) claims.get("login_type"); // 로그인 유형
         user.setId(userId); // 토큰에서 추출한 아이디를 user 객체에 삽입.
+
+/*        // 수정 정보 유효성 검사
+        if(!userService.isValidPw(user.getPw()) && !userService.isValidEmail(user.getEmail()) && !userService.isValidNickName(user.getNickName())){
+            responseData.setCode(404);
+            responseData.setMessage("입력하신 정보는 유효성 검사에 위배됩니다.");
+            responseData.setTimestamp(new Timestamp(System.currentTimeMillis()));
+            return ResponseEntity.status(404).body(responseData);
+        }*/
+
+
+
+
+
         // 카카오 계정 정보 변경 시 유효성 검사
         if(loginType.equals("kakao")){
             if(!user.getPw().isEmpty() || !user.getPw().equals("") || !user.getEmail().isEmpty() || !user.getEmail().equals("") ){

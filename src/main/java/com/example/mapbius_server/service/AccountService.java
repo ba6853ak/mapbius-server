@@ -2,6 +2,7 @@ package com.example.mapbius_server.service;
 
 import com.example.mapbius_server.domain.User;
 import com.example.mapbius_server.mapper.AccountMapper;
+import com.example.mapbius_server.mapper.FindMapper;
 import com.example.mapbius_server.mapper.LoginMapper;
 import com.example.mapbius_server.mapper.UserMapper;
 import com.example.mapbius_server.util.JwtTokenProvider;
@@ -37,11 +38,45 @@ public class AccountService {
     @Autowired
     private LoginService loginService;
 
+    @Autowired
+    private UserService userService;
+
+    @Autowired
+    private FindMapper findMapper;
+
     // 개인 정보 수정
     public boolean updateInfo(User user) {
-        String encodedPwd = user.getPw() != null && !user.getPw().isEmpty() && !user.getPw().equals("")
-                ? passwordUtil.encodePassword(user.getPw())
-                : "";
+
+        String encodedPwd = "";
+
+        // 유효성 검사
+        if (user.getPw() != null && !user.getPw().isEmpty() && !user.getPw().equals("")) {
+            if(userService.isValidPw(user.getPw())){
+                encodedPwd = passwordUtil.encodePassword(user.getPw());
+            } else {
+                return false;
+            }
+        }
+        if (user.getEmail() != null && !user.getEmail().isEmpty() && !user.getEmail().equals("")) {
+                System.out.println(userMapper.selectUserEmail(user.getEmail()) > 0);
+                if(userMapper.selectUserEmail(user.getEmail()) > 0){ // true이면 이미 존재한다.
+
+                } else {
+                    if (!isValidEmail(user.getEmail())) {
+                        return false;
+                    }
+                }
+
+
+
+        }
+
+        if (user.getNickName() != null && !user.getNickName().isEmpty() && !user.getNickName().equals("")) {
+            if (!isValidNickName(user.getNickName())) {
+                return false;
+            }
+        }
+
 
         int setResult = accountMapper.updateAccount(user.getNickName(), encodedPwd, user.getEmail(), user.getId());
         logger.info("setResult : " + setResult);
@@ -51,6 +86,30 @@ public class AccountService {
             return false;
         }
 
+    }
+
+    public boolean isValidNickName(String setNickName) {
+        logger.info("닉네임 유효성 검사 시작");
+        System.out.println("입력된 닉네임: " + setNickName);
+        if (setNickName == null || setNickName.equals("")) {
+            System.out.println("비어 있는 문자열 처리");
+            return false;
+        }
+        if ((setNickName.length() < 2 || setNickName.length() > 8)) {
+            System.out.println("닉네임 길이 제한");
+            return false;
+        }
+        if (!setNickName.matches("^[가-힣a-zA-Z0-9]+$")) {
+            System.out.println("닉네임 문자 제한");
+            return false;
+        }
+/*        // 닉네임 중복 확인
+        if (!isNickNameAvailable(setNickName)) {
+            System.out.println("닉네임 중복 발견");
+            return false;
+        }*/
+        logger.info("닉네임 유효성 검사 통과");
+        return true;
     }
 
 
@@ -92,7 +151,39 @@ public class AccountService {
     }
 
 
+    public boolean isValidEmail(String setEmail) {
+        logger.info("이메일 유효성 검사 시작");
+        // 이메일 정규식 정의
+        final String emailRegex =
+                "(?i)^(([^<>()\\[\\]\\\\.,;:\\s@\"]+(\\.[^<>()\\[\\]\\\\.,;:\\s@\"]+)*)|(\".+\"))@(([^<>()\\[\\]\\\\.,;:\\s@\"]+\\.)+[^<>()\\[\\]\\\\.,;:\\s@\"]{2,})$";
+        System.out.println("입력된 이메일: " + setEmail);
+        // 이메일 길이 검사
+        if (setEmail.length() > 320) {
+            System.out.println("이메일 길이 제한");
+            return false;
+        }
+        // 이메일 유효성 검사
+        if (!setEmail.matches(emailRegex)) {
+            System.out.println("유효하지 않은 이메일 형식");
+            return false;
+        }
+        // 이메일 중복 확인
+        if (!isEmailAvailable(setEmail)) {
+            System.out.println("이메일 중복 발견");
+            return false;
+        }
+        logger.info("이메일 유효성 검사 통과");
+        return true;
+    }
 
+    public boolean isEmailAvailable(String setEmail) {
+        boolean result = userMapper.selectUserEmail(setEmail) > 0; // 이메일 존재 여부.
+        if (result) {
+            return false; // 이메일이 이미 존재하여 이용할 수 없음.
+        } else {
+            return true; // 이메일이 존재하지 않아 이용할 수 있음.
+        }
+    }
 
 
 }
