@@ -18,4 +18,12 @@ public interface AccountMapper {
 
     int updateNoticesIdChange(@Param("id") String id, @Param("changeId") String changeId);
 
+    // 사용자 조회
+    User findByUserId(@Param("id") String id);
+
+    // 프로필 이미지 업데이트
+    void updateProfileImage(@Param("id") String id,
+                            @Param("profileImage") String profileImage);
+
+
 }

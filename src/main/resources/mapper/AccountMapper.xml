@@ -35,11 +35,25 @@
         WHERE id = #{id}
     </select>
 
-
-
     <!-- notices 테이블 데이터 옮기기 -->
     <update id="updateNoticesIdChange">
         UPDATE notices SET author=#{changeId} WHERE author=#{id};
     </update>
+
+
+    <!-- 사용자 조회 -->
+    <select id="findByUserId" parameterType="string" resultType="com.example.mapbius_server.domain.User">
+        SELECT *
+        FROM users
+        WHERE id = #{id}
+    </select>
+
+    <!-- 프로필 이미지 업데이트 -->
+    <update id="updateProfileImage" parameterType="map">
+        UPDATE users
+        SET profile_image = #{profileImage}
+        WHERE id = #{id}
+    </update>
+
 
 </mapper>

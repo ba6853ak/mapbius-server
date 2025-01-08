@@ -9,16 +9,25 @@ import com.example.mapbius_server.util.JwtTokenProvider;
 import com.example.mapbius_server.util.JwtUtil;
 import com.example.mapbius_server.util.PasswordUtil;
 import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.io.IOException;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.NonFinal;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.parameters.P;
 import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
+import org.springframework.web.multipart.MultipartFile;
+import org.springframework.util.ResourceUtils;
+
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.nio.file.Paths;
+import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -37,6 +46,7 @@ public class AccountService {
     private final KakaoAuthService kakaoAuthService;
     private final JwtUtil jwtUtil;
 
+    // 카카오 계정 연결
     public boolean kakaoAccountConnect(String header, String code){
 
 
@@ -177,6 +187,7 @@ public class AccountService {
 
     }
 
+    // 닉네임이 유효한가?
     public boolean isValidNickName(String setNickName) {
         logger.info("닉네임 유효성 검사 시작");
         System.out.println("입력된 닉네임: " + setNickName);
@@ -200,7 +211,6 @@ public class AccountService {
         logger.info("닉네임 유효성 검사 통과");
         return true;
     }
-
 
     // 비밀번호 확인
     public boolean confirmPw(@RequestHeader("Authorization") String header, String inputPw) {
@@ -239,7 +249,7 @@ public class AccountService {
         }
     }
 
-
+    // 이메일이 유효한가?
     public boolean isValidEmail(String setEmail) {
         logger.info("이메일 유효성 검사 시작");
         // 이메일 정규식 정의
@@ -273,6 +283,62 @@ public class AccountService {
             return true; // 이메일이 존재하지 않아 이용할 수 있음.
         }
     }
+
+    @Value("${upload.path}") // 업로드 경로 값을 저장할 변수
+    private String uploadPath;
+
+
+    // 사용자 프로필 이미지 기록 및 DB 저장
+    public boolean saveProfileImage(String id, MultipartFile file) throws IOException {
+
+        // 로그: 메서드 호출
+        logger.info("saveProfileImage called with userId={}", id);
+
+        // 사용자 조회
+        User user = accountMapper.findByUserId(id);
+        if (user == null) {
+            logger.error("No user found with id={}. Throwing exception.", id);
+            throw new RuntimeException("사용자를 찾을 수 없습니다.");
+        }
+        logger.debug("Found user: {}", user);
+
+        // 파일명 생성
+        String originalFilename = file.getOriginalFilename();
+        String fileName = UUID.randomUUID().toString() + "_" + originalFilename;
+
+        // 프로젝트 루트 디렉터리 확인 및 경로 생성
+        String rootPath = System.getProperty("user.dir");
+        String filePath = rootPath + File.separator + uploadPath + File.separator + fileName;
+
+        logger.info("Preparing to save file: {} to path: {}", originalFilename, filePath);
+
+        try {
+            // 파일 저장
+            File destinationFile = new File(filePath);
+            destinationFile.getParentFile().mkdirs(); // 디렉터리 생성
+            file.transferTo(destinationFile);
+            logger.info("File saved successfully: {}", destinationFile.getAbsolutePath());
+
+            // DB 업데이트
+            accountMapper.updateProfileImage(id, fileName);
+            logger.info("DB update successful for userId={}, saved fileName={}", id, fileName);
+
+            return true;
+
+        } catch (IOException e) {
+            logger.error("IOException occurred during file saving for userId={}:", id, e);
+            throw e;
+
+        } catch (RuntimeException e) {
+            logger.error("RuntimeException occurred during DB update for userId={}:", id, e);
+            throw e;
+        } catch (java.io.IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+
+
 
 
 }

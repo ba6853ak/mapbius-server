@@ -10,14 +10,14 @@ import com.example.mapbius_server.service.UserService;
 import com.example.mapbius_server.util.JwtTokenProvider;
 import io.jsonwebtoken.Claims;
 import lombok.RequiredArgsConstructor;
+import lombok.Value;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestHeader;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.sql.Timestamp;
 import java.util.Map;
@@ -181,7 +181,24 @@ public class AccountController {
 
     }
 
+
     // 프로필 이미지 업로드
+    @PostMapping("/api/private/account/uploadProfileImage")
+    public ResponseEntity<?> uploadProfileImage(
+            @RequestPart("file") MultipartFile file, // 파일 파트
+            @RequestPart("id") String userId         // 사용자 ID 파트
+    ) {
+        try {
+            // 예: 파일과 함께 userId를 이용한 로직 처리
+            accountService.saveProfileImage(userId, file);
+
+            return ResponseEntity.ok("파일 업로드 성공");
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("파일 업로드 실패: " + e.getMessage());
+        }
+    }
+
 
 
 
