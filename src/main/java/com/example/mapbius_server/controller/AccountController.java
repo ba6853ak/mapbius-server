@@ -4,6 +4,7 @@ package com.example.mapbius_server.controller;
 import com.example.mapbius_server.common.ResponseData;
 import com.example.mapbius_server.domain.User;
 import com.example.mapbius_server.service.AccountService;
+import com.example.mapbius_server.service.KakaoAuthService;
 import com.example.mapbius_server.service.LoginService;
 import com.example.mapbius_server.service.UserService;
 import com.example.mapbius_server.util.JwtTokenProvider;
@@ -18,6 +19,7 @@ import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.sql.Timestamp;
+import java.util.Map;
 
 @RestController
 public class AccountController {
@@ -32,6 +34,36 @@ public class AccountController {
     private LoginService loginService;
     @Autowired
     private UserService userService;
+    @Autowired
+    private KakaoAuthService kakaoAuthService;
+
+    // 기존 일반 사용자 카카오 계정 연결
+    @PostMapping("/api/private/account/kakao/connect")
+    public ResponseEntity<ResponseData> kakaoConnect(@RequestHeader("Authorization") String header, @RequestBody Map<String, String> request) {
+        ResponseData responseData = new ResponseData();
+        String code = request.get("code");
+
+
+
+
+        boolean state = accountService.kakaoAccountConnect(header, code);
+        if (state) {
+            responseData.setCode(200);
+            responseData.setMessage("Kakao Login API에 통합되었습니다.");
+            responseData.setTimestamp(new Timestamp(System.currentTimeMillis()));
+            return ResponseEntity.status(200).body(responseData);
+        } else {
+            responseData.setCode(404);
+            responseData.setMessage("Kakao Login API에 통합 실패! - 파라미터, 유효성 검사를 확인하세요.");
+            responseData.setTimestamp(new Timestamp(System.currentTimeMillis()));
+            return ResponseEntity.status(404).body(responseData);
+        }
+
+    }
+
+
+
+
 
     // 회원 정보 수정
     @PostMapping("/api/private/account/update")
@@ -50,10 +82,6 @@ public class AccountController {
             responseData.setTimestamp(new Timestamp(System.currentTimeMillis()));
             return ResponseEntity.status(404).body(responseData);
         }*/
-
-
-
-
 
         // 카카오 계정 정보 변경 시 유효성 검사
         if(loginType.equals("kakao")){
@@ -79,12 +107,6 @@ public class AccountController {
         }
 
     }
-
-
-
-
-
-
 
 
     // (카카오 및 일반 사용자) 비밀번호 확인 후(카카오 사용자는 미확인) 회원정보 반환

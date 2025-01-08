@@ -77,7 +77,7 @@ public class KakaoAuthService {
         );
 
         Map<String, Object> userInfo = userInfoResponse.getBody();
-        logger.info("Kakao 정보 요청 성공: " + userInfo);
+        logger.info("Kakao Token으로 정보 요청 성공: " + userInfo);
         // Map<String, Object> properties = (Map<String, Object>) userInfo.get("properties");
         Map<String, Object> kakaoAccount = (Map<String, Object>) userInfo.get("kakao_account");
 

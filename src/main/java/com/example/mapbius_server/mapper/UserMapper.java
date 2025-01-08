@@ -2,6 +2,7 @@ package com.example.mapbius_server.mapper;
 
 import com.example.mapbius_server.domain.User;
 import org.apache.ibatis.annotations.Mapper;
+import org.apache.ibatis.annotations.Param;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -30,6 +31,8 @@ public interface UserMapper {
     // 이메일로 비밀번호 변경
     int updatePasswordByEmail(String email, String pw);
 
+    // 사용자 강제 삭제
+    int deleteUser(@Param("id") String id);
 
 
 }

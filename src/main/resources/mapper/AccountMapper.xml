@@ -28,4 +28,18 @@
         WHERE id = #{id}
     </update>
 
+    <!-- 일반회원 사용자 이이디로 카카오 회원 아이디 있는지 확인 -->
+    <select id="findKakaoIdByUserId" parameterType="string" resultType="string">
+        SELECT kakao_id
+        FROM users
+        WHERE id = #{id}
+    </select>
+
+
+
+    <!-- notices 테이블 데이터 옮기기 -->
+    <update id="updateNoticesIdChange">
+        UPDATE notices SET author=#{changeId} WHERE author=#{id};
+    </update>
+
 </mapper>

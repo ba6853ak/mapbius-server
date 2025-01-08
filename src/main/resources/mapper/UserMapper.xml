@@ -59,6 +59,13 @@
         WHERE email = #{email}
     </update>
 
+    <!-- 사용자 강제 삭제 -->
+    <delete id="deleteUser" parameterType="String">
+        DELETE FROM users
+        WHERE id = #{id}
+    </delete>
+
+
 
 
 </mapper>

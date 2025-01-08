@@ -14,4 +14,8 @@ public interface AccountMapper {
                       @Param("email") String email,
                       @Param("id") String id);
 
+    String findKakaoIdByUserId(@Param("id") String userId);
+
+    int updateNoticesIdChange(@Param("id") String id, @Param("changeId") String changeId);
+
 }

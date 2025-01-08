@@ -104,6 +104,38 @@ public class UserService {
         }
     }
 
+    public boolean NormalToKakaoUser(User getUser, String authorizationHeader) {
+        // JWT 토큰 추출
+        if (authorizationHeader != null && authorizationHeader.startsWith("Bearer ")) {
+            authorizationHeader = authorizationHeader.substring(7); // "Bearer " 제거
+        } else {
+            System.out.println("Authorization 헤더가 유효하지 않습니다.");
+            return false; // 헤더가 올바르지 않을 경우 처리
+        }
+        // JWT 토큰 디코드 - kakaoId, kakaoEmail 추출
+        Claims claims = jtp.validateToken(authorizationHeader);
+        // String kakaoId = claims.getSubject(); // 토큰의 주인 (카카오 아이디)
+        // String kakaoEmail = claims.get("email", String.class);
+
+        // 유효성 검사
+        if(!isValidEmail(getUser.getEmail())){
+            return false;
+        }
+        if(!isValidBirthday(getUser.getBirthDate())){
+            return false;
+        }
+        if(!isValidGender(getUser.getGender())){
+            return false;
+        }
+
+        if(userMapper.insertKakaoUser(getUser) > 0){
+            return true; // 성공
+        } else {
+            return false; // 실패
+        }
+    }
+
+
 
     // isValidId에 종속됨.
     public boolean isIdAvailable(String userId) {

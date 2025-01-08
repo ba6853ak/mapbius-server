@@ -22,9 +22,14 @@ public class LoginService {
     public boolean login(String id, String pw) {
 
         User userIdAndPw = loginMapper.authenticate(id);
+
+        if(userIdAndPw == null) {
+            return false;
+        }
+
         // String encodePw = passwordUtil.encodePassword(pw); // 평문 -> 비문 변환
         boolean loginResult = passwordUtil.checkPassword(pw, userIdAndPw.getPw()); // 평문과 암호화로 로그인 결과
-        if(loginResult){
+        if(loginResult && userIdAndPw != null) {
             logger.info("로그인 성공 "+ loginResult);
             return true;
         }
