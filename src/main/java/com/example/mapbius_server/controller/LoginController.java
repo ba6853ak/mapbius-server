@@ -50,10 +50,7 @@ public class LoginController {
         boolean loginSuccess = loginService.login(id, pw);
 
         if (loginSuccess) {
-            logger.info("로그인 성공!");
-
             boolean isAdmin = loginService.adminCheck(id); // 관리자인가?
-
             String role = isAdmin ? "ROLE_ADMIN" : "ROLE_USER";             // JWT 생성 (관리자라면 ROLE_ADMIN 추가)
             String jwtToken = jwtUtil.generateJWTToken(id, role, null, "activate");             // 일반 로그인이므로 카카오 로그인 시의 닉네임은 쓰지 않음.
             responseData.setCode(200);

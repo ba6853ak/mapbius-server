@@ -57,8 +57,6 @@ public class AccountService {
         logger.info("기존 카카오 계정 ID: " + KakaoId);
 
 
-
-
         String KakaoAccountState = kakaoAccountclaims_guest.get("state").toString(); // 카카오 계정으로 가입 여부 체크 ( activate / guest )
         if(KakaoAccountState.equals("activate")){ // 카카오 계정으로 등록한 계정이 존재함.
             User user2 = new User();
@@ -79,7 +77,7 @@ public class AccountService {
                     logger.info("데이터 이전 후 계정 강제 삭제 성공."); // 기존 계정 완전 삭제 -> 데이터 이전 완료
                 }
 
-                logger.info("기존의 일반 계정을 삭제하고 카카오 계정에 통합되었습니다.");
+                logger.info("기존 일반 계정을 삭제 후, 카카오 계정에 통합되었습니다.");
                 return true;
 
 
@@ -100,12 +98,13 @@ public class AccountService {
                     logger.info("공지사항 게시판 이전할 데이터가 없음.");// 공지사항 게시판 데이터 옮긺
                 }
                 if (userMapper.deleteUser(normalUserInfo.getId()) > 0) {
-                    logger.info("데이터 이전 후 계정 강제 삭제 성공."); // 기존 계정 완전 삭제 -> 데이터 이전 완료
+                    logger.info("데이터 이전 후 일반 계정 삭제 성공."); // 기존 계정 완전 삭제 -> 데이터 이전 완료
                 }
 
                 logger.info("일반 계정을 카카오 계정으로 전환 작업 완료");
                 return true;
             }
+
             return false;
 
 

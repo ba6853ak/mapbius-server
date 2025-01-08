@@ -9,6 +9,7 @@ import com.example.mapbius_server.service.LoginService;
 import com.example.mapbius_server.service.UserService;
 import com.example.mapbius_server.util.JwtTokenProvider;
 import io.jsonwebtoken.Claims;
+import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,20 +23,16 @@ import java.sql.Timestamp;
 import java.util.Map;
 
 @RestController
+@RequiredArgsConstructor
 public class AccountController {
 
     private static final Logger logger = LoggerFactory.getLogger(UserService.class);
 
-    @Autowired
-    AccountService accountService;
-    @Autowired
-    JwtTokenProvider jwtTokenProvider;
-    @Autowired
-    private LoginService loginService;
-    @Autowired
-    private UserService userService;
-    @Autowired
-    private KakaoAuthService kakaoAuthService;
+    private final AccountService accountService;
+    private final JwtTokenProvider jwtTokenProvider;
+    private final LoginService loginService;
+    private final UserService userService;
+    private final KakaoAuthService kakaoAuthService;
 
     // 기존 일반 사용자 카카오 계정 연결
     @PostMapping("/api/private/account/kakao/connect")
@@ -60,10 +57,6 @@ public class AccountController {
         }
 
     }
-
-
-
-
 
     // 회원 정보 수정
     @PostMapping("/api/private/account/update")
@@ -107,7 +100,6 @@ public class AccountController {
         }
 
     }
-
 
     // (카카오 및 일반 사용자) 비밀번호 확인 후(카카오 사용자는 미확인) 회원정보 반환
     @PostMapping("/api/private/account/confirm")
@@ -172,9 +164,6 @@ public class AccountController {
 
     }
 
-
-
-
     // 계정 삭제
     @PostMapping("/api/private/account/delete")
     public ResponseEntity<?> deleteAccount(@RequestHeader("Authorization") String header) {
@@ -191,5 +180,11 @@ public class AccountController {
         }
 
     }
+
+    // 프로필 이미지 업로드
+
+
+
+
 
 }

@@ -30,11 +30,11 @@ public class LoginService {
         // String encodePw = passwordUtil.encodePassword(pw); // 평문 -> 비문 변환
         boolean loginResult = passwordUtil.checkPassword(pw, userIdAndPw.getPw()); // 평문과 암호화로 로그인 결과
         if(loginResult && userIdAndPw != null) {
-            logger.info("로그인 성공 "+ loginResult);
+            logger.info("일반 로그인 성공");
             return true;
         }
         else{
-            logger.info("로그인 실패 "+ loginResult);
+            logger.info("일반 로그인 실패");
             return false;
         }
     }
