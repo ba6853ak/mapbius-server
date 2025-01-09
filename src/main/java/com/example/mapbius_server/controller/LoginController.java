@@ -66,10 +66,10 @@ public class LoginController {
 
             if(userState.equals("deactivate")){
                 logger.info("비활성화 계정의 로그인이 차단되었습니다.");
-                responseData.setCode(403);
+                responseData.setCode(404);
                 responseData.setMessage("비활성화 계정의 로그인이 차단되었습니다.");
                 responseData.setTimestamp(new Timestamp(System.currentTimeMillis()));
-                return ResponseEntity.status(403).body(responseData);
+                return ResponseEntity.status(404).body(responseData);
             }
 
             String jwtToken = jwtUtil.generateJWTToken(id, role, null, userState);             // 일반 로그인이므로 카카오 로그인 시의 닉네임은 쓰지 않음.

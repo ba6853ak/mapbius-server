@@ -53,10 +53,10 @@ public class KakaoAuthController {
 
         if(state.equals("deactivate")){
             logger.info("비활성화 계정의 로그인이 차단되었습니다.");
-            responseData.setCode(403);
+            responseData.setCode(404);
             responseData.setMessage("비활성화 계정의 로그인이 차단되었습니다.");
             responseData.setTimestamp(new Timestamp(System.currentTimeMillis()));
-            return ResponseEntity.status(403).body(responseData);
+            return ResponseEntity.status(404).body(responseData);
         }
 
 
