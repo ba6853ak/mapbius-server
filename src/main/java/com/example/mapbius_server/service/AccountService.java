@@ -28,6 +28,11 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.nio.file.Paths;
 import java.util.UUID;
+import org.springframework.core.io.Resource; // Resource 인터페이스
+import org.springframework.core.io.UrlResource; // URL로부터 리소스를 생성하기 위한 클래스
+import org.springframework.stereotype.Service; // Spring의 Service 어노테이션
+import java.nio.file.Path; // 파일 경로를 다루기 위한 클래스
+import java.nio.file.Paths; // Path 객체를 생성하기 위한 유틸리티 클래스
 
 @Service
 @RequiredArgsConstructor
@@ -285,7 +290,66 @@ public class AccountService {
     }
 
     @Value("${upload.path}") // 업로드 경로 값을 저장할 변수
+    String uploadPath;
+
+    // 사용자 프로필 이미지 DB에서 반출
+    public Resource getProfileImage(String userId) throws Exception {
+        // DB에서 파일명 조회
+        String fileName = accountMapper.findProfileImageByUserId(userId);            // 파일 네임
+
+        if (fileName == null) {
+            throw new RuntimeException("File not found for userId: " + userId);
+        }
+        String rootPath = System.getProperty("user.dir");
+
+        String fullPath;
+        // 풀 경로 지정
+        fullPath = rootPath + File.separator + uploadPath + File.separator + fileName;
+
+        logger.info("fullPath: " + fullPath);
+
+        // 파일 경로 생성
+        Path filePath = Paths.get(fullPath).normalize();
+        logger.info("filePath: " + filePath);
+        Resource resource = new UrlResource(filePath.toUri());
+
+        if (!resource.exists()) {
+            throw new RuntimeException("File not found: " + filePath.toString());
+        }
+
+        return resource;
+    }
+
+
+// 업로드 잘 되는 코드
+/*    @Value("${upload.path}") // 업로드 경로 값을 저장할 변수
     private String uploadPath;
+    private String rootPath = System.getProperty("user.dir"); // 루트 패스
+    // 사용자 프로필 이미지 DB에서 반출
+    public Resource getProfileImage(String userId) throws Exception {
+        // DB에서 파일명 조회
+        logger.info("파일명 검출 시작");
+        String fileName = accountMapper.findProfileImageByUserId(userId);
+        logger.info("FileName: " + fileName);
+        logger.info("파일명 검출 완료");
+        if (fileName == null) {
+            throw new RuntimeException("File not found for userId: " + userId);
+        }
+        String filePath = rootPath + File.separator + uploadPath + File.separator + fileName;
+        logger.info("표시할 프로필 이미지 경로: " + filePath);
+
+        // 파일 경로 생성
+        //Path filePath = Paths.get(uploadPath).resolve(fileName).normalize();
+        //Resource resource = new UrlResource(filePath.toUri());
+
+        File file = new File(filePath);
+
+        if (!file.exists()) {
+            throw new RuntimeException("File not found: " + filePath.toString());
+        }
+
+        return new UrlResource(file.toURI());
+    }*/
 
 
     // 사용자 프로필 이미지 기록 및 DB 저장

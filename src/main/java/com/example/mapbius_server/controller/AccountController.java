@@ -2,6 +2,7 @@ package com.example.mapbius_server.controller;
 
 
 import com.example.mapbius_server.common.ResponseData;
+import com.example.mapbius_server.common.ResponseResource;
 import com.example.mapbius_server.domain.User;
 import com.example.mapbius_server.service.AccountService;
 import com.example.mapbius_server.service.KakaoAuthService;
@@ -10,17 +11,21 @@ import com.example.mapbius_server.service.UserService;
 import com.example.mapbius_server.util.JwtTokenProvider;
 import io.jsonwebtoken.Claims;
 import lombok.RequiredArgsConstructor;
-import lombok.Value;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.sql.Timestamp;
 import java.util.Map;
+import org.springframework.core.io.Resource; // 리소스 파일 처리
+
 
 @RestController
 @RequiredArgsConstructor
@@ -185,9 +190,12 @@ public class AccountController {
     // 프로필 이미지 업로드
     @PostMapping("/api/private/account/uploadProfileImage")
     public ResponseEntity<?> uploadProfileImage(
-            @RequestPart("file") MultipartFile file, // 파일 파트
-            @RequestPart("id") String userId         // 사용자 ID 파트
+            @RequestHeader("Authorization") String header, @RequestPart("file") MultipartFile file // 파일 파트
     ) {
+        String token = header.substring(7).trim(); // Bearer 접두사 및 공백 제거
+        Claims claims = jwtTokenProvider.validateToken(token); // 검증 및 토큰 데이터 집합 추출
+        String userId = (String) claims.get("sub"); // 토큰에서 아이디 추출
+
         try {
             // 예: 파일과 함께 userId를 이용한 로직 처리
             accountService.saveProfileImage(userId, file);
@@ -200,8 +208,42 @@ public class AccountController {
     }
 
 
+    /**
+     * ResponseEntity는 HTTP 응답을 캡슐화 하는 클래스
+     * Resource는 반환할 리소스 (파일, 이미지) 등을 나타냄.
+     */
 
+    // 프로필 이미지 반출
+    @PostMapping("/api/private/account/getProfileImage")
+    public ResponseEntity<?> getProfileImage(@RequestHeader("Authorization") String header) {
+        String token = header.substring(7).trim(); // Bearer 접두사 및 공백 제거
+        Claims claims = jwtTokenProvider.validateToken(token); // 검증 및 토큰 데이터 집합 추출
+        String userId = (String) claims.get("sub"); // 토큰에서 아이디 추출
 
+        logger.info("프로필 이미지 반출 동작");
+        System.out.println(userId);
+        try {
+            // 해당 userId에 대한 프로필 이미지를 가져온다.
+            Resource imageResource = accountService.getProfileImage(userId);
+            String encodedFilename = URLEncoder.encode(imageResource.getFilename(), StandardCharsets.UTF_8)
+                    .replace("+", "%20"); // 공백 처리
 
+            // HTTP 응답 생성 및 리소스 반환
+            return ResponseEntity.ok()
 
+                    .contentType(MediaType.IMAGE_JPEG) // Content-Type을 이미지로 설정
+                    .header(HttpHeaders.CONTENT_DISPOSITION, "inline; filename*=UTF-8''" + encodedFilename) // 브라우저에서 바로 표시
+                    .body(imageResource);
+
+        } catch (Exception e) {
+            // 이미지가 없거나 에러 발생 시 404 응답 반환
+            return ResponseEntity.notFound().build();
+        }
+    }
 }
+
+
+
+
+
+

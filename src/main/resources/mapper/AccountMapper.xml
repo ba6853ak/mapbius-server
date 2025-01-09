@@ -55,5 +55,12 @@
         WHERE id = #{id}
     </update>
 
+    <!-- 프로필 이미지 출력 -->
+    <select id="findProfileImageByUserId" resultType="string">
+        SELECT profile_image
+        FROM users
+        WHERE id = #{id}
+    </select>
+
 
 </mapper>
