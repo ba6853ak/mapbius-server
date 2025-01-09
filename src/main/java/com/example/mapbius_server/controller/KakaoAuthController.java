@@ -90,7 +90,6 @@ public class KakaoAuthController {
     @PostMapping("/api/private/token-check")
     public ResponseEntity<?> tokenCheck(@RequestHeader("Authorization") String authorizationHeader) {
         ResponseData responseData = new ResponseData();
-
         responseData.setCode(200);
         responseData.setMessage("토큰 인증 성공");
         return ResponseEntity

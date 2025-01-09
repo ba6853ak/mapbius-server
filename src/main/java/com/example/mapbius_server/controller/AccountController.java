@@ -4,15 +4,19 @@ package com.example.mapbius_server.controller;
 import com.example.mapbius_server.common.ResponseData;
 import com.example.mapbius_server.common.ResponseResource;
 import com.example.mapbius_server.domain.User;
+import com.example.mapbius_server.mapper.AccountMapper;
 import com.example.mapbius_server.service.AccountService;
 import com.example.mapbius_server.service.KakaoAuthService;
 import com.example.mapbius_server.service.LoginService;
 import com.example.mapbius_server.service.UserService;
 import com.example.mapbius_server.util.JwtTokenProvider;
 import io.jsonwebtoken.Claims;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.io.UrlResource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -20,8 +24,11 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.File;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.sql.Timestamp;
 import java.util.Map;
 import org.springframework.core.io.Resource; // 리소스 파일 처리
@@ -38,6 +45,7 @@ public class AccountController {
     private final LoginService loginService;
     private final UserService userService;
     private final KakaoAuthService kakaoAuthService;
+    private final AccountMapper accountMapper;
 
     // 기존 일반 사용자 카카오 계정 연결
     @PostMapping("/api/private/account/kakao/connect")
@@ -214,7 +222,62 @@ public class AccountController {
      */
 
     // 프로필 이미지 반출
+
+    @Value("${upload.path}") // 업로드 경로 값을 저장할 변
+    String uploadPath;
+
     @PostMapping("/api/private/account/getProfileImage")
+    public ResponseEntity<?> getProfileImage(@RequestHeader("Authorization") String header,
+    HttpServletRequest request) {
+        String token = header.substring(7).trim();
+        Claims claims = jwtTokenProvider.validateToken(token);
+        String userId = (String) claims.get("sub");
+
+        String fileName = accountMapper.findProfileImageByUserId(userId);
+
+        if (fileName == null || fileName.isEmpty()) {
+            logger.error("프로필 이미지 파일을 찾을 수 없습니다.");
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("프로필 이미지 파일이 없습니다.");
+        }
+
+        String rootDir = System.getProperty("user.dir");
+        String fileDir = rootDir + File.separator + uploadPath;
+
+        try {
+            // 파일 경로 확인
+            Path filePath = Paths.get(fileDir).resolve(fileName).normalize();
+            Resource resource = new UrlResource(filePath.toUri());
+
+            if (!resource.exists()) {
+                logger.error("프로필 이미지 파일이 존재하지 않습니다: " + filePath.toString());
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body("파일이 존재하지 않습니다.");
+            }
+
+            // URL 반환
+            String baseUrl = String.format("%s://%s:%d",
+                    request.getScheme(), // http 또는 https
+                    request.getServerName(), // 서버 이름 또는 IP
+                    request.getServerPort() // 서버 포트
+            );
+            logger.info("baseUrl: " + baseUrl);
+
+
+            String fileUrl = baseUrl + "/uploads/profiles/" + fileName; // 중요!
+            logger.info("파일 URL 반환: " + fileUrl);
+            return ResponseEntity.ok(fileUrl);
+
+        } catch (Exception e) {
+            logger.error("프로필 이미지를 가져오는 중 오류 발생", e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("프로필 이미지를 가져오는 중 오류가 발생했습니다.");
+        }
+    }
+
+
+
+    }
+
+
+/*    @PostMapping("/api/private/account/getProfileImage")
     public ResponseEntity<?> getProfileImage(@RequestHeader("Authorization") String header) {
         String token = header.substring(7).trim(); // Bearer 접두사 및 공백 제거
         Claims claims = jwtTokenProvider.validateToken(token); // 검증 및 토큰 데이터 집합 추출
@@ -239,8 +302,8 @@ public class AccountController {
             // 이미지가 없거나 에러 발생 시 404 응답 반환
             return ResponseEntity.notFound().build();
         }
-    }
-}
+    }*/
+
 
 
 

@@ -42,9 +42,10 @@ public class SecurityConfig {
                 }))
                 // .cors(cors -> cors.disable()) // CORS 활성화
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/api/public/**").permitAll()
-                        .requestMatchers("/oauth/kakao/**").permitAll()
-                        .requestMatchers("/api/private/**").authenticated()
+                        .requestMatchers("/api/public/**").permitAll() // 일반
+                        .requestMatchers("/oauth/kakao/**").permitAll() // 카카오 로그인
+                        .requestMatchers("/api/private/**").authenticated() // 토큰 전용
+                        .requestMatchers("/uploads/profiles/**").permitAll() // 개인 프로필 이미지
                         .anyRequest().authenticated()
 
                 ).addFilterBefore(new JwtAuthenticationFilter(jwtUtil, jwtTokenProvider), UsernamePasswordAuthenticationFilter.class); // JwtTokenProvider 전달

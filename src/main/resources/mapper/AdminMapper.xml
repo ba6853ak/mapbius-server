@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.mapbius_server.mapper.AdminMapper">
+
+
+
+    <insert id="insertRoleAdmin">
+        INSERT INTO admin_users (user_id) VALUES (#{id})
+    </insert>
+
+    <delete id="deleteRoleAdmin">
+        DELETE FROM admin_users WHERE user_id = #{id}
+    </delete>
+
+
+
+</mapper>

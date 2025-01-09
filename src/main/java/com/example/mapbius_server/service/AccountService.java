@@ -26,6 +26,7 @@ import org.springframework.util.ResourceUtils;
 
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.UUID;
 import org.springframework.core.io.Resource; // Resource 인터페이스
@@ -293,7 +294,7 @@ public class AccountService {
     String uploadPath;
 
     // 사용자 프로필 이미지 DB에서 반출
-    public Resource getProfileImage(String userId) throws Exception {
+/*    public Resource getProfileImage(String userId) throws Exception {
         // DB에서 파일명 조회
         String fileName = accountMapper.findProfileImageByUserId(userId);            // 파일 네임
         if (fileName == null) {
@@ -317,7 +318,7 @@ public class AccountService {
         }
 
         return resource;
-    }
+    }*/
 
 
 // 업로드 잘 되는 코드
@@ -370,7 +371,8 @@ public class AccountService {
         String fileName = UUID.randomUUID().toString() + "_" + originalFilename;
 
         // 프로젝트 루트 디렉터리 확인 및 경로 생성
-        String rootPath = System.getProperty("user.dir");
+        String rootPath = System.getProperty("user.dir"); //
+
         String filePath = rootPath + File.separator + uploadPath + File.separator + fileName;
 
         logger.info("Preparing to save file: {} to path: {}", originalFilename, filePath);
@@ -400,7 +402,44 @@ public class AccountService {
         }
     }
 
+    // @Value("${profile.image.directory}") // application.properties에서 설정된 이미지 저장 경로
+    private String profileImageDirectory;
 
+    String rootPath = System.getProperty("user.dir");
+
+    // 프로필 이미지 경로 반환
+    public String getProfileImageUrl(String userId) throws Exception {
+
+
+        String fileName = accountMapper.findProfileImageByUserId(userId);
+
+        String profileImageDirectory = rootPath + File.separator + uploadPath + File.separator;
+
+        //Path filePath = Paths.get(uploadPath).resolve(fileName).normalize();
+        Path imagePath = Paths.get(profileImageDirectory).resolve(fileName).normalize(); // 이미지 파일명은 userId.jpg
+
+        logger.info("Saving profile image to path: {}", imagePath);
+
+        if (!Files.exists(imagePath)) {
+            throw new Exception("Profile image not found for user: " + userId);
+        }
+
+        // 로컬 파일의 URL을 생성하여 반환
+
+        logger.info(imagePath.toUri().toString());
+        return imagePath.toUri().toString();
+    }
+
+
+    // 프로필 이미지 파일 반환
+    public Resource getProfileImage(String userId) throws Exception {
+        Path imagePath = Paths.get(profileImageDirectory).resolve(userId + ".jpg");
+        if (!Files.exists(imagePath)) {
+            throw new Exception("Profile image not found for user: " + userId);
+        }
+
+        return new UrlResource(imagePath.toUri());
+    }
 
 
 
