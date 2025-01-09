@@ -34,7 +34,9 @@
         SELECT count(1) FROM admin_users WHERE user_id = #{id};
     </select>
 
-
-
+    <!-- 비활성화 유저인지 체크 -->
+    <select id="selectDeActivateCheck" resultType="int">
+        SELECT COUNT(1) FROM users WHERE id = #{id} AND is_deleted = 1;
+    </select>
 
 </mapper>

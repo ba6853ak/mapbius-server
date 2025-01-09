@@ -3,6 +3,7 @@ package com.example.mapbius_server.controller;
 import com.example.mapbius_server.common.ResponseData;
 import com.example.mapbius_server.domain.User;
 import com.example.mapbius_server.dto.LoginRequest;
+import com.example.mapbius_server.mapper.LoginMapper;
 import com.example.mapbius_server.service.LoginService;
 import com.example.mapbius_server.service.UserService;
 import com.example.mapbius_server.util.JwtUtil;
@@ -23,6 +24,7 @@ public class LoginController {
     public final LoginService loginService;
 
     public final JwtUtil jwtUtil;
+    private final LoginMapper loginMapper;
 
 
     // private final ClientHttpRequestFactorySettings clientHttpRequestFactorySettings;
@@ -32,10 +34,11 @@ public class LoginController {
 
     @Autowired
     // public LoginController(LoginService loginService, ClientHttpRequestFactorySettings clientHttpRequestFactorySettings) {
-    public LoginController(LoginService loginService) {
+    public LoginController(LoginService loginService, LoginMapper loginMapper) {
         this.loginService = loginService;
         this.jwtUtil = new JwtUtil();
         // this.clientHttpRequestFactorySettings = clientHttpRequestFactorySettings;
+        this.loginMapper = loginMapper;
     }
 
     @PostMapping("/api/public/login")
@@ -52,14 +55,38 @@ public class LoginController {
         if (loginSuccess) {
             boolean isAdmin = loginService.adminCheck(id); // 관리자인가?
             String role = isAdmin ? "ROLE_ADMIN" : "ROLE_USER";             // JWT 생성 (관리자라면 ROLE_ADMIN 추가)
-            String jwtToken = jwtUtil.generateJWTToken(id, role, null, "activate");             // 일반 로그인이므로 카카오 로그인 시의 닉네임은 쓰지 않음.
+
+            String userState; // 사용자 상태 관리 -> 활성화 / 비활성화
+
+            if(loginMapper.selectDeActivateCheck(id) > 0){ // 비활성화 상태
+                userState = "deactivate";
+            } else { // 활성화 상태
+                userState = "activate";
+            }
+
+            if(userState.equals("deactivate")){
+                logger.info("비활성화 계정의 로그인이 차단되었습니다.");
+                responseData.setCode(403);
+                responseData.setMessage("비활성화 계정의 로그인이 차단되었습니다.");
+                responseData.setTimestamp(new Timestamp(System.currentTimeMillis()));
+                return ResponseEntity.status(403).body(responseData);
+            }
+
+            String jwtToken = jwtUtil.generateJWTToken(id, role, null, userState);             // 일반 로그인이므로 카카오 로그인 시의 닉네임은 쓰지 않음.
+
+
+
             responseData.setCode(200);
             responseData.setMessage("로그인 성공!");
             responseData.setTimestamp(new Timestamp(System.currentTimeMillis()));
             responseData.setToken(jwtToken);
 
+
+
+
+
+
             userData = loginService.getUserInfo(id);
-            System.out.println(userData);
             responseData.setObjData(userData.getId());
             return ResponseEntity.ok(responseData);
         } else {

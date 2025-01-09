@@ -1,6 +1,7 @@
 package com.example.mapbius_server.service;
 
 import com.example.mapbius_server.common.ResponseData;
+import com.example.mapbius_server.mapper.LoginMapper;
 import com.example.mapbius_server.mapper.UserMapper;
 import com.example.mapbius_server.util.JwtUtil;
 import lombok.RequiredArgsConstructor;
@@ -14,6 +15,7 @@ import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
 
 
+import java.sql.Timestamp;
 import java.util.Map;
 
 @Service
@@ -25,6 +27,7 @@ public class KakaoAuthService {
     private final RestTemplate restTemplate;
     private final UserService userService;
     private final LoginService loginService;
+    private final LoginMapper loginMapper;
 
     // 카카오 인증 코드를 받고 신규/기존 회원 모두 동작.
     public String processKakaoLogin(String code) {
@@ -85,6 +88,9 @@ public class KakaoAuthService {
         String kakaoEmail = String.valueOf(kakaoAccount.get("email")); // 이메일 반환
         logger.info("인증된 kakaoId: " + kakaoId+" / "+"인증된 kakaoEmail: " + kakaoEmail);
 
+
+
+
         // 계정 존재 및 상태 체크
         if(userService.isKakaoIdAvailable(kakaoId)) { // 카카오 아이디로 가입한 계정이 존재하지 않음.
             logger.info("카카오 계정으로 등록되어 있지 않습니다.");
@@ -92,6 +98,16 @@ public class KakaoAuthService {
         }
         else { // 카카오 아이디로 가입한 계정이 존재함.
             logger.info("카카오 계정으로 등록되어 있습니다.");
+
+            // 계정 활성화 / 비활성화 여부 체크
+            if(loginMapper.selectDeActivateCheck(kakaoId) > 0){ // 비활성화 상태
+                userState = "deactivate";
+            } else { // 활성화 상태
+                userState = "activate";
+            }
+
+
+
 
             // 계정 관리자 권한 체크
             if(loginService.adminCheck(kakaoId)){
@@ -101,8 +117,6 @@ public class KakaoAuthService {
                 logger.info("["+kakaoId+"]"+"님은 일반 사용자입니다.");
                 userRole = "ROLE_USER";
             }
-
-            userState = "activate"; // 가입 상태
             return jwtUtil.generateJWTToken(kakaoId, userRole , kakaoEmail, userState);
         }
     }

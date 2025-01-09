@@ -296,7 +296,6 @@ public class AccountService {
     public Resource getProfileImage(String userId) throws Exception {
         // DB에서 파일명 조회
         String fileName = accountMapper.findProfileImageByUserId(userId);            // 파일 네임
-
         if (fileName == null) {
             throw new RuntimeException("File not found for userId: " + userId);
         }

@@ -2,6 +2,7 @@ package com.example.mapbius_server.controller;
 
 import com.example.mapbius_server.common.ResponseData;
 import com.example.mapbius_server.domain.User;
+import com.example.mapbius_server.mapper.LoginMapper;
 import com.example.mapbius_server.mapper.UserMapper;
 import com.example.mapbius_server.service.KakaoAuthService;
 import com.example.mapbius_server.service.UserService;
@@ -14,6 +15,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.sql.Timestamp;
 import java.util.Map;
 
 @RestController
@@ -26,6 +28,7 @@ public class KakaoAuthController {
     private final UserService userService;
     private final UserMapper userMapper;
     private final JwtUtil jwtUtil;
+    private final LoginMapper loginMapper;
 
     // 카카오 계정 로그인 (카카오 토큰 생성)
 
@@ -45,9 +48,16 @@ public class KakaoAuthController {
 
         Claims claims = jwtUtil.validateToken(token);
         logger.info(claims.toString());
-
         String state = (String) claims.get("state");
-        logger.info("추출된 state : " + state);
+
+
+        if(state.equals("deactivate")){
+            logger.info("비활성화 계정의 로그인이 차단되었습니다.");
+            responseData.setCode(403);
+            responseData.setMessage("비활성화 계정의 로그인이 차단되었습니다.");
+            responseData.setTimestamp(new Timestamp(System.currentTimeMillis()));
+            return ResponseEntity.status(403).body(responseData);
+        }
 
 
         if (state.equals("guest")) {

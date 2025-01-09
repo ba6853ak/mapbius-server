@@ -18,4 +18,6 @@ public interface LoginMapper {
     // 관리자 로그인 확인
     int selectAdminUserCheck(String id);
 
+    int selectDeActivateCheck(@Param("id") String id);
+
 }
