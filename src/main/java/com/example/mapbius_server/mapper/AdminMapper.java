@@ -10,4 +10,8 @@ public interface AdminMapper {
 
     int deleteRoleAdmin(@Param("id") String id);
 
+    int updateActivateAccount(@Param("id") String id);
+
+    int updateDeActivateAccount(@Param("id") String id);
+
 }

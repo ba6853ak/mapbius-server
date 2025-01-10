@@ -2,6 +2,7 @@ package com.example.mapbius_server.service;
 
 import com.example.mapbius_server.domain.User;
 import com.example.mapbius_server.dto.GrantRoleRequest;
+import com.example.mapbius_server.dto.GrantStateRequest;
 import com.example.mapbius_server.mapper.AdminMapper;
 import io.jsonwebtoken.Claims;
 import lombok.RequiredArgsConstructor;
@@ -13,6 +14,24 @@ import org.springframework.web.bind.annotation.RequestHeader;
 public class AdminService {
 
     private final AdminMapper adminMapper;
+
+    public boolean grantStateToUser(GrantStateRequest gStateReq) {
+
+        String getId = gStateReq.getId(); // 권한을 부여할 사용자의 아이디
+        String getState = gStateReq.getState(); // 부여할 권한 -> 일반:activate / 관리자: deactivate
+
+        if(getState.equals("activate")) {
+            if(adminMapper.updateActivateAccount(getId) > 0){
+                return true;
+            }
+        } else if(getState.equals("deactivate")) {
+            if(adminMapper.updateDeActivateAccount(getId) > 0){
+                return true;
+            }
+        } return false; // 조건이 안 걸리면 부여 실패
+
+    }
+
 
     public boolean grantRoleToUser(GrantRoleRequest gRoleReq) {
 

@@ -4,7 +4,9 @@ package com.example.mapbius_server.controller;
 import com.example.mapbius_server.common.ResponseData;
 import com.example.mapbius_server.common.ResponseResource;
 import com.example.mapbius_server.domain.User;
+import com.example.mapbius_server.dto.PIResponse;
 import com.example.mapbius_server.mapper.AccountMapper;
+import com.example.mapbius_server.mapper.UserMapper;
 import com.example.mapbius_server.service.AccountService;
 import com.example.mapbius_server.service.KakaoAuthService;
 import com.example.mapbius_server.service.LoginService;
@@ -46,6 +48,7 @@ public class AccountController {
     private final UserService userService;
     private final KakaoAuthService kakaoAuthService;
     private final AccountMapper accountMapper;
+    private final UserMapper userMapper;
 
     // 기존 일반 사용자 카카오 계정 연결
     @PostMapping("/api/private/account/kakao/connect")
@@ -222,27 +225,21 @@ public class AccountController {
      */
 
     // 프로필 이미지 반출
-
     @Value("${upload.path}") // 업로드 경로 값을 저장할 변
     String uploadPath;
-
     @PostMapping("/api/private/account/getProfileImage")
     public ResponseEntity<?> getProfileImage(@RequestHeader("Authorization") String header,
     HttpServletRequest request) {
         String token = header.substring(7).trim();
         Claims claims = jwtTokenProvider.validateToken(token);
         String userId = (String) claims.get("sub");
-
         String fileName = accountMapper.findProfileImageByUserId(userId);
-
         if (fileName == null || fileName.isEmpty()) {
             logger.error("프로필 이미지 파일을 찾을 수 없습니다.");
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("프로필 이미지 파일이 없습니다.");
         }
-
         String rootDir = System.getProperty("user.dir");
         String fileDir = rootDir + File.separator + uploadPath;
-
         try {
             // 파일 경로 확인
             Path filePath = Paths.get(fileDir).resolve(fileName).normalize();
@@ -252,7 +249,6 @@ public class AccountController {
                 logger.error("프로필 이미지 파일이 존재하지 않습니다: " + filePath.toString());
                 return ResponseEntity.status(HttpStatus.NOT_FOUND).body("파일이 존재하지 않습니다.");
             }
-
             // URL 반환
             String baseUrl = String.format("%s://%s:%d",
                     request.getScheme(), // http 또는 https
@@ -261,10 +257,17 @@ public class AccountController {
             );
             logger.info("baseUrl: " + baseUrl);
 
+            PIResponse response = new PIResponse();
+
+            String userNm = userMapper.selectUserNickNameById(userId);
 
             String fileUrl = baseUrl + "/uploads/profiles/" + fileName; // 중요!
-            logger.info("파일 URL 반환: " + fileUrl);
-            return ResponseEntity.ok(fileUrl);
+
+            response.setFileUrl(fileUrl);
+            response.setUserNm(userNm);
+
+            logger.info("파일 URL / 닉네임 반환: " + fileUrl + "/" + userNm);
+           return ResponseEntity.ok(response);
 
         } catch (Exception e) {
             logger.error("프로필 이미지를 가져오는 중 오류 발생", e);

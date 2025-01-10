@@ -66,6 +66,13 @@
     </delete>
 
 
+    <select id="selectUserNickNameById" resultType="String">
+        SELECT nick_name FROM users WHERE id = #{id};
+    </select>
+
+
+
+
 
 
 </mapper>

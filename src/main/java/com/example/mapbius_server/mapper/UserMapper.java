@@ -34,5 +34,8 @@ public interface UserMapper {
     // 사용자 강제 삭제
     int deleteUser(@Param("id") String id);
 
+    String selectUserNickNameById(@Param("id") String id);
+
+
 
 }
