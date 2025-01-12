@@ -229,50 +229,57 @@ public class AccountController {
     String uploadPath;
     @PostMapping("/api/private/account/getProfileImage")
     public ResponseEntity<?> getProfileImage(@RequestHeader("Authorization") String header,
-    HttpServletRequest request) {
+                                             HttpServletRequest request) {
         String token = header.substring(7).trim();
         Claims claims = jwtTokenProvider.validateToken(token);
         String userId = (String) claims.get("sub");
+
+        // 닉네임 조회
+        String userNm = userMapper.selectUserNickNameById(userId);
+        if (userNm == null || userNm.isEmpty()) {
+            logger.error("사용자 닉네임을 찾을 수 없습니다: " + userId);
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("사용자 닉네임을 찾을 수 없습니다.");
+        }
+
+        // 프로필 이미지 파일명 조회
         String fileName = accountMapper.findProfileImageByUserId(userId);
-        if (fileName == null || fileName.isEmpty()) {
-            logger.error("프로필 이미지 파일을 찾을 수 없습니다.");
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("프로필 이미지 파일이 없습니다.");
-        }
-        String rootDir = System.getProperty("user.dir");
-        String fileDir = rootDir + File.separator + uploadPath;
-        try {
-            // 파일 경로 확인
-            Path filePath = Paths.get(fileDir).resolve(fileName).normalize();
-            Resource resource = new UrlResource(filePath.toUri());
+        String fileUrl = null;
 
-            if (!resource.exists()) {
-                logger.error("프로필 이미지 파일이 존재하지 않습니다: " + filePath.toString());
-                return ResponseEntity.status(HttpStatus.NOT_FOUND).body("파일이 존재하지 않습니다.");
+        // 업로드 경로 및 파일 URL 구성
+        if (fileName != null && !fileName.isEmpty()) {
+            String rootDir = System.getProperty("user.dir");
+            String fileDir = rootDir + File.separator + uploadPath;
+
+            try {
+                Path filePath = Paths.get(fileDir).resolve(fileName).normalize();
+                Resource resource = new UrlResource(filePath.toUri());
+
+                if (resource.exists()) {
+                    String baseUrl = String.format("%s://%s:%d",
+                            request.getScheme(),
+                            request.getServerName(),
+                            request.getServerPort()
+                    );
+                    fileUrl = baseUrl + "/uploads/profiles/" + fileName;
+                    logger.info("파일 URL 생성 성공: " + fileUrl);
+                } else {
+                    logger.warn("프로필 이미지 파일이 존재하지 않습니다: " + filePath.toString());
+                }
+            } catch (Exception e) {
+                logger.error("프로필 이미지 파일 처리 중 오류 발생", e);
+                // 이미지 URL은 null로 유지
             }
-            // URL 반환
-            String baseUrl = String.format("%s://%s:%d",
-                    request.getScheme(), // http 또는 https
-                    request.getServerName(), // 서버 이름 또는 IP
-                    request.getServerPort() // 서버 포트
-            );
-            logger.info("baseUrl: " + baseUrl);
-
-            PIResponse response = new PIResponse();
-
-            String userNm = userMapper.selectUserNickNameById(userId);
-
-            String fileUrl = baseUrl + "/uploads/profiles/" + fileName; // 중요!
-
-            response.setFileUrl(fileUrl);
-            response.setUserNm(userNm);
-
-            logger.info("파일 URL / 닉네임 반환: " + fileUrl + "/" + userNm);
-           return ResponseEntity.ok(response);
-
-        } catch (Exception e) {
-            logger.error("프로필 이미지를 가져오는 중 오류 발생", e);
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("프로필 이미지를 가져오는 중 오류가 발생했습니다.");
+        } else {
+            logger.info("프로필 이미지 파일이 설정되지 않음.");
         }
+
+        // 응답 객체 구성
+        PIResponse response = new PIResponse();
+        response.setFileUrl(fileUrl); // 이미지가 없으면 null 반환
+        response.setUserNm(userNm);  // 닉네임은 항상 반환
+
+        logger.info("닉네임 및 파일 URL 반환: " + userNm + " / " + (fileUrl != null ? fileUrl : "이미지 없음"));
+        return ResponseEntity.ok(response);
     }
 
 
