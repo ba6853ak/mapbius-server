@@ -18,17 +18,13 @@ public class AdminService {
     public boolean grantStateToUser(GrantStateRequest gStateReq) {
 
         String getId = gStateReq.getId(); // 권한을 부여할 사용자의 아이디
-        String getState = gStateReq.getState(); // 부여할 권한 -> 일반:activate / 관리자: deactivate
+        // String getState = gStateReq.getState(); // 부여할 권한 -> 일반:activate / 관리자: deactivate
 
-        if(getState.equals("activate")) {
+
             if(adminMapper.updateActivateAccount(getId) > 0){
                 return true;
-            }
-        } else if(getState.equals("deactivate")) {
-            if(adminMapper.updateDeActivateAccount(getId) > 0){
-                return true;
-            }
-        } return false; // 조건이 안 걸리면 부여 실패
+            } return false;
+
 
     }
 
@@ -36,17 +32,16 @@ public class AdminService {
     public boolean grantRoleToUser(GrantRoleRequest gRoleReq) {
 
         String getId = gRoleReq.getId(); // 권한을 부여할 사용자의 아이디
-        String getRole = gRoleReq.getRole(); // 부여할 권한 -> 일반:normal / 관리자: admin
+        // String getRole = gRoleReq.getRole(); // 부여할 권한 -> 일반:normal / 관리자: admin
 
-        if(getRole.equals("admin")) {
-            if(adminMapper.insertRoleAdmin(getId) > 0){
-                return true;
-            }
-        } else if(getRole.equals("normal")) {
-            if(adminMapper.deleteRoleAdmin(getId) > 0){
-                return true;
-            }
-        } return false; // 조건이 안 걸리면 부여 실패
+        if (adminMapper.existsAdminUser(getId)) {
+            adminMapper.deleteAdminUser(getId);
+            return true;
+        } else {
+            adminMapper.insertAdminUser(getId);
+            return true;
+        }
+
 
     }
 

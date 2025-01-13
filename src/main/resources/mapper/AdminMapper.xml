@@ -7,14 +7,25 @@
         INSERT INTO admin_users (user_id) VALUES (#{id})
     </insert>
 
+    <insert id="insertOrDeleteRoleAdmin">
+        <choose>
+            <when test="(select count(*) from admin_users where user_id = #{id}) > 0">
+                DELETE FROM admin_users WHERE user_id = #{id};
+            </when>
+            <otherwise>
+                INSERT INTO admin_users (user_id) VALUES (#{id});
+            </otherwise>
+        </choose>
+    </insert>
+
     <delete id="deleteRoleAdmin">
         DELETE FROM admin_users WHERE user_id = #{id}
     </delete>
 
     <update id="updateActivateAccount">
         UPDATE users
-        SET is_deleted = 0
-        WHERE id = #{id} and is_deleted = 1;
+        SET is_deleted = is_deleted ^ 1
+        WHERE id = #{id};
     </update>
 
     <update id="updateDeActivateAccount">
@@ -22,6 +33,25 @@
         SET is_deleted = 1
         WHERE id = #{id} and is_deleted = 0;
     </update>
+
+
+    <!-- ID 존재 여부 확인 -->
+    <select id="existsAdminUser" resultType="boolean">
+        SELECT COUNT(*) > 0
+        FROM admin_users
+        WHERE user_id = #{id}
+    </select>
+
+    <!-- ID 삭제 -->
+    <delete id="deleteAdminUser">
+        DELETE FROM admin_users WHERE user_id = #{id}
+    </delete>
+
+    <!-- ID 삽입 -->
+    <insert id="insertAdminUser">
+        INSERT INTO admin_users (user_id) VALUES (#{id})
+    </insert>
+
 
 
 </mapper>

@@ -128,7 +128,8 @@ public class AdminController {
         String userId = (String) claims.getSubject();
         String role = (String) claims.get("role"); // 토큰에서 권한 추출
 
-        logger.info("userId: {}, role: {}", userId, role);
+        logger.info("권한을 부여하는 관리자 - userId: {}, role: {}", userId, role);
+        logger.info(gRoleReq.getId() + "/" + gRoleReq.getRole());
 
         if(!role.equals("ROLE_ADMIN")) { // 만약 관리자가 아니면 권한 부여 실패
             responseData.setCode(404);
