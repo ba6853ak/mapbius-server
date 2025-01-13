@@ -54,4 +54,29 @@
 
 
 
+    <!-- 전체 사용자 정보 조회 -->
+    <select id="getAllUsers" resultType="map">
+        SELECT
+            u.profile_image,
+            u.nick_name,
+            u.id,
+            u.email,
+            u.birth_date,
+            u.created_at,
+            u.gender,
+            CASE
+                WHEN u.is_deleted = 0 THEN 'activate'
+                ELSE 'deactivate'
+                END AS account_status,
+            CASE
+                WHEN a.user_id IS NOT NULL THEN 'admin'
+                ELSE 'normal'
+                END AS role
+        FROM users u
+                 LEFT JOIN admin_users a ON u.id = a.user_id
+        ORDER BY u.created_at DESC;
+    </select>
+
+
+
 </mapper>

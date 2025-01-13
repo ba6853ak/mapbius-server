@@ -17,6 +17,8 @@ import org.springframework.web.bind.annotation.*;
 import java.sql.Timestamp;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
+import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequiredArgsConstructor
@@ -25,15 +27,14 @@ public class AdminController {
     private final AdminService adminService;
     private final JwtTokenProvider jwtTokenProvider;
 
-    // 프로필 이미지, 닉네임. 아이디, 이메일, 생년월일, 가입날짜, 성별, 권한, 계정상태
+    // 프로필 이미지, 닉네임. 아이디, 이메일, 생년월일, 가입날짜, 성별, 권한, 계정상태 표시해야함! !!!!
 
     /**
      *
      */
-/*    @PostMapping("/api/private/admin/info/user")
+    @GetMapping("/api/private/admin/info/user")
     public ResponseEntity<ResponseData> displayUserInfo(
             @RequestHeader("Authorization") String header,
-            @RequestParam(defaultValue = "1") int curpage,  // 현재 페이지
             @RequestParam(value = "keyword", required = false) String keyword // 검색어 (사용자 아이디만 검색 가능)
             ) {
 
@@ -49,25 +50,17 @@ public class AdminController {
             responseData.setTimestamp(Timestamp.from(ZonedDateTime.now(ZoneId.of("Asia/Seoul")).toInstant()));
             return ResponseEntity.status(404).body(responseData);
         } else {
-
-
-            if (adminService.grantStateToUser(gStateReq)) {
+                List<Map<String, Object>> data = adminService.getAllUsersWithProcessedImages();
                 responseData.setCode(200);
                 responseData.setMessage("사용자 목록을 출력합니다.");
+                responseData.setObjData(data);
                 responseData.setTimestamp(Timestamp.from(ZonedDateTime.now(ZoneId.of("Asia/Seoul")).toInstant()));
                 return ResponseEntity.status(200).body(responseData);
-            } else {
-                responseData.setCode(404);
-                responseData.setMessage("사용자 목록 출력에 오류가 발생했습니다.");
-                responseData.setTimestamp(Timestamp.from(ZonedDateTime.now(ZoneId.of("Asia/Seoul")).toInstant()));
-                return ResponseEntity.status(404).body(responseData);
-            }
-
 
 
         }
 
-    }*/
+    }
 
 
 

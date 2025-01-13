@@ -3,6 +3,9 @@ package com.example.mapbius_server.mapper;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
+import java.util.List;
+import java.util.Map;
+
 @Mapper
 public interface AdminMapper {
 
@@ -35,6 +38,9 @@ public interface AdminMapper {
      * @param id 사용자 ID
      */
     void insertAdminUser(@Param("id") String id);
+
+
+    List<Map<String, Object>> getAllUsers();
 
 
 
