@@ -68,6 +68,8 @@ dependencies {
 	// 프로필 이미지 업로드 관련
 	implementation 'commons-io:commons-io:2.11.0'
 
+	implementation 'com.fasterxml.jackson.dataformat:jackson-dataformat-xml'
+
 }
 
 tasks.named('test') {
