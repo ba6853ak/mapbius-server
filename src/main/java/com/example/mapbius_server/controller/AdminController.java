@@ -5,9 +5,12 @@ import com.example.mapbius_server.domain.User;
 import com.example.mapbius_server.dto.GrantRoleRequest;
 import com.example.mapbius_server.dto.GrantStateRequest;
 import com.example.mapbius_server.service.AdminService;
+import com.example.mapbius_server.service.UserService;
 import com.example.mapbius_server.util.JwtTokenProvider;
 import io.jsonwebtoken.Claims;
 import lombok.RequiredArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -18,7 +21,7 @@ import java.time.ZonedDateTime;
 @RestController
 @RequiredArgsConstructor
 public class AdminController {
-
+    private static final Logger logger = LoggerFactory.getLogger(UserService.class);
     private final AdminService adminService;
     private final JwtTokenProvider jwtTokenProvider;
 
@@ -122,7 +125,10 @@ public class AdminController {
 
         String token = header.substring(7).trim(); // Bearer 접두사 및 공백 제거
         Claims claims = jwtTokenProvider.validateToken(token); // 검증 및 토큰 데이터 집합 추출
+        String userId = (String) claims.getSubject();
         String role = (String) claims.get("role"); // 토큰에서 권한 추출
+
+        logger.info("userId: {}, role: {}", userId, role);
 
         if(!role.equals("ROLE_ADMIN")) { // 만약 관리자가 아니면 권한 부여 실패
             responseData.setCode(404);

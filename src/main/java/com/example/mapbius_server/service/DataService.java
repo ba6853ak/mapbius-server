@@ -12,6 +12,7 @@ import com.fasterxml.jackson.dataformat.xml.XmlMapper;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -94,6 +95,83 @@ public class DataService {
                     ));
         }
     }
+
+
+
+
+    public ResponseEntity<Map<String, Object>> fetchPopulationData(String region) {
+
+        try {
+
+            StringBuilder url = new StringBuilder("http://apis.data.go.kr/1741000/stdgPpltnHhStus/selectStdgPpltnHhStus");
+            url.append("?").append("serviceKey").append("=").append("tcugr%2BBAM6xytHFMqRIsdGCP3Tl8re%2B3sfcfxFJz7BFSI8HYjDsk62a8FXl5LGJD1rEA99GHB11OUdLItPrbVA%3D%3D");
+            url.append("&").append("stdgCd").append("=").append(URLEncoder.encode(region, "UTF-8"));
+            url.append("&").append("srchFrYm").append("=").append("202408"); // 조회 시작 년월
+            url.append("&").append("srchToYm").append("=").append("202408"); // 조회 종료 년월
+            url.append("&").append("lv").append("=").append("3"); // 시군구 단위
+            url.append("&").append("regSeCd").append("=").append("1"); // 전체
+            url.append("&").append("type").append("=").append("JSON"); // JSON 형식
+            url.append("&").append("numOfRows").append("=").append("1000"); // 페이지당 100개
+            url.append("&").append("pageNo").append("=").append("1"); // 페이지 번호
+
+            System.out.println("API 요청 URL: " + url.toString());
+
+            URI uri = new URI(url.toString());
+
+            HttpHeaders headers = new HttpHeaders();
+            headers.setContentType(MediaType.APPLICATION_JSON);
+            headers.setAccept(List.of(MediaType.APPLICATION_JSON));
+
+            HttpEntity<String> httpRequest = new HttpEntity<>(null, headers);
+
+            RestTemplate restTemplate = new RestTemplate();
+
+            ResponseEntity<Map<String, Object>> response = restTemplate.exchange(
+                    uri,
+                    HttpMethod.GET,
+                    httpRequest,
+                    new ParameterizedTypeReference<>() {}
+            );
+
+            if (response.getStatusCode().is2xxSuccessful() && response.getBody() != null) {
+
+                Map<String, Object> topLevel = response.getBody();
+
+                Map<String, Object> responseMap = (Map<String, Object>) topLevel.get("Response");
+
+                Map<String, Object> bodyMap = (Map<String, Object>) responseMap.get("items");
+
+                return ResponseEntity.ok()
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .body(bodyMap);
+
+            } else {
+                return ResponseEntity.status(response.getStatusCode())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .body(Map.of(
+                                "error", "API 요청 실패",
+                                "status", response.getStatusCode(),
+                                "details", response.getBody()
+                        ));
+            }
+
+        } catch (URISyntaxException e) {
+            return ResponseEntity.badRequest()
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .body(Map.of(
+                            "error", "URI 생성 오류",
+                            "details", e.getMessage()
+                    ));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .body(Map.of(
+                            "error", "알 수 없는 오류 발생",
+                            "details", e.getMessage()
+                    ));
+        }
+    }
+
 
 
 }

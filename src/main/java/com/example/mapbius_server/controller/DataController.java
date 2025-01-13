@@ -22,6 +22,8 @@ public class DataController {
     }
 
 
+
+
     @GetMapping(value = "/api/public/kr-data/festival-info", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<?> searchFestivalData(@RequestParam(required = false) String region) {
         // 요청 검증
@@ -45,6 +47,40 @@ public class DataController {
                     .body(Map.of("error", "내부 서버 오류", "details", e.getMessage()));
         }
     }
+
+
+
+
+
+    @GetMapping(value = "/api/public/kr-data/population-info", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<?> searchPopulationData(@RequestParam(required = false) String region) {
+
+
+
+
+
+
+        if (region == null || region.trim().isEmpty()) {
+            return ResponseEntity.badRequest().body(Map.of("error", "지역명을 입력해주세요."));
+        }
+
+        try {
+            ResponseEntity<Map<String, Object>> response = dataService.fetchPopulationData(region);
+
+            return ResponseEntity.ok()
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .body(response.getBody());
+
+        } catch (Exception e) {
+            logger.error("축제 데이터 조회 중 오류 발생", e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .body(Map.of("error", "내부 서버 오류", "details", e.getMessage()));
+        }
+    }
+
+
+
 
 
 
