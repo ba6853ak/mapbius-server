@@ -1,6 +1,5 @@
 package com.example.mapbius_server.service;
 
-import com.fasterxml.jackson.dataformat.xml.XmlMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -8,8 +7,6 @@ import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.*;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
-import com.fasterxml.jackson.dataformat.xml.XmlMapper;
-import org.springframework.web.util.UriComponentsBuilder;
 import org.w3c.dom.Document;
 import org.w3c.dom.NodeList;
 
@@ -20,10 +17,11 @@ import java.io.InputStream;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URLEncoder;
-import java.nio.charset.StandardCharsets;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+// 농사로
+// https://www.nongsaro.go.kr/portal/portalMain.ps?menuId=PS00001
 
 @Service
 public class DataService {
@@ -35,6 +33,163 @@ public class DataService {
 
     private final String BASE_URL = "http://apis.data.go.kr/B551011/KorService1/searchKeyword1";
 
+
+
+    public ResponseEntity<Map<String, Object>> searchSidoPerSigunguDisplay(String region) {
+        try {
+            StringBuilder url = new StringBuilder("http://api.nongsaro.go.kr/service/localSpcprd/selectAreaSigunguLst");
+            url.append("?").append("apiKey").append("=").append("20250116EOYJGPMATSLA2IMIWLKG"); // api 키
+            url.append("&").append("sDoNm").append("=").append(URLEncoder.encode(region, "UTF-8")); // 지역 코드
+
+
+            System.out.println("API 요청 URL: " + url.toString());
+
+            URI uri = new URI(url.toString());
+
+            HttpHeaders headers = new HttpHeaders();
+            headers.setContentType(MediaType.APPLICATION_JSON);
+            headers.setAccept(List.of(MediaType.APPLICATION_JSON));
+
+            HttpEntity<String> httpRequest = new HttpEntity<>(null, headers);
+
+            RestTemplate restTemplate = new RestTemplate();
+
+            ResponseEntity<Map<String, Object>> response = restTemplate.exchange(
+                    uri,
+                    HttpMethod.GET,
+                    httpRequest,
+                    new ParameterizedTypeReference<>() {}
+            );
+
+            if (response.getStatusCode().is2xxSuccessful() && response.getBody() != null) {
+
+                Map<String, Object> topLevel = response.getBody();
+
+                Map<String, Object> bodyMap = (Map<String, Object>) topLevel.get("body");
+
+                Map<String, Object> ItemMap = (Map<String, Object>) bodyMap.get("items");
+
+
+                return ResponseEntity.ok()
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .body(ItemMap);
+
+            } else {
+                return ResponseEntity.status(response.getStatusCode())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .body(Map.of(
+                                "error", "API 요청 실패",
+                                "status", response.getStatusCode(),
+                                "details", response.getBody()
+                        ));
+            }
+
+        } catch (URISyntaxException e) {
+            return ResponseEntity.badRequest()
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .body(Map.of(
+                            "error", "URI 생성 오류",
+                            "details", e.getMessage()
+                    ));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .body(Map.of(
+                            "error", "알 수 없는 오류 발생",
+                            "details", e.getMessage()
+                    ));
+        }
+    }
+
+
+
+
+
+    public ResponseEntity<Map<String, Object>> fetchNongsaroData(String region) {
+
+        try {
+
+            StringBuilder url = new StringBuilder("http://api.nongsaro.go.kr/service/localSpcprd/localSpcprdLst");
+            url.append("?").append("apiKey").append("=").append("20250116EOYJGPMATSLA2IMIWLKG"); // api 키
+            url.append("&").append("sAreaCode").append("=").append(URLEncoder.encode(region, "UTF-8")); // 지역 코드
+
+
+            System.out.println("API 요청 URL: " + url.toString());
+
+            URI uri = new URI(url.toString());
+
+            HttpHeaders headers = new HttpHeaders();
+            headers.setContentType(MediaType.APPLICATION_JSON);
+            headers.setAccept(List.of(MediaType.APPLICATION_JSON));
+
+            HttpEntity<String> httpRequest = new HttpEntity<>(null, headers);
+
+            RestTemplate restTemplate = new RestTemplate();
+
+            ResponseEntity<Map<String, Object>> response = restTemplate.exchange(
+                    uri,
+                    HttpMethod.GET,
+                    httpRequest,
+                    new ParameterizedTypeReference<>() {}
+            );
+
+            if (response.getStatusCode().is2xxSuccessful() && response.getBody() != null) {
+
+                Map<String, Object> topLevel = response.getBody();
+
+                Map<String, Object> responseMap = (Map<String, Object>) topLevel.get("body");
+
+                Map<String, Object> bodyMap = (Map<String, Object>) responseMap.get("items");
+
+                return ResponseEntity.ok()
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .body(bodyMap);
+
+            } else {
+                return ResponseEntity.status(response.getStatusCode())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .body(Map.of(
+                                "error", "API 요청 실패",
+                                "status", response.getStatusCode(),
+                                "details", response.getBody()
+                        ));
+            }
+
+        } catch (URISyntaxException e) {
+            return ResponseEntity.badRequest()
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .body(Map.of(
+                            "error", "URI 생성 오류",
+                            "details", e.getMessage()
+                    ));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .body(Map.of(
+                            "error", "알 수 없는 오류 발생",
+                            "details", e.getMessage()
+                    ));
+        }
+    }
+
+
+
+/*    public Map<String, Object> getSigunguList(String sDoNm) throws Exception {
+        // 요청 URL 생성
+        String encodedSDoNm = URLEncoder.encode(sDoNm, StandardCharsets.UTF_8);
+        String url = "http://api.nongsaro.go.kr/service/localSpcprd/selectAreaSigunguLst" + "?apiKey=" + API_KEY + "&sDoNm=" + encodedSDoNm;
+
+        // RestTemplate을 사용하여 API 호출
+        RestTemplate restTemplate = new RestTemplate();
+        ResponseEntity<Map> response = restTemplate.getForEntity(new URI(url), Map.class);
+
+        // 응답 반환
+        if (response.getStatusCode().is2xxSuccessful()) {
+            return response.getBody();
+        } else {
+            throw new RuntimeException("API 호출 실패: " + response.getStatusCode());
+        }
+    }*/
 
 
     public ResponseEntity<Map<String, Object>> fetchStanReginCd(String region) {

@@ -19,6 +19,11 @@ public class LoginService {
         this.passwordUtil = passwordUtil;
     }
 
+
+
+
+
+
     public boolean login(String id, String pw) {
 
         User userIdAndPw = loginMapper.authenticate(id);
@@ -43,7 +48,6 @@ public class LoginService {
         User user = loginMapper.getUserInformation(id);
         return user;
     }
-
 
     public boolean adminCheck(String id) {
         if(loginMapper.selectAdminUserCheck(id) > 0){

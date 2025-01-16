@@ -27,17 +27,12 @@ public class LoginController {
     private final LoginMapper loginMapper;
 
 
-    // private final ClientHttpRequestFactorySettings clientHttpRequestFactorySettings;
-
-
-
 
     @Autowired
-    // public LoginController(LoginService loginService, ClientHttpRequestFactorySettings clientHttpRequestFactorySettings) {
     public LoginController(LoginService loginService, LoginMapper loginMapper) {
         this.loginService = loginService;
         this.jwtUtil = new JwtUtil();
-        // this.clientHttpRequestFactorySettings = clientHttpRequestFactorySettings;
+
         this.loginMapper = loginMapper;
     }
 
@@ -73,18 +68,10 @@ public class LoginController {
             }
 
             String jwtToken = jwtUtil.generateJWTToken(id, role, null, userState);             // 일반 로그인이므로 카카오 로그인 시의 닉네임은 쓰지 않음.
-
-
-
             responseData.setCode(200);
             responseData.setMessage("로그인 성공!");
             responseData.setTimestamp(new Timestamp(System.currentTimeMillis()));
             responseData.setToken(jwtToken);
-
-
-
-
-
 
             userData = loginService.getUserInfo(id);
             responseData.setObjData(userData.getId());

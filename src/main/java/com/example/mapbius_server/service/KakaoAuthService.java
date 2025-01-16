@@ -1,13 +1,10 @@
 package com.example.mapbius_server.service;
-
-import com.example.mapbius_server.common.ResponseData;
 import com.example.mapbius_server.mapper.LoginMapper;
-import com.example.mapbius_server.mapper.UserMapper;
 import com.example.mapbius_server.util.JwtUtil;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
+
 import org.springframework.http.*;
 import org.springframework.stereotype.Service;
 import org.springframework.util.LinkedMultiValueMap;
@@ -15,7 +12,6 @@ import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
 
 
-import java.sql.Timestamp;
 import java.util.Map;
 
 @Service
