@@ -1,7 +1,9 @@
 package com.example.mapbius_server.controller;
 
 import com.example.mapbius_server.service.DataService;
+import com.example.mapbius_server.service.NaverAPIService;
 import com.example.mapbius_server.service.UserService;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
@@ -9,17 +11,33 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.io.UnsupportedEncodingException;
+import java.net.URISyntaxException;
 import java.util.Map;
 
 @RestController
 public class DataController {
 
     private final DataService dataService;
+    private final NaverAPIService naverAPIService;
 
     private static final Logger logger = LoggerFactory.getLogger(UserService.class);
-    public DataController(DataService dataService) {
+    public DataController(DataService dataService, NaverAPIService naverAPIService) {
         this.dataService = dataService;
+        this.naverAPIService = naverAPIService;
     }
+
+    // 네이버 검색 서비스
+    @GetMapping("/api/public/naver/search")
+    public Object searchLocal(@RequestParam String query) throws UnsupportedEncodingException, URISyntaxException, JsonProcessingException {
+
+        // JSON 응답으로 강제 반환
+        return ResponseEntity.ok()
+                .contentType(MediaType.APPLICATION_JSON)
+                .body(naverAPIService.naverSearchMethod(query));
+
+    }
+
 
     // 시도 별 시군구 표시하기 (Nongsaro)
     @GetMapping(value = "/api/public/kr-data/entire-sigungo-list", produces = MediaType.APPLICATION_JSON_VALUE)
