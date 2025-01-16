@@ -54,7 +54,7 @@ public class DataController {
     }
 
 
-/*    @GetMapping(value = "/api/public/kr-data/festival-info", produces = MediaType.APPLICATION_JSON_VALUE)
+    @GetMapping(value = "/api/public/kr-data/festival-info", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<?> searchFestivalData(@RequestParam(required = false) String region) {
         // 요청 검증
         if (region == null || region.trim().isEmpty()) {
@@ -76,7 +76,7 @@ public class DataController {
                     .contentType(MediaType.APPLICATION_JSON)
                     .body(Map.of("error", "내부 서버 오류", "details", e.getMessage()));
         }
-    }*/
+    }
 
 
 
