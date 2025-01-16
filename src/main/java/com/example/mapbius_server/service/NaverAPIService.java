@@ -24,11 +24,11 @@ public class NaverAPIService {
 
     public Object naverSearchMethod(String query) throws URISyntaxException, UnsupportedEncodingException, JsonProcessingException {
 
-        StringBuilder url = new StringBuilder("https://openapi.naver.com/v1/search/local.json");
+        StringBuilder url = new StringBuilder("https://openapi.naver.com/v1/search/news.json");
         url.append("?").append("query").append("=").append(URLEncoder.encode(query, "UTF-8"));
-        url.append("&").append("display").append("=").append("5");
-        // url.append("&").append("start").append("=").append("1");
-        url.append("&").append("sort").append("=").append("comment");
+        url.append("&").append("display").append("=").append("100");
+        url.append("&").append("start").append("=").append("1");
+        url.append("&").append("sort").append("=").append("date"); // 또는 sim(정확도)
         URI uri = new URI(url.toString());
 
 
