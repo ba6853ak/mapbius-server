@@ -31,7 +31,6 @@ public class DataService {
     @Value("${external.api.key}")
     private String serviceKey;
 
-    private final String BASE_URL = "http://apis.data.go.kr/B551011/KorService1/searchKeyword1";
 
 
 
@@ -270,6 +269,7 @@ public class DataService {
 
 
 
+    private final String BASE_URL = "http://apis.data.go.kr/B551011/KorService1/searchKeyword1";
 
     public ResponseEntity<Map<String, Object>> fetchFestivalData(String region) {
         try {

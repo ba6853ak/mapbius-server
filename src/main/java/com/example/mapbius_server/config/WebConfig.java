@@ -13,12 +13,21 @@ public class WebConfig implements WebMvcConfigurer {
     @Override
     public void addResourceHandlers(ResourceHandlerRegistry registry) {
         String rootDir = System.getProperty("user.dir");
-        // String uploadPath = rootDir + "/server_file/upload/profile/";
-        String uploadPath = rootDir + "/upload/profile/";
 
-        System.out.println(uploadPath);
+        // 프로필 이미지 업로드 경로
+        String profileUploadPath = rootDir + "/upload/profile/";
+        System.out.println("Profile upload path: " + profileUploadPath);
+
+        // 커버 이미지 업로드 경로
+        String coverImageUploadPath = rootDir + "/upload/cover_image/";
+        System.out.println("Cover image upload path: " + coverImageUploadPath);
+
+        // 리소스 핸들러 등록
         registry.addResourceHandler("/uploads/profiles/**")
-                .addResourceLocations("file:" + uploadPath);
+                .addResourceLocations("file:" + profileUploadPath);
+
+        registry.addResourceHandler("/uploads/cover_images/**")
+                .addResourceLocations("file:" + coverImageUploadPath);
     }
 
 

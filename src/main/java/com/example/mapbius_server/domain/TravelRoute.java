@@ -2,6 +2,7 @@ package com.example.mapbius_server.domain;
 
 import lombok.Getter;
 import lombok.Setter;
+import org.springframework.web.multipart.MultipartFile;
 
 @Getter
 @Setter
@@ -11,7 +12,11 @@ public class TravelRoute {
 
     private String creatorId; // 작성자 ID (users 테이블과 연관)
 
-    private String coverImageUrl; // 커버 이미지 URL
+    private MultipartFile imageFile;
+
+    private String creatorNickName;
+
+    private String coverImageName; // 커버 이미지 URL
 
     private String title; // 리스트 제목
 

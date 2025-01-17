@@ -5,13 +5,18 @@ import com.example.mapbius_server.domain.Board;
 import com.example.mapbius_server.domain.TravelRoute;
 import com.example.mapbius_server.mapper.BoardMapper;
 import com.example.mapbius_server.service.BoardService;
+import com.example.mapbius_server.service.UserService;
 import com.example.mapbius_server.util.JwtUtil;
 
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 import java.util.Map;
@@ -19,40 +24,151 @@ import java.util.Map;
 @RestController
 @RequiredArgsConstructor
 public class BoardController {
-
+    private static final Logger logger = LoggerFactory.getLogger(UserService.class);
     private final BoardService boardService;
     public final JwtUtil jwtUtil;
     private final BoardMapper boardMapper;
 
     ResponseData responseData;
 
-
-
-    // 여행 경로 등록
-    @PostMapping("/api/private/travel-route/enroll")
-    public ResponseEntity<?> travelRouteEnroll(@RequestHeader("Authorization") String authorizationHeader, @RequestBody TravelRoute tr) {
-
-        String token = authorizationHeader.replace("Bearer ", ""); // 토큰 추출
-        String jwtLog = jwtUtil.validateToken(token).getSubject(); // 토큰 검증
-        System.out.println("Extracted Username from JWT: " + jwtLog);
+    // 여행 경로 전체 목록 가져오기
+    @PostMapping("/api/private/travel-route/entire-list")
+    public ResponseEntity<?> travelRouteEntireList(@RequestHeader("Authorization") String authorizationHeader, HttpServletRequest request) {
 
         ResponseData responseData = new ResponseData();
-        if (boardService.travelRouteEnroll(tr)) {
-            responseData.setCode(201);
-            responseData.setMessage("여행 경로 등록 성공");
-            System.out.println("여행 경로 등록 성공");
-            return ResponseEntity.status(201).body(responseData);
+
+        String token = authorizationHeader.replace("Bearer ", ""); // 토큰 추출
+        String creator_id = jwtUtil.validateToken(token).getSubject(); // 토큰 검증
+
+        List<TravelRoute> receivedData = boardService.getAllTravelRoutes(request);
+
+        if (receivedData != null) {
+            responseData.setCode(200);
+            responseData.setMessage("여행 경로 리스트 출력");
+            responseData.setObjData(receivedData);
+            System.out.println("여행 경로 리스트 출력 성공");
+            return ResponseEntity.status(200).body(responseData);
         } else {
-            System.out.println("여행 경로 동작");
-            System.out.println("Extracted Username from JWT: " + jwtLog);
-            responseData.setCode(400);
-            responseData.setMessage("여행 경로 등록 실패");
-            System.out.println("여행 경로 등록 실패");
-            return ResponseEntity.status(400).body(responseData);
+            responseData.setCode(404);
+            responseData.setMessage("여행 경로 리스트 출력 실패");
+            System.out.println("여행 경로 리스트 출력 실패");
+            return ResponseEntity.status(404).body(responseData);
         }
 
     }
 
+    // 여행 경로 상세보기 가져오기
+    @PostMapping("/api/private/travel-route/detail")
+    public ResponseEntity<?> travelRouteArticleDatail(@RequestHeader("Authorization") String authorizationHeader, @RequestBody TravelRoute tr) {
+
+        ResponseData responseData = new ResponseData();
+
+        logger.info(String.valueOf(tr.getId()));
+
+        Object data = boardService.getTravelRouteById(tr.getId());
+
+        if (data != null) {
+            responseData.setCode(200);
+            responseData.setMessage("해당 여행 경로 출력");
+            responseData.setObjData(data);
+            System.out.println("여행 경로 가져오기 성공");
+            return ResponseEntity.status(200).body(responseData);
+        } else {
+            responseData.setCode(404);
+            responseData.setMessage("해당 여행 경로 출력 실패");
+            System.out.println("여행 경로 가져오기 실패");
+            return ResponseEntity.status(404).body(responseData);
+        }
+
+    }
+
+
+    // 여행 경로 등록
+    @PostMapping("/api/private/travel-route/enroll")
+    public ResponseEntity<?> travelRouteEnroll(@RequestHeader("Authorization") String authorizationHeader, @ModelAttribute TravelRoute tr) {
+
+        String token = authorizationHeader.replace("Bearer ", ""); // 토큰 추출
+        String creator_id = jwtUtil.validateToken(token).getSubject(); // 토큰 검증
+        tr.setCreatorId(creator_id);
+
+        ResponseData responseData = new ResponseData();
+        if (boardService.saveCoverImageAndTravelRoute(tr)) {
+            responseData.setCode(200);
+            responseData.setMessage("여행 경로 등록 성공");
+            System.out.println("여행 경로 등록 성공");
+            return ResponseEntity.status(200).body(responseData);
+        } else {
+            responseData.setCode(404);
+            responseData.setMessage("여행 경로 등록 실패");
+            System.out.println("여행 경로 등록 실패");
+            return ResponseEntity.status(404).body(responseData);
+        }
+
+    }
+
+    // 여행 경로 수정
+    @PostMapping("/api/private/travel-route/modify")
+    public ResponseEntity<?> travelRouteModify(        @RequestHeader("Authorization") String authorizationHeader,
+                                                       @RequestPart(value = "imageFile", required = false) MultipartFile imageFile,
+                                                       @ModelAttribute TravelRoute tr) {
+
+        ResponseData responseData = new ResponseData();
+
+        String token = authorizationHeader.replace("Bearer ", ""); // 토큰 추출
+        String creator_id = jwtUtil.validateToken(token).getSubject(); // 토큰 검증
+        tr.setCreatorId(creator_id);
+
+
+        System.out.println("받은 이미지파일 : " + tr.getImageFile());
+
+
+        if(tr.getTitle().isEmpty() || tr.getContent().isEmpty() || tr.getLocationInfo().isEmpty()) {
+            responseData.setCode(401);
+            responseData.setMessage("Error: 제목, 내용, 여행 경로가 누락되었습니다.");
+            System.out.println("Error: 제목, 내용, 여행 경로가 누락되었습니다.");
+            return ResponseEntity.status(401).body(responseData);
+        }
+
+        if (boardService.updateTravelRoute(tr)) {
+            responseData.setCode(200);
+            responseData.setMessage("여행 경로 수정 성공");
+            System.out.println("여행 경로 수정 성공");
+            return ResponseEntity.status(200).body(responseData);
+        } else {
+            responseData.setCode(404);
+            responseData.setMessage("여행 경로 수정 실패");
+            System.out.println("여행 경로 수정 실패");
+            return ResponseEntity.status(404).body(responseData);
+        }
+
+    }
+
+    // 여행 경로 삭제
+    @PostMapping("/api/private/travel-route/delete")
+    public ResponseEntity<?> travelRouteDelete(@RequestHeader("Authorization") String authorizationHeader, @RequestBody TravelRoute tr) {
+
+        logger.info("삭제 요청 여행 경로: " + tr.getId());
+
+        ResponseData responseData = new ResponseData();
+
+
+        if(tr.getImageFile() != null && !tr.getImageFile().isEmpty()){
+            if (boardService.deleteTravelRoute(tr.getId())) {
+                responseData.setCode(200);
+                responseData.setMessage("여행 경로가 삭제되었습니다.");
+                logger.info("여행 경로 삭제 성공");
+                return ResponseEntity.status(200).body(responseData);
+            } else {
+                responseData.setCode(404);
+                responseData.setMessage("여행 경로가 존재하지 않습니다.");
+                logger.info("여행 경로 삭제 실패");
+                return ResponseEntity.status(404).body(responseData);
+            }
+        }
+
+
+        return null;
+    }
 
 
 

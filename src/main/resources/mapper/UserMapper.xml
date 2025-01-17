@@ -65,10 +65,13 @@
         WHERE id = #{id}
     </delete>
 
-
+    <!-- 아이디로 닉네임 찾기 -->
     <select id="selectUserNickNameById" resultType="String">
         SELECT nick_name FROM users WHERE id = #{id};
     </select>
+
+
+
 
 
 

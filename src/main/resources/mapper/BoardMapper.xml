@@ -11,11 +11,22 @@
         <result column="created_date" property="boardCreatedDate" />
     </resultMap>
 
+
+    <select id="findTravelRouteById" resultType="com.example.mapbius_server.domain.TravelRoute">
+        SELECT
+            cover_image_name AS coverImageName
+        FROM travel_routes
+        WHERE id = #{id}
+    </select>
+
+
+
+
     <!-- 여행 루트 등록 -->
     <insert id="insertTravelRoute" parameterType="com.example.mapbius_server.domain.TravelRoute">
         INSERT INTO travel_routes (
             creator_id,
-            cover_image_url,
+            cover_image_name,
             title,
             content,
             created_at,
@@ -23,7 +34,7 @@
             location_info
         ) VALUES (
                      #{creatorId},
-                     #{coverImageUrl},
+                     #{coverImageName},
                      #{title},
                      #{content},
                      NOW(),
@@ -38,7 +49,10 @@
         UPDATE travel_routes
         SET title = #{title},
             content = #{content},
-            cover_image_url = #{coverImageUrl},
+            cover_image_name = CASE
+                                   WHEN #{coverImageName} IS NOT NULL THEN #{coverImageName}
+                                   ELSE cover_image_name
+                END,
             is_private = #{isPrivate},
             location_info = #{locationInfo}
         WHERE id = #{id};
@@ -47,37 +61,44 @@
     <!-- 여행 루트 삭제 -->
     <!-- 성공 시 1 반환 / 실패 시 0 반환 -->
     <delete id="deleteTravelRoute" parameterType="long">
-        DELETE FROM travel_routes WHERE id = #{id};
+            UPDATE travel_routes
+            SET is_deleted = TRUE
+            WHERE id = #{id};
     </delete>
 
     <!-- 여행 루트 목록 가져오기 -->
     <select id="getTravelRoutes" resultType="com.example.mapbius_server.domain.TravelRoute">
         SELECT
-            id,
-            creator_id AS creatorId,
-            cover_image_url AS coverImageUrl,
-            title,
-            content,
-            created_at AS createdAt,
-            is_private AS isPrivate,
-            location_info AS locationInfo
-        FROM travel_routes
-        ORDER BY created_at DESC;
+            tr.id,
+            tr.creator_id AS creatorId,
+            u.nick_name AS creatorNickName,
+            tr.cover_image_name AS coverImageName,
+            tr.title,
+            tr.content,
+            tr.created_at AS createdAt,
+            tr.is_private AS isPrivate,
+            tr.location_info AS locationInfo
+        FROM travel_routes tr
+                 LEFT JOIN users u ON tr.creator_id = u.id
+        WHERE tr.is_deleted = 0  -- 삭제되지 않은 데이터만 가져옴
+        ORDER BY tr.created_at DESC;
     </select>
 
     <!-- 여행 루트 개별 가져오기 -->
     <select id="getTravelRouteById" parameterType="long" resultType="com.example.mapbius_server.domain.TravelRoute">
         SELECT
-            id,
-            creator_id AS creatorId,
-            cover_image_url AS coverImageUrl,
-            title,
-            content,
-            created_at AS createdAt,
-            is_private AS isPrivate,
-            location_info AS locationInfo
-        FROM travel_routes
-        WHERE id = #{id};
+            tr.id,
+            tr.creator_id AS creatorId,
+            u.nick_name AS creatorNickName,  -- 작성자의 닉네임 추가
+            tr.cover_image_name AS coverImageName,
+            tr.title,
+            tr.content,
+            tr.created_at AS createdAt,
+            tr.is_private AS isPrivate,
+            tr.location_info AS locationInfo
+        FROM travel_routes tr
+                 LEFT JOIN users u ON tr.creator_id = u.id  -- users 테이블과 조인
+        WHERE tr.id = #{id};
     </select>
 
 

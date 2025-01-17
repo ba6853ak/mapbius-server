@@ -2,15 +2,34 @@ package com.example.mapbius_server.service;
 
 import com.example.mapbius_server.domain.Board;
 import com.example.mapbius_server.domain.TravelRoute;
+import com.example.mapbius_server.domain.User;
 import com.example.mapbius_server.mapper.BoardMapper;
+import io.jsonwebtoken.io.IOException;
+import jakarta.servlet.http.HttpServletRequest;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.io.Resource;
+import org.springframework.core.io.UrlResource;
 import org.springframework.stereotype.Service;
+import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.File;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 @Service
 public class BoardService {
+
+    @Value("${upload.cover.path}")
+    String uploadCoverPath;
+
+    private static final Logger logger = LoggerFactory.getLogger(UserService.class);
 
     private final BoardMapper boardMapper;
     public BoardService(BoardMapper boardMapper) { this.boardMapper = boardMapper; }
@@ -19,39 +38,190 @@ public class BoardService {
     // 여행 루트 등록
     public boolean travelRouteEnroll(TravelRoute tr) {
 
-        if (tr != null) {
-            return false;
-        }
-
         if(boardMapper.insertTravelRoute(tr) > 0){
+            logger.info("2 동작");
             return true;
         }
         else {
+            logger.info("3 동작");
             return false;
+        }
+    }
+    // 여행 루트 수정
+// 여행 루트 수정
+    public boolean updateTravelRoute(TravelRoute tr) {
+        MultipartFile file = tr.getImageFile();  // form-data에서 넘어온 파일
+        String fileName = null;
+
+        // 1. DB에서 기존 TravelRoute 정보 조회
+        TravelRoute existingImageRoute = boardMapper.findTravelRouteById(tr.getId());
+        if(tr.getId() != null){
+
+            if (existingImageRoute == null) {
+                throw new RuntimeException("존재하지 않는 여행 경로입니다. ID: " + tr.getId());
+            }
+        }
+
+
+        // 2. 새 파일이 있는지 확인
+        if (file != null && !file.isEmpty()) {
+            try {
+                // 파일명 생성
+                String originalFileName = file.getOriginalFilename();
+                fileName = UUID.randomUUID().toString() + "_" + originalFileName;
+
+                // 파일 경로 생성 및 저장
+                String rootPath = System.getProperty("user.dir");
+                String filePath = rootPath + File.separator + uploadCoverPath + File.separator + fileName;
+
+                File destinationFile = new File(filePath);
+                destinationFile.getParentFile().mkdirs();
+                file.transferTo(destinationFile);
+
+                logger.info("File saved successfully: {}", destinationFile.getAbsolutePath());
+
+                // 새 파일 이름 설정
+                tr.setCoverImageName(fileName);
+
+            } catch (IOException | java.io.IOException e) {
+                logger.error("File upload failed: {}", e.getMessage());
+                throw new RuntimeException("File upload failed", e);
+            }
+        } else {
+            logger.info("No new file provided. Keeping existing file data for travel route ID: {}", tr.getId());
+
+            // 3. 기존 이미지를 그대로 사용
+            //    별도로 coverImageName이 null이 되지 않도록, 기존 값을 그대로 세팅
+            tr.setCoverImageName(existingImageRoute.getCoverImageName());
+        }
+
+        // 4. DB 업데이트 호출
+        //    제목, 내용, 위치 등 다른 필드는 컨트롤러/서비스에서 받은 값이 덮어씌워지겠지만
+        //    이미지 이름은 위에서 새로 설정되었거나 기존 값이 세팅되었으므로 그대로 업데이트 됨
+        try {
+            int data = boardMapper.updateTravelRoute(tr);
+            return data > 0;
+        } catch (RuntimeException e) {
+            logger.error("Database update failed: {}", e.getMessage());
+            throw e;
         }
     }
 
 
-    // 여행 루트 수정
-    public int updateTravelRoute(TravelRoute travelRoute) {
-        return boardMapper.updateTravelRoute(travelRoute);
-    }
 
     // 여행 루트 삭제
-    public int deleteTravelRoute(Long id) {
-        return boardMapper.deleteTravelRoute(id);
+    public boolean deleteTravelRoute(Long id) {
+        if (boardMapper.deleteTravelRoute(id) > 0) {
+            return true;
+        } else {
+            return false;
+        }
     }
 
     // 여행 루트 목록 가져오기
-    public List<TravelRoute> getAllTravelRoutes() {
-        return boardMapper.getTravelRoutes();
+    public List<TravelRoute> getAllTravelRoutes(HttpServletRequest request) {
+
+        // 데이터베이스에서 여행 루트 목록 가져오기
+        List<TravelRoute> data = boardMapper.getTravelRoutes();
+
+        // 업로드 경로 및 파일 URL 구성
+        String uploadPath = "upload/cover_image";
+
+        for (TravelRoute tr : data) {
+            String fileName = tr.getCoverImageName();
+
+            // coverImageName이 null 또는 비어있지 않은 경우에만 처리
+            if (fileName != null && !fileName.isEmpty()) {
+                String rootDir = System.getProperty("user.dir");
+                String fileDir = rootDir + File.separator + uploadPath;
+
+                try {
+                    // 파일 경로 생성
+                    Path filePath = Paths.get(fileDir).resolve(fileName).normalize();
+                    Resource resource = new UrlResource(filePath.toUri());
+
+                    if (resource.exists()) {
+                        // 서버 URL 생성
+                        String baseUrl = String.format("%s://%s:%d",
+                                request.getScheme(),
+                                request.getServerName(),
+                                request.getServerPort()
+                        );
+                        // URL 생성 및 업데이트
+                        String fileUrl = baseUrl + "/uploads/cover_images/" + fileName;
+                        tr.setCoverImageName(fileUrl);
+                    } else {
+                        logger.warn("커버 이미지 파일이 존재하지 않습니다: " + filePath.toString());
+                    }
+                } catch (Exception e) {
+                    logger.error("커버 이미지 파일 처리 중 오류 발생", e);
+                    // coverImageName은 원래 값 유지
+                }
+            }
+        }
+
+        return data;
     }
+
 
     // 특정 여행 루트 가져오기
     public TravelRoute getTravelRouteById(Long id) {
         return boardMapper.getTravelRouteById(id);
     }
 
+    // 여행 경로 저장 (텍스트 및 이미지 파일 저장)
+
+    public boolean saveCoverImageAndTravelRoute(@ModelAttribute TravelRoute tr) throws IOException {
+
+/*        // 사용자 조회
+        User user = accountMapper.findByUserId(id);
+        if (user == null) {
+            logger.error("No user found with id={}. Throwing exception.", id);
+            throw new RuntimeException("사용자를 찾을 수 없습니다.");
+        }
+        logger.debug("Found user: {}", user);*/
+
+
+
+        MultipartFile file = tr.getImageFile();
+        System.out.println(file);
+
+
+        // 파일명 생성
+        String originalFileName = file.getOriginalFilename();
+        String fileName = UUID.randomUUID().toString() + "_" + originalFileName;
+
+        // 프로젝트 루트 디렉터리 확인 및 경로 생성
+        String rootPath = System.getProperty("user.dir"); //
+        String filePath = rootPath + File.separator + uploadCoverPath + File.separator + fileName;
+
+        tr.setCoverImageName(fileName); // 백엔드에 저장될 파일 이름 인스턴스에 삽입
+
+
+        try {
+            // 프로젝트 내 이미지 파일 저장
+            File destinationFile = new File(filePath);
+            destinationFile.getParentFile().mkdirs(); // 디렉터리 생성
+            file.transferTo(destinationFile);
+            logger.info("File saved successfully: {}", destinationFile.getAbsolutePath());
+
+            // DB에 여행 경로 데이터 삽입 ********************************************************************************************************************
+            boardMapper.insertTravelRoute(tr);
+            logger.info("DB update successful for userId={}, saved fileName={}", tr.getCreatorId(), fileName);
+
+            return true;
+
+        } catch (IOException e) {
+            logger.error("IOException occurred during file saving for userId={}:", tr.getCreatorId(), e);
+            throw e;
+
+        } catch (RuntimeException e) {
+            logger.error("RuntimeException occurred during DB update for userId={}:", tr.getCreatorId(), e);
+            throw e;
+        } catch (java.io.IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
 
 
 

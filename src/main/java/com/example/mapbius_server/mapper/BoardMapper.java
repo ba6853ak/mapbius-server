@@ -10,7 +10,7 @@ import java.util.Map;
 @Mapper
 public interface BoardMapper {
 
-    // 1. 여행 루트 생성
+    // 1. 여행 루트 삽입
     int insertTravelRoute(TravelRoute travelRoute);
 
     // 2. 여행 루트 수정
@@ -24,6 +24,9 @@ public interface BoardMapper {
 
     // 5. 여행 루트 개별 가져오기
     TravelRoute getTravelRouteById(Long id);
+
+    // 특정 여행 경로 조회
+    TravelRoute findTravelRouteById(Long id);
 
 
     // 공지사랑 등록

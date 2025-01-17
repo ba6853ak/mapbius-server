@@ -145,6 +145,7 @@ public class DataController {
     }
 
 
+    // 축제 정보
     @GetMapping(value = "/api/public/kr-data/festival-info", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<?> searchFestivalData(@RequestParam(required = false) String region) {
         // 요청 검증
