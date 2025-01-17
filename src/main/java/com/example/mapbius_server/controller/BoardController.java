@@ -2,32 +2,60 @@ package com.example.mapbius_server.controller;
 
 import com.example.mapbius_server.common.ResponseData;
 import com.example.mapbius_server.domain.Board;
+import com.example.mapbius_server.domain.TravelRoute;
 import com.example.mapbius_server.mapper.BoardMapper;
 import com.example.mapbius_server.service.BoardService;
 import com.example.mapbius_server.util.JwtUtil;
-import com.mysql.cj.protocol.x.Notice;
+
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Controller;
+
 import org.springframework.web.bind.annotation.*;
 
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 @RestController
+@RequiredArgsConstructor
 public class BoardController {
 
     private final BoardService boardService;
-
     public final JwtUtil jwtUtil;
     private final BoardMapper boardMapper;
 
     ResponseData responseData;
-    @Autowired
-    public BoardController(BoardService boardService, BoardMapper boardMapper) { this.jwtUtil = new JwtUtil(); this.boardService = boardService;
-        this.boardMapper = boardMapper;
+
+
+
+    // 여행 경로 등록
+    @PostMapping("/api/private/travel-route/enroll")
+    public ResponseEntity<?> travelRouteEnroll(@RequestHeader("Authorization") String authorizationHeader, @RequestBody TravelRoute tr) {
+
+        String token = authorizationHeader.replace("Bearer ", ""); // 토큰 추출
+        String jwtLog = jwtUtil.validateToken(token).getSubject(); // 토큰 검증
+        System.out.println("Extracted Username from JWT: " + jwtLog);
+
+        ResponseData responseData = new ResponseData();
+        if (boardService.travelRouteEnroll(tr)) {
+            responseData.setCode(201);
+            responseData.setMessage("여행 경로 등록 성공");
+            System.out.println("여행 경로 등록 성공");
+            return ResponseEntity.status(201).body(responseData);
+        } else {
+            System.out.println("여행 경로 동작");
+            System.out.println("Extracted Username from JWT: " + jwtLog);
+            responseData.setCode(400);
+            responseData.setMessage("여행 경로 등록 실패");
+            System.out.println("여행 경로 등록 실패");
+            return ResponseEntity.status(400).body(responseData);
+        }
+
     }
+
+
+
+
 
 
     // 공지사항 목록 반환

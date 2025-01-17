@@ -1,14 +1,30 @@
 package com.example.mapbius_server.mapper;
 
 import com.example.mapbius_server.domain.Board;
+import com.example.mapbius_server.domain.TravelRoute;
 import org.apache.ibatis.annotations.Mapper;
-import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
 import java.util.Map;
 
 @Mapper
 public interface BoardMapper {
+
+    // 1. 여행 루트 생성
+    int insertTravelRoute(TravelRoute travelRoute);
+
+    // 2. 여행 루트 수정
+    int updateTravelRoute(TravelRoute travelRoute);
+
+    // 3. 여행 루트 삭제
+    int deleteTravelRoute(Long id);
+
+    // 4. 여행 루트 목록 가져오기
+    List<TravelRoute> getTravelRoutes();
+
+    // 5. 여행 루트 개별 가져오기
+    TravelRoute getTravelRouteById(Long id);
+
 
     // 공지사랑 등록
     boolean insertNotice(Board board);

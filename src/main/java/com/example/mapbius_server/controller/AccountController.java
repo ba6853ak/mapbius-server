@@ -2,7 +2,6 @@ package com.example.mapbius_server.controller;
 
 
 import com.example.mapbius_server.common.ResponseData;
-import com.example.mapbius_server.common.ResponseResource;
 import com.example.mapbius_server.domain.User;
 import com.example.mapbius_server.dto.PIResponse;
 import com.example.mapbius_server.mapper.AccountMapper;
@@ -19,16 +18,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.UrlResource;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
-import java.net.URLEncoder;
-import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.sql.Timestamp;
@@ -45,8 +40,6 @@ public class AccountController {
     private final AccountService accountService;
     private final JwtTokenProvider jwtTokenProvider;
     private final LoginService loginService;
-    private final UserService userService;
-    private final KakaoAuthService kakaoAuthService;
     private final AccountMapper accountMapper;
     private final UserMapper userMapper;
 

@@ -11,6 +11,79 @@
         <result column="created_date" property="boardCreatedDate" />
     </resultMap>
 
+    <!-- 여행 루트 등록 -->
+    <insert id="insertTravelRoute" parameterType="com.example.mapbius_server.domain.TravelRoute">
+        INSERT INTO travel_routes (
+            creator_id,
+            cover_image_url,
+            title,
+            content,
+            created_at,
+            is_private,
+            location_info
+        ) VALUES (
+                     #{creatorId},
+                     #{coverImageUrl},
+                     #{title},
+                     #{content},
+                     NOW(),
+                     #{isPrivate},
+                     #{locationInfo}
+                 );
+    </insert>
+
+    <!-- 여행 루트 수정 -->
+    <!-- 성공 시 1 반환 / 실패 시 0 반환 -->
+    <update id="updateTravelRoute" parameterType="com.example.mapbius_server.domain.TravelRoute">
+        UPDATE travel_routes
+        SET title = #{title},
+            content = #{content},
+            cover_image_url = #{coverImageUrl},
+            is_private = #{isPrivate},
+            location_info = #{locationInfo}
+        WHERE id = #{id};
+    </update>
+
+    <!-- 여행 루트 삭제 -->
+    <!-- 성공 시 1 반환 / 실패 시 0 반환 -->
+    <delete id="deleteTravelRoute" parameterType="long">
+        DELETE FROM travel_routes WHERE id = #{id};
+    </delete>
+
+    <!-- 여행 루트 목록 가져오기 -->
+    <select id="getTravelRoutes" resultType="com.example.mapbius_server.domain.TravelRoute">
+        SELECT
+            id,
+            creator_id AS creatorId,
+            cover_image_url AS coverImageUrl,
+            title,
+            content,
+            created_at AS createdAt,
+            is_private AS isPrivate,
+            location_info AS locationInfo
+        FROM travel_routes
+        ORDER BY created_at DESC;
+    </select>
+
+    <!-- 여행 루트 개별 가져오기 -->
+    <select id="getTravelRouteById" parameterType="long" resultType="com.example.mapbius_server.domain.TravelRoute">
+        SELECT
+            id,
+            creator_id AS creatorId,
+            cover_image_url AS coverImageUrl,
+            title,
+            content,
+            created_at AS createdAt,
+            is_private AS isPrivate,
+            location_info AS locationInfo
+        FROM travel_routes
+        WHERE id = #{id};
+    </select>
+
+
+
+    <!-- 구분선///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////// -->
+
     <!-- 공지사항 등록 -->
     <insert id="insertNotice" parameterType="com.example.mapbius_server.domain.Board">
         INSERT INTO notices (title, content, author, created_date)

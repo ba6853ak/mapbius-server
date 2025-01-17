@@ -27,6 +27,19 @@ public class DataController {
         this.naverAPIService = naverAPIService;
     }
 
+
+    // 네이버 이미지 검색 서비스
+    @GetMapping("/api/public/naver/image-search")
+    public Object searchImage(@RequestParam String query) throws UnsupportedEncodingException, URISyntaxException, JsonProcessingException {
+
+        // JSON 응답으로 강제 반환
+        return ResponseEntity.ok()
+                .contentType(MediaType.APPLICATION_JSON)
+                .body(naverAPIService.naverImageMethod(query));
+
+    }
+
+
     // 네이버 검색 서비스
     @GetMapping("/api/public/naver/search")
     public Object searchLocal(@RequestParam String query) throws UnsupportedEncodingException, URISyntaxException, JsonProcessingException {

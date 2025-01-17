@@ -1,11 +1,9 @@
 package com.example.mapbius_server.service;
 
 import com.example.mapbius_server.domain.Board;
+import com.example.mapbius_server.domain.TravelRoute;
 import com.example.mapbius_server.mapper.BoardMapper;
-import org.springframework.security.core.parameters.P;
 import org.springframework.stereotype.Service;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 
 import java.util.HashMap;
 import java.util.List;
@@ -16,6 +14,48 @@ public class BoardService {
 
     private final BoardMapper boardMapper;
     public BoardService(BoardMapper boardMapper) { this.boardMapper = boardMapper; }
+
+
+    // 여행 루트 등록
+    public boolean travelRouteEnroll(TravelRoute tr) {
+
+        if (tr != null) {
+            return false;
+        }
+
+        if(boardMapper.insertTravelRoute(tr) > 0){
+            return true;
+        }
+        else {
+            return false;
+        }
+    }
+
+
+    // 여행 루트 수정
+    public int updateTravelRoute(TravelRoute travelRoute) {
+        return boardMapper.updateTravelRoute(travelRoute);
+    }
+
+    // 여행 루트 삭제
+    public int deleteTravelRoute(Long id) {
+        return boardMapper.deleteTravelRoute(id);
+    }
+
+    // 여행 루트 목록 가져오기
+    public List<TravelRoute> getAllTravelRoutes() {
+        return boardMapper.getTravelRoutes();
+    }
+
+    // 특정 여행 루트 가져오기
+    public TravelRoute getTravelRouteById(Long id) {
+        return boardMapper.getTravelRouteById(id);
+    }
+
+
+
+
+
 
     // 공지사항 등록
     public boolean noticeEnroll(Board board) {
