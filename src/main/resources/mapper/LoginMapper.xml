@@ -20,8 +20,8 @@
     <!-- 사용자 로그인 로그 기록 -->
     <!-- 로그인 로그 삽입 -->
     <insert id="insertLoginLog" parameterType="com.example.mapbius_server.domain.LoginLog">
-        INSERT INTO login_logs (user_id, login_timestamp, ip_address, success, created_at)
-        VALUES (#{userId}, #{loginTimestamp}, #{ipAddress}, #{success}, #{createdAt})
+        INSERT INTO login_logs (user_id, ip_address, success)
+        VALUES (#{userId}, #{ipAddress}, #{success})
     </insert>
 
 
