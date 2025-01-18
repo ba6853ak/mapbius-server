@@ -1,6 +1,7 @@
 package com.example.mapbius_server.mapper;
 
 import com.example.mapbius_server.domain.Board;
+import com.example.mapbius_server.domain.Review;
 import com.example.mapbius_server.domain.TravelRoute;
 import org.apache.ibatis.annotations.Mapper;
 
@@ -9,6 +10,13 @@ import java.util.Map;
 
 @Mapper
 public interface BoardMapper {
+
+    // 리뷰 삽입
+    int insertReview(Review review);
+
+    // 전체 리뷰 목록 가져오기
+    List<Review> getReviews();
+
 
     // 1. 여행 루트 삽입
     int insertTravelRoute(TravelRoute travelRoute);

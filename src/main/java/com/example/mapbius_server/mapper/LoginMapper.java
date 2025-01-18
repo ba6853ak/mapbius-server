@@ -1,5 +1,6 @@
 package com.example.mapbius_server.mapper;
 
+import com.example.mapbius_server.domain.LoginLog;
 import com.example.mapbius_server.domain.User;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
@@ -19,5 +20,10 @@ public interface LoginMapper {
     int selectAdminUserCheck(String id);
 
     int selectDeActivateCheck(@Param("id") String id);
+
+    // 사용자 로그인 로그 기록
+    int insertLoginLog(LoginLog loginLog);
+
+
 
 }

@@ -1,5 +1,6 @@
 package com.example.mapbius_server.service;
 
+import com.example.mapbius_server.domain.LoginLog;
 import com.example.mapbius_server.domain.User;
 import com.example.mapbius_server.mapper.LoginMapper;
 import com.example.mapbius_server.mapper.UserMapper;
@@ -21,7 +22,19 @@ public class LoginService {
 
 
 
+    // 로그인 로그 저장 메서드
+    public boolean saveLoginLog(LoginLog loginLog) {
 
+        int data = loginMapper.insertLoginLog(loginLog);
+
+        if(data > 0) {
+            return true;
+        } else {
+            return false;
+        }
+
+
+    }
 
 
     public boolean login(String id, String pw) {

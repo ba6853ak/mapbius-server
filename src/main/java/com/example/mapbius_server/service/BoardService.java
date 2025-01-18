@@ -1,6 +1,7 @@
 package com.example.mapbius_server.service;
 
 import com.example.mapbius_server.domain.Board;
+import com.example.mapbius_server.domain.Review;
 import com.example.mapbius_server.domain.TravelRoute;
 import com.example.mapbius_server.domain.User;
 import com.example.mapbius_server.mapper.BoardMapper;
@@ -33,6 +34,18 @@ public class BoardService {
 
     private final BoardMapper boardMapper;
     public BoardService(BoardMapper boardMapper) { this.boardMapper = boardMapper; }
+
+
+    // 후기 저장
+    public int saveReview(Review review) {
+        return boardMapper.insertReview(review);
+    }
+
+    // 전화번호에 대한 모든 후기 조회
+    public List<Review> getReviews() {
+        return boardMapper.getReviews();
+    }
+
 
 
     // 여행 루트 등록

@@ -1,12 +1,14 @@
 package com.example.mapbius_server.controller;
 
 import com.example.mapbius_server.common.ResponseData;
+import com.example.mapbius_server.domain.LoginLog;
 import com.example.mapbius_server.domain.User;
 import com.example.mapbius_server.dto.LoginRequest;
 import com.example.mapbius_server.mapper.LoginMapper;
 import com.example.mapbius_server.service.LoginService;
 import com.example.mapbius_server.service.UserService;
 import com.example.mapbius_server.util.JwtUtil;
+import jakarta.servlet.http.HttpServletRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -36,21 +38,28 @@ public class LoginController {
         this.loginMapper = loginMapper;
     }
 
+
     @PostMapping("/api/public/login")
-    public ResponseEntity<?> handleLogin(@RequestBody User loginRequest) {
+    public ResponseEntity<?> handleLogin(@RequestBody User loginRequest, HttpServletRequest request) {
 
         User userData;
         ResponseData responseData = new ResponseData();
+
+        LoginLog loginLog = new LoginLog();
+
+
 
         String id = loginRequest.getId();
         String pw = loginRequest.getPw();
 
         boolean loginSuccess = loginService.login(id, pw);
 
+
+        logger.info("login 요청한 아이피: " + request.getRemoteAddr());
+
         if (loginSuccess) {
             boolean isAdmin = loginService.adminCheck(id); // 관리자인가?
             String role = isAdmin ? "ROLE_ADMIN" : "ROLE_USER";             // JWT 생성 (관리자라면 ROLE_ADMIN 추가)
-
             String userState; // 사용자 상태 관리 -> 활성화 / 비활성화
 
             if(loginMapper.selectDeActivateCheck(id) > 0){ // 비활성화 상태
@@ -74,6 +83,13 @@ public class LoginController {
             responseData.setToken(jwtToken);
 
             userData = loginService.getUserInfo(id);
+            userData.getId();
+
+            loginLog.setUserId(userData.getId());
+            loginLog.setIpAddress(request.getRemoteAddr());
+            loginLog.setSuccess(true);
+
+
             responseData.setObjData(userData.getId());
             return ResponseEntity.ok(responseData);
         } else {

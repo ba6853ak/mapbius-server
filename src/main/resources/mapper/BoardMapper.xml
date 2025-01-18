@@ -12,14 +12,26 @@
     </resultMap>
 
 
+    <!-- 후기 삽입 -->
+    <insert id="insertReview" parameterType="com.example.mapbius_server.domain.Review">
+        INSERT INTO reviews (user_id, phone_number, content, rating)
+        VALUES (#{userId}, #{phoneNumber}, #{content}, #{rating})
+    </insert>
+
+
+    <!-- 후기 전체 목록 가져오기 -->
+    <select id="getReviews" resultType="com.example.mapbius_server.domain.Review">
+        SELECT * FROM reviews
+    </select>
+
+
+    <!-- 아이디로 여행 루트 가져오기 -->
     <select id="findTravelRouteById" resultType="com.example.mapbius_server.domain.TravelRoute">
         SELECT
             cover_image_name AS coverImageName
         FROM travel_routes
         WHERE id = #{id}
     </select>
-
-
 
 
     <!-- 여행 루트 등록 -->

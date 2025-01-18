@@ -2,6 +2,7 @@ package com.example.mapbius_server.controller;
 
 import com.example.mapbius_server.common.ResponseData;
 import com.example.mapbius_server.domain.Board;
+import com.example.mapbius_server.domain.Review;
 import com.example.mapbius_server.domain.TravelRoute;
 import com.example.mapbius_server.mapper.BoardMapper;
 import com.example.mapbius_server.service.BoardService;
@@ -30,6 +31,32 @@ public class BoardController {
     private final BoardMapper boardMapper;
 
     ResponseData responseData;
+
+    // 후기 등록
+    @PostMapping("/api/private/reviews/enroll")
+    public ResponseEntity<?> travelRouteEnroll(@RequestHeader("Authorization") String authorizationHeader, @RequestBody Review review) {
+
+        String token = authorizationHeader.replace("Bearer ", ""); // 토큰 추출
+        String creator_id = jwtUtil.validateToken(token).getSubject(); // 토큰 검증
+/*        revier(creator_id);*/
+
+        ResponseData responseData = new ResponseData();
+        if (boardService.saveReview(review) > 0 ) {
+            responseData.setCode(200);
+            responseData.setMessage("여행 경로 등록 성공");
+            System.out.println("여행 경로 등록 성공");
+            return ResponseEntity.status(200).body(responseData);
+        } else {
+            responseData.setCode(404);
+            responseData.setMessage("여행 경로 등록 실패");
+            System.out.println("여행 경로 등록 실패");
+            return ResponseEntity.status(404).body(responseData);
+        }
+
+    }
+
+
+
 
     // 여행 경로 전체 목록 가져오기
     @PostMapping("/api/private/travel-route/entire-list")

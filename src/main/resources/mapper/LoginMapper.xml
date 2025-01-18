@@ -17,6 +17,14 @@
         <result property="updatedAt" column="updated_at"/>
     </resultMap>
 
+    <!-- 사용자 로그인 로그 기록 -->
+    <!-- 로그인 로그 삽입 -->
+    <insert id="insertLoginLog" parameterType="com.example.mapbius_server.domain.LoginLog">
+        INSERT INTO login_logs (user_id, login_timestamp, ip_address, success, created_at)
+        VALUES (#{userId}, #{loginTimestamp}, #{ipAddress}, #{success}, #{createdAt})
+    </insert>
+
+
     <!-- 로그인 인증 (아이디와 비밀번호 확인) -->
     <select id="authenticate" parameterType="map" resultType="com.example.mapbius_server.domain.User">
         SELECT id, pw FROM users WHERE id = #{id}

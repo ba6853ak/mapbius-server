@@ -71,11 +71,41 @@
             CASE
                 WHEN a.user_id IS NOT NULL THEN 'admin'
                 ELSE 'normal'
+                END AS role,
+            -- 작성한 후기의 개수
+            IFNULL(COUNT(r.review_id), 0) AS review_count,
+            -- 작성한 후기의 별점 평균 (NULL이면 0.0으로 처리, 소수 첫째 자리까지 고정)
+            IFNULL(ROUND(AVG(r.rating), 1), 0.0) AS avg_rating
+        FROM users u
+                 LEFT JOIN admin_users a ON u.id = a.user_id
+                 LEFT JOIN reviews r ON u.id = r.user_id
+        GROUP BY u.id, u.profile_image, u.nick_name, u.email, u.birth_date, u.created_at, u.gender, u.is_deleted, a.user_id
+        ORDER BY u.created_at DESC;
+    </select>
+
+
+
+<!--    <select id="getAllUsers" resultType="map">
+        SELECT
+            u.profile_image,
+            u.nick_name,
+            u.id,
+            u.email,
+            u.birth_date,
+            u.created_at,
+            u.gender,
+            CASE
+                WHEN u.is_deleted = 0 THEN 'activate'
+                ELSE 'deactivate'
+                END AS account_status,
+            CASE
+                WHEN a.user_id IS NOT NULL THEN 'admin'
+                ELSE 'normal'
                 END AS role
         FROM users u
                  LEFT JOIN admin_users a ON u.id = a.user_id
         ORDER BY u.created_at DESC;
-    </select>
+    </select>-->
 
 
 
