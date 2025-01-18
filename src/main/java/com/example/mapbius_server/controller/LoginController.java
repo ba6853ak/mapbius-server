@@ -38,6 +38,21 @@ public class LoginController {
         this.loginMapper = loginMapper;
     }
 
+    public String getClientIp(HttpServletRequest request) {
+        // X-Forwarded-For 헤더에서 첫 번째 IP 주소를 가져옴 (가장 원래의 클라이언트 IP)
+        String ipAddress = request.getHeader("X-Forwarded-For");
+
+        if (ipAddress == null || ipAddress.isEmpty()) {
+            ipAddress = request.getRemoteAddr();  // X-Forwarded-For 헤더가 없으면 내부 IP를 사용
+        } else {
+            // 여러 IP가 콤마로 구분되어 있을 수 있음, 첫 번째 IP를 사용
+            ipAddress = ipAddress.split(",")[0];
+        }
+
+        return ipAddress;
+    }
+
+
 
     @PostMapping("/api/public/login")
     public ResponseEntity<?> handleLogin(@RequestBody User loginRequest, HttpServletRequest request) {
@@ -54,7 +69,11 @@ public class LoginController {
 
         // 로그인 로그 기록
         loginLog.setUserId(id);
-        loginLog.setIpAddress(request.getRemoteAddr());
+
+        String outIP = getClientIp(request);
+        logger.info("접속을 요청한 외부 IP: " + outIP);
+        loginLog.setIpAddress(outIP);
+        // loginLog.setIpAddress(request.getRemoteAddr());
 
         boolean loginSuccess = loginService.login(id, pw);
 
