@@ -62,6 +62,7 @@
             u.id,
             u.email,
             u.birth_date,
+            u.created_at,
             -- 가장 최근 로그인 기록의 created_at (최신 로그인 시간)
             IFNULL(MAX(l.created_at), '0000-00-00 00:00:00') AS last_login_date,
             u.gender,
