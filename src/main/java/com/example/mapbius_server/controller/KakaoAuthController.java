@@ -1,13 +1,16 @@
 package com.example.mapbius_server.controller;
 
 import com.example.mapbius_server.common.ResponseData;
+import com.example.mapbius_server.domain.LoginLog;
 import com.example.mapbius_server.domain.User;
 import com.example.mapbius_server.mapper.LoginMapper;
 import com.example.mapbius_server.mapper.UserMapper;
 import com.example.mapbius_server.service.KakaoAuthService;
+import com.example.mapbius_server.service.LoginService;
 import com.example.mapbius_server.service.UserService;
 import com.example.mapbius_server.util.JwtUtil;
 import io.jsonwebtoken.Claims;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.apache.coyote.Response;
 import org.slf4j.Logger;
@@ -29,6 +32,7 @@ public class KakaoAuthController {
     private final UserMapper userMapper;
     private final JwtUtil jwtUtil;
     private final LoginMapper loginMapper;
+    private final LoginService loginService;
 
     // 카카오 계정 로그인 (카카오 토큰 생성)
 
@@ -39,7 +43,7 @@ public class KakaoAuthController {
      */
 
     @PostMapping("/oauth/kakao/login")
-    public ResponseEntity<?> kakaoLogin(@RequestBody Map<String, String> request) {
+    public ResponseEntity<?> kakaoLogin(@RequestBody Map<String, String> request, HttpServletRequest req) {
 
         ResponseData responseData = new ResponseData();
         String code = request.get("code");
@@ -47,11 +51,22 @@ public class KakaoAuthController {
 
 
         Claims claims = jwtUtil.validateToken(token);
+        String userId = claims.getSubject();
         logger.info(claims.toString());
         String state = (String) claims.get("state");
 
 
+        LoginLog loginLog = new LoginLog(); // 로그인 로그 기록 객체
+        loginLog.setUserId(userId);
+        loginLog.setIpAddress(req.getRemoteAddr());
+
+
+
+
+
         if(state.equals("deactivate")){
+            loginLog.setSuccess(false); // 로그인 실패
+            loginService.saveLoginLog(loginLog); // 로그인 로그 기록
             logger.info("비활성화 계정의 로그인이 차단되었습니다.");
             responseData.setCode(423);
             responseData.setMessage("비활성화 계정의 로그인이 차단되었습니다.");
@@ -67,8 +82,6 @@ public class KakaoAuthController {
             token = jwtUtil.generateJWTToken(kakaoId, "ROLE_USER", kakaoEmail, state); // 토큰을 재생성함.
 
             Object data = new Object();
-
-
             responseData.setCode(200);
             responseData.setMessage("카카오 계정으로 가입된 계정이 없습니다."); // 카카오 계정 등록 필요 응답
             responseData.setObjData(token);
@@ -76,6 +89,8 @@ public class KakaoAuthController {
                     .status(200) // 숫자로 상태 코드 지정
                     .body(responseData);
         } else {
+            loginLog.setSuccess(true); // 로그인 실패
+            loginService.saveLoginLog(loginLog); // 로그인 로그 기록
             responseData.setCode(226);
             responseData.setMessage("카카오 계정이 등록되어 있습니다. 로그인을 시도합니다."); // 정상 로그인 처리
             responseData.setObjData(token);

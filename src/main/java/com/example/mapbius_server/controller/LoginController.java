@@ -52,6 +52,10 @@ public class LoginController {
         String id = loginRequest.getId();
         String pw = loginRequest.getPw();
 
+        // 로그인 로그 기록
+        loginLog.setUserId(id);
+        loginLog.setIpAddress(request.getRemoteAddr());
+
         boolean loginSuccess = loginService.login(id, pw);
 
 
@@ -69,6 +73,10 @@ public class LoginController {
             }
 
             if(userState.equals("deactivate")){
+
+                loginLog.setSuccess(false); // 로그인 실패
+                loginService.saveLoginLog(loginLog); // 로그인 로그 기록
+
                 logger.info("비활성화 계정의 로그인이 차단되었습니다.");
                 responseData.setCode(423);
                 responseData.setMessage("비활성화 계정의 로그인이 차단되었습니다.");
@@ -85,14 +93,19 @@ public class LoginController {
             userData = loginService.getUserInfo(id);
             userData.getId();
 
-            loginLog.setUserId(userData.getId());
-            loginLog.setIpAddress(request.getRemoteAddr());
-            loginLog.setSuccess(true);
+
+            loginLog.setSuccess(true); // 로그인 실패
+            loginService.saveLoginLog(loginLog); // 로그인 로그 기록
+
 
 
             responseData.setObjData(userData.getId());
             return ResponseEntity.ok(responseData);
         } else {
+
+            loginLog.setSuccess(false); // 로그인 실패
+            loginService.saveLoginLog(loginLog); // 로그인 로그 기록
+
             System.out.println("아이디 또는 비밀번호가 잘못 되었습니다.");
             responseData.setCode(401);
             responseData.setMessage("로그인 실패!");
