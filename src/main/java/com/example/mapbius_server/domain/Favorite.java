@@ -16,5 +16,9 @@ public class Favorite {
 
     private String locationCode;
 
+    private String locationName;
+
+    private String locationAddress;
+
 }
 

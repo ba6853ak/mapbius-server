@@ -13,8 +13,8 @@
 
     <!-- 즐겨찾기 등록 -->
     <insert id="insertFavorite" parameterType="com.example.mapbius_server.domain.Favorite">
-        INSERT INTO favorites (user_id, type, location_code)
-        VALUES (#{userId}, #{type}, #{locationCode})
+        INSERT INTO favorites (user_id, type, location_code, location_name, location_address)
+        VALUES (#{userId}, #{type}, #{locationCode}, #{locationName}, #{locationAddress})
     </insert>
 
     <!-- 즐겨찾기 삭제 -->
@@ -24,7 +24,7 @@
 
     <!-- 특정 사용자의 즐겨찾기 리스트 반환 -->
     <select id="getFavoritesByUserId" parameterType="String" resultType="map">
-        SELECT fav_index, user_id, type, location_code
+        SELECT fav_index, user_id, type, location_code, location_name, location_address
         FROM favorites
         WHERE user_id = #{userId}
     </select>
