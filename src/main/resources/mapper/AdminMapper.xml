@@ -75,7 +75,7 @@
                 ELSE 'normal'
                 END AS role,
             -- 작성한 후기의 개수
-            IFNULL(COUNT(r.review_id), 0) AS review_count,
+            IFNULL(COUNT(DISTINCT r.review_id), 0) AS review_count,
             -- 작성한 후기의 별점 평균 (NULL이면 0.0으로 처리, 소수 첫째 자리까지 고정)
             IFNULL(ROUND(AVG(r.rating), 1), 0.0) AS avg_rating
         FROM users u
