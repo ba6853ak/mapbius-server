@@ -56,6 +56,30 @@ public class BoardController {
 
     }
 
+
+    // 후기 글 좋아요 기능
+    @PostMapping("/api/private/reviews/heart")
+    public ResponseEntity<?> reviewHeart(@RequestHeader("Authorization") String authorizationHeader, @RequestBody Review review) {
+
+
+        ResponseData responseData = new ResponseData();
+        if (boardService.saveReview(review)) {
+            responseData.setCode(200);
+            responseData.setMessage("wh성공");
+            System.out.println("후기 등록 성공");
+            return ResponseEntity.status(200).body(responseData);
+        } else {
+            responseData.setCode(404);
+            responseData.setMessage("후기 등록 실패");
+            System.out.println("후기 등록 실패");
+            return ResponseEntity.status(404).body(responseData);
+        }
+
+    }
+
+
+
+
     // 리뷰 전체 목록 가져오기
     @PostMapping("/api/public/reviews/entire-list")
     public ResponseEntity<?> reviewEntireList(HttpServletRequest request) {
@@ -118,13 +142,10 @@ public class BoardController {
         Map<String, Object> stats = boardService.getStoreReviewStats(review.getPhoneNumber());
 
         if (stats != null && !stats.isEmpty()) {
-            // 응답 데이터에 storeId 추가
-            stats.put("storeId", review.getPhoneNumber());
             return ResponseEntity.ok(stats);
         } else {
             return ResponseEntity.status(404).body(Map.of(
-                    "message", "해당 가게에 대한 리뷰 통계를 찾을 수 없습니다.",
-                    "storeId", review.getPhoneNumber()
+                    "message", "해당 가게에 대한 리뷰 통계를 찾을 수 없습니다."
             ));
         }
 
