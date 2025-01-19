@@ -21,7 +21,9 @@
 
     <!-- 후기 전체 목록 가져오기 -->
     <select id="getReviews" resultType="map">
-        SELECT * FROM reviews
+        SELECT *
+        FROM reviews
+        ORDER BY review_date DESC
     </select>
 
 

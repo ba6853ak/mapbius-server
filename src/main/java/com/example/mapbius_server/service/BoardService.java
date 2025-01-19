@@ -21,10 +21,7 @@ import java.math.BigDecimal;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.LocalDateTime;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -93,6 +90,13 @@ public class BoardService {
             review.setReviewId((Integer) map.get("review_id")); // 리뷰 ID
             review.setUserId((String) map.get("user_id")); // 사용자 ID
             review.setPhoneNumber((String) map.get("phone_number")); // 전화번호
+
+            Random random = new Random();
+            // 0부터 10까지의 난수 생성
+            int randomNumber = random.nextInt(11); // 11은 upper bound로 포함되지 않음
+
+
+            review.setHeartCount(randomNumber); // 좋아요 개수
 
             // review_date 처리: LocalDateTime -> String 변환
             Object reviewDateObj = map.get("review_date");
