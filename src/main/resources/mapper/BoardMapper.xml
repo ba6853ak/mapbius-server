@@ -11,6 +11,14 @@
         <result column="created_date" property="boardCreatedDate" />
     </resultMap>
 
+
+    <select id="selectBoardUserProfileImage" parameterType="string" resultType="string">
+        SELECT profile_image
+        FROM users
+        WHERE id = #{id};
+    </select>
+
+
     <!-- 리뷰 좋아요 추가 -->
     <insert id="insertReviewLike" parameterType="map">
         INSERT INTO review_likes (user_id, review_id)

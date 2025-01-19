@@ -79,6 +79,7 @@ public class BoardService {
 // 리뷰 전체 목록 가져오기
     public List<Review> getAllReviews(HttpServletRequest request) {
         // 데이터베이스에서 Map 형태로 리뷰 목록 가져오기
+        String PROFILE_IMAGE_BASE_URL = "http://58.74.46.219:61061/uploads/profiles/";
         List<Map<String, Object>> mapData = boardMapper.getReviews();
 
         // Map 데이터를 Review 객체로 변환
@@ -87,6 +88,13 @@ public class BoardService {
             review.setReviewId((Integer) map.get("review_id")); // 리뷰 ID
             review.setUserId((String) map.get("user_id")); // 사용자 ID
             review.setPhoneNumber((String) map.get("phone_number")); // 전화번호
+
+            String getImageName = boardMapper.selectBoardUserProfileImage((String) map.get("user_id"));
+            if(getImageName != null && !getImageName.isEmpty()) {
+                review.setProfileImage(PROFILE_IMAGE_BASE_URL + getImageName);
+            } else {
+                review.setProfileImage("");
+            }
 
             Random random = new Random();
             // 0부터 10까지의 난수 생성
@@ -165,7 +173,7 @@ public class BoardService {
     // 리뷰 일부 목록 가져오기
     public List<Review> getSelectReviews(String phoneNumber, HttpServletRequest request) {
 
-
+         String PROFILE_IMAGE_BASE_URL = "http://58.74.46.219:61061/uploads/profiles/";
         List<Map<String, Object>> mapData = boardMapper.getSelectReviews(request, phoneNumber);         // 데이터베이스에서 Map 형태로 리뷰 목록 가져오기
 
         // Map 데이터를 Review 객체로 변환
@@ -174,6 +182,13 @@ public class BoardService {
             review.setReviewId((Integer) map.get("review_id")); // 리뷰 ID
             review.setUserId((String) map.get("user_id")); // 사용자 ID
             review.setPhoneNumber((String) map.get("phone_number")); // 전화번호
+
+            String getImageName = boardMapper.selectBoardUserProfileImage((String) map.get("user_id"));
+            if(getImageName != null && !getImageName.isEmpty()) {
+                review.setProfileImage(PROFILE_IMAGE_BASE_URL + getImageName);
+            } else {
+                review.setProfileImage("");
+            }
 
             Random random = new Random();
             // 0부터 10까지의 난수 생성

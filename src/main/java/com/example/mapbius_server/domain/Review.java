@@ -22,4 +22,5 @@ public class Review {
     private MultipartFile imageFile;
     private String userNm; // 사용자 이름
     private int heartCount;
+    private String profileImage;
 }

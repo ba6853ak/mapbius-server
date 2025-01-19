@@ -13,7 +13,8 @@ import java.util.Map;
 @Mapper
 public interface BoardMapper {
 
-
+    // 게시판에서 유저 아이디로 이미지 셀렉트
+    String selectBoardUserProfileImage(@Param("id") String id);
 
     // 리뷰 삽입
     int insertReviewLike(@Param("phoneNumber") String phoneNumber);
