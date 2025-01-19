@@ -153,8 +153,9 @@ public class BoardService {
             // 0부터 10까지의 난수 생성
             int randomNumber = random.nextInt(11); // 11은 upper bound로 포함되지 않음
 
+            int heartCount = boardMapper.countLikesByReviewId(review.getReviewId());
 
-            review.setHeartCount(randomNumber); // 좋아요 개수
+            review.setHeartCount(heartCount); // 좋아요 개수
 
             // review_date 처리: LocalDateTime -> String 변환
             Object reviewDateObj = map.get("review_date");

@@ -20,6 +20,9 @@ public interface BoardMapper {
     int selectIsOwnReview( @Param("userId") String userId, @Param("reviewId") int reviewId);
 
 
+    // 리뷰에 대한 좋아요 개수 조회
+    int countLikesByReviewId(@Param("reviewId") int reviewId);
+
     // 리뷰 좋아요 삽입
     int insertReviewLike( @Param("userId") String userId, @Param("reviewId") int reviewId);
 
