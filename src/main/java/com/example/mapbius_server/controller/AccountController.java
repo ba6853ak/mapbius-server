@@ -45,6 +45,41 @@ public class AccountController {
     private final AccountMapper accountMapper;
     private final UserMapper userMapper;
 
+    // 즐겨찾기 체크
+    @PostMapping("/api/private/account/favorite/check")
+    public ResponseEntity<ResponseData> faviriteCheck(@RequestHeader("Authorization") String header, @RequestBody Favorite fav) {
+
+        ResponseData responseData = new ResponseData();
+
+        String token = header.substring(7).trim(); // Bearer 접두사 및 공백 제거
+        Claims claims = jwtTokenProvider.validateToken(token); // 검증 및 토큰 데이터 집합 추출
+        String userId = (String) claims.get("sub"); // 토큰에서 아이디 추출
+
+        fav.setUserId(userId); // 토큰에서 획득한 아이디를 fav 인스턴스에 저장함.
+
+ /*       if(!(fav.getType().equals("지역") || fav.getType().equals("장소"))){
+            responseData.setCode(404);
+            responseData.setMessage("지역과 장소만 type으로 설정하세요.");
+            responseData.setTimestamp(new Timestamp(System.currentTimeMillis()));
+            return ResponseEntity.status(404).body(responseData);
+        }*/
+
+        int result = accountMapper.checkIfFavoriteExists(fav);
+        if (result > 0) {
+            responseData.setCode(200);
+            responseData.setMessage("즐겨찾기가 등록되어 있음.");
+            responseData.setTimestamp(new Timestamp(System.currentTimeMillis()));
+            return ResponseEntity.status(200).body(responseData);
+        } else {
+            responseData.setCode(201);
+            responseData.setMessage("즐겨찾기가 등록되어 있지 않음.");
+            responseData.setTimestamp(new Timestamp(System.currentTimeMillis()));
+            return ResponseEntity.status(201).body(responseData);
+        }
+
+    }
+
+
     // 즐겨찾기 등록 및 해제
     @PostMapping("/api/private/account/favorite/enroll")
     public ResponseEntity<ResponseData> faviriteEnroll(@RequestHeader("Authorization") String header, @RequestBody Favorite fav) {
@@ -63,8 +98,6 @@ public class AccountController {
             responseData.setTimestamp(new Timestamp(System.currentTimeMillis()));
             return ResponseEntity.status(404).body(responseData);
         }
-
-
 
         int result = accountService.addAndRemoveFavorite(fav);
         if (result == 3) {
