@@ -58,12 +58,10 @@ public class BoardController {
 
     // 리뷰 전체 목록 가져오기
     @PostMapping("/api/public/reviews/entire-list")
-    public ResponseEntity<?> reviewEntireList(@RequestHeader("Authorization") String authorizationHeader, HttpServletRequest request) {
+    public ResponseEntity<?> reviewEntireList(HttpServletRequest request) {
 
         ResponseData responseData = new ResponseData();
 
-        String token = authorizationHeader.replace("Bearer ", ""); // 토큰 추출
-        String creator_id = jwtUtil.validateToken(token).getSubject(); // 토큰 검증
 
         List<Review> receivedData = boardService.getAllReviews(request);
 
@@ -84,12 +82,10 @@ public class BoardController {
 
     // 해당 가게 리뷰 검색 가져오기
     @PostMapping("/api/public/reviews/select-list")
-    public ResponseEntity<?> reviewSelectList(@RequestHeader("Authorization") String authorizationHeader, HttpServletRequest request, @RequestBody Review review) {
+    public ResponseEntity<?> reviewSelectList( HttpServletRequest request, @RequestBody Review review) {
 
         ResponseData responseData = new ResponseData();
 
-        String token = authorizationHeader.replace("Bearer ", ""); // 토큰 추출
-        String creator_id = jwtUtil.validateToken(token).getSubject(); // 토큰 검증
 
         List<Review> receivedData = boardService.getSelectReviews(review.getPhoneNumber(), request);
 
@@ -117,7 +113,7 @@ public class BoardController {
 
     // 해당 가게에 대한 후기 개수와 평균 가져오기
     @PostMapping("/api/public/reviews/get")
-    public ResponseEntity<?> reviewGet(@RequestHeader("Authorization") String authorizationHeader, @RequestBody Review review) {
+    public ResponseEntity<?> reviewGet(@RequestBody Review review) {
 
         Map<String, Object> stats = boardService.getStoreReviewStats(review.getPhoneNumber());
 
