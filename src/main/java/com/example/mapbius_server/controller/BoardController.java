@@ -61,6 +61,9 @@ public class BoardController {
     @PostMapping("/api/private/reviews/heart")
     public ResponseEntity<?> reviewHeart(@RequestHeader("Authorization") String authorizationHeader, @RequestBody Review review) {
 
+        String token = authorizationHeader.replace("Bearer ", ""); // 토큰 추출
+        String creator_id = jwtUtil.validateToken(token).getSubject(); // 토큰 검증
+        review.setUserId(creator_id);
 
         ResponseData responseData = new ResponseData();
         if (boardService.saveReview(review)) {
@@ -138,18 +141,24 @@ public class BoardController {
     // 해당 가게에 대한 후기 개수와 평균 가져오기
     @PostMapping("/api/public/reviews/get")
     public ResponseEntity<?> reviewGet(@RequestBody Review review) {
+        ResponseData responseData = new ResponseData();
 
+        // 가게 전화번호로 후기 개수와 평균 별점 가져오기
         Map<String, Object> stats = boardService.getStoreReviewStats(review.getPhoneNumber());
 
         if (stats != null && !stats.isEmpty()) {
-            return ResponseEntity.ok(stats);
+            responseData.setCode(200);
+            responseData.setObjData(stats);
+            responseData.setMessage("결과를 출력합니다.");
+            return ResponseEntity.ok(responseData);
         } else {
-            return ResponseEntity.status(404).body(Map.of(
-                    "message", "해당 가게에 대한 리뷰 통계를 찾을 수 없습니다."
-            ));
+            responseData.setCode(404); // 데이터가 없을 경우 404로 설정
+            responseData.setObjData(null);
+            responseData.setMessage("결과가 없습니다.");
+            return ResponseEntity.status(404).body(responseData);
         }
-
     }
+
 
 
 

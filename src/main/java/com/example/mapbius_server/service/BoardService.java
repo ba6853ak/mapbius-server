@@ -1,5 +1,6 @@
 package com.example.mapbius_server.service;
 
+import com.example.mapbius_server.common.ResponseData;
 import com.example.mapbius_server.domain.Board;
 import com.example.mapbius_server.domain.Review;
 import com.example.mapbius_server.domain.TravelRoute;
@@ -39,6 +40,8 @@ public class BoardService {
     // 가게 ID로 평균 별점과 후기 개수를 가져오는 메서드
     public Map<String, Object> getStoreReviewStats(String storeId) {
         Map<String, Object> stats = boardMapper.getStoreReviewStats(storeId);
+
+
 
         if (stats != null && stats.get("avgRating") != null) {
             // avgRating 값을 소수점 첫째 자리까지만 표시

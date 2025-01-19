@@ -11,12 +11,23 @@
         <result column="created_date" property="boardCreatedDate" />
     </resultMap>
 
+    <!-- 리뷰 좋아요 추가 -->
+    <insert id="insertReviewLike" parameterType="map">
+        INSERT INTO review_likes (user_id, review_id)
+        VALUES (#{userId}, #{reviewId})
+    </insert>
+
+
 
     <!-- 후기 삽입 -->
     <insert id="insertReview" parameterType="com.example.mapbius_server.domain.Review">
         INSERT INTO reviews (user_id, phone_number, content, rating)
         VALUES (#{userId}, #{phoneNumber}, #{content}, #{rating})
     </insert>
+
+
+
+
 
 
     <!-- 후기 전체 목록 가져오기 -->

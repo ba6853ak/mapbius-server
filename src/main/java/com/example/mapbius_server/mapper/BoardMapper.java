@@ -13,6 +13,11 @@ import java.util.Map;
 @Mapper
 public interface BoardMapper {
 
+
+
+    // 리뷰 삽입
+    int insertReviewLike(@Param("phoneNumber") String phoneNumber);
+
     // 리뷰 삽입
     int insertReview(Review review);
 
