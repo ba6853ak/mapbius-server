@@ -85,12 +85,6 @@ public class BoardController {
             responseData.setMessage("해당 게시글에 대해 좋아요를 눌렀습니다.");
             return ResponseEntity.status(202).body(responseData);
         }
-/*        else if (state == 4 || state == 2) {
-            responseData.setCode(404);
-            responseData.setMessage("변경 실패! 매개변수를 확인하세요.");
-            System.out.println("좋아요 상태 변경 실패");
-            return ResponseEntity.status(404).body(responseData);
-        }*/
         else {
             responseData.setCode(404);
             responseData.setMessage("변경 실패! 매개변수를 확인하세요.");
@@ -238,11 +232,16 @@ public class BoardController {
 
     // 여행 경로 등록
     @PostMapping("/api/private/travel-route/enroll")
-    public ResponseEntity<?> travelRouteEnroll(@RequestHeader("Authorization") String authorizationHeader, @ModelAttribute TravelRoute tr) {
+    public ResponseEntity<?> travelRouteEnroll(@RequestHeader("Authorization") String authorizationHeader, @ModelAttribute TravelRoute tr, @RequestPart(value = "imageFile", required = false) MultipartFile imageFile) {
 
         String token = authorizationHeader.replace("Bearer ", ""); // 토큰 추출
         String creator_id = jwtUtil.validateToken(token).getSubject(); // 토큰 검증
         tr.setCreatorId(creator_id);
+        // 파일이 없으면 coverImageName을 null로 설정
+        if (tr.getImageFile() == null || tr.getImageFile().isEmpty()) {
+            tr.setCoverImageName(null); // 파일이 없으면 coverImageName을 null로 설정
+        }
+
 
         ResponseData responseData = new ResponseData();
         if (boardService.saveCoverImageAndTravelRoute(tr)) {

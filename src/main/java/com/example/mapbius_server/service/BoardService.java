@@ -456,53 +456,46 @@ public class BoardService {
 
     public boolean saveCoverImageAndTravelRoute(@ModelAttribute TravelRoute tr) throws IOException {
 
-/*        // 사용자 조회
-        User user = accountMapper.findByUserId(id);
-        if (user == null) {
-            logger.error("No user found with id={}. Throwing exception.", id);
-            throw new RuntimeException("사용자를 찾을 수 없습니다.");
-        }
-        logger.debug("Found user: {}", user);*/
-
-
-
+        // MultipartFile file = tr.getImageFile(); -> 파일을 가져오는 부분
         MultipartFile file = tr.getImageFile();
-        System.out.println(file);
+        if (file != null && !file.isEmpty()) {
+            // 파일명 생성
+            String originalFileName = file.getOriginalFilename();
+            String fileName = UUID.randomUUID().toString() + "_" + originalFileName;
 
+            // 프로젝트 루트 디렉터리 확인 및 경로 생성
+            String rootPath = System.getProperty("user.dir");
+            String filePath = rootPath + File.separator + uploadCoverPath + File.separator + fileName;
 
-        // 파일명 생성
-        String originalFileName = file.getOriginalFilename();
-        String fileName = UUID.randomUUID().toString() + "_" + originalFileName;
+            tr.setCoverImageName(fileName); // 백엔드에 저장될 파일 이름 인스턴스에 삽입
 
-        // 프로젝트 루트 디렉터리 확인 및 경로 생성
-        String rootPath = System.getProperty("user.dir"); //
-        String filePath = rootPath + File.separator + uploadCoverPath + File.separator + fileName;
+            try {
+                // 프로젝트 내 이미지 파일 저장
+                File destinationFile = new File(filePath);
+                destinationFile.getParentFile().mkdirs(); // 디렉터리 생성
+                file.transferTo(destinationFile);
+                logger.info("File saved successfully: {}", destinationFile.getAbsolutePath());
 
-        tr.setCoverImageName(fileName); // 백엔드에 저장될 파일 이름 인스턴스에 삽입
+            } catch (IOException e) {
+                logger.error("IOException occurred during file saving for userId={}:", tr.getCreatorId(), e);
+                throw e;
+            } catch (java.io.IOException e) {
+                throw new RuntimeException(e);
+            }
+        } else {
+            // 파일이 없는 경우, coverImageName은 null로 두고 DB에 null로 저장
+            tr.setCoverImageName(null);
+        }
 
-
+        // DB에 여행 경로 데이터 삽입
         try {
-            // 프로젝트 내 이미지 파일 저장
-            File destinationFile = new File(filePath);
-            destinationFile.getParentFile().mkdirs(); // 디렉터리 생성
-            file.transferTo(destinationFile);
-            logger.info("File saved successfully: {}", destinationFile.getAbsolutePath());
-
-            // DB에 여행 경로 데이터 삽입 ********************************************************************************************************************
             boardMapper.insertTravelRoute(tr);
-            logger.info("DB update successful for userId={}, saved fileName={}", tr.getCreatorId(), fileName);
+            logger.info("DB update successful for userId={}, saved fileName={}", tr.getCreatorId(), tr.getCoverImageName());
 
             return true;
-
-        } catch (IOException e) {
-            logger.error("IOException occurred during file saving for userId={}:", tr.getCreatorId(), e);
-            throw e;
-
         } catch (RuntimeException e) {
             logger.error("RuntimeException occurred during DB update for userId={}:", tr.getCreatorId(), e);
             throw e;
-        } catch (java.io.IOException e) {
-            throw new RuntimeException(e);
         }
     }
 
