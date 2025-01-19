@@ -400,10 +400,10 @@ public class BoardService {
     }
 
     // 여행 루트 목록 가져오기
-    public List<TravelRoute> getAllTravelRoutes(HttpServletRequest request) {
+    public List<TravelRoute> getAllTravelRoutes(HttpServletRequest request, String creatorId) {
 
         // 데이터베이스에서 여행 루트 목록 가져오기
-        List<TravelRoute> data = boardMapper.getTravelRoutes();
+        List<TravelRoute> data = boardMapper.getTravelRoutes(creatorId);
 
         // 업로드 경로 및 파일 URL 구성
         String uploadPath = "upload/cover_image";

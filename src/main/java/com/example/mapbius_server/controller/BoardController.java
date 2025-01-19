@@ -185,9 +185,9 @@ public class BoardController {
         ResponseData responseData = new ResponseData();
 
         String token = authorizationHeader.replace("Bearer ", ""); // 토큰 추출
-        String creator_id = jwtUtil.validateToken(token).getSubject(); // 토큰 검증
+        String creatorId = jwtUtil.validateToken(token).getSubject(); // 토큰 검증
 
-        List<TravelRoute> receivedData = boardService.getAllTravelRoutes(request);
+        List<TravelRoute> receivedData = boardService.getAllTravelRoutes(request, creatorId);
 
         if (receivedData != null) {
             responseData.setCode(200);
