@@ -113,7 +113,8 @@
             content,
             created_at,
             is_private,
-            location_info
+            location_info,
+            distances
         ) VALUES (
                      #{creatorId},
                      #{coverImageName},
@@ -121,7 +122,8 @@
                      #{content},
                      NOW(),
                      #{isPrivate},
-                     #{locationInfo}
+                     #{locationInfo},
+                     #{distances}
                  );
     </insert>
 
@@ -160,6 +162,7 @@
         tr.created_at AS createdAt,
         tr.is_private AS isPrivate,
         tr.location_info AS locationInfo,
+        tr.distances AS distances,
         CASE
         WHEN rl.user_id IS NOT NULL THEN 1
         ELSE 0
@@ -187,7 +190,8 @@
             tr.content,
             tr.created_at AS createdAt,
             tr.is_private AS isPrivate,
-            tr.location_info AS locationInfo
+            tr.location_info AS locationInfo,
+            tr.distances AS distances
         FROM travel_routes tr
                  LEFT JOIN users u ON tr.creator_id = u.id  -- users 테이블과 조인
         WHERE tr.id = #{id};
