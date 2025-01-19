@@ -14,6 +14,7 @@ import org.springframework.core.io.Resource;
 import org.springframework.core.io.UrlResource;
 import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
@@ -51,36 +52,13 @@ public class BoardService {
         return stats;
     }
 
-
     // 리뷰 저장 (텍스트 및 이미지 파일 저장)
-    public boolean saveReview(@ModelAttribute Review rv) throws IOException {
-
-        MultipartFile file = rv.getImageFile();
-        System.out.println(file);
-
-
-        // 파일명 생성
-        String originalFileName = file.getOriginalFilename();
-        String fileName = UUID.randomUUID().toString() + "_" + originalFileName;
-
-        // 프로젝트 루트 디렉터리 확인 및 경로 생성
-        String rootPath = System.getProperty("user.dir"); //
-        String filePath = rootPath + File.separator + uploadCoverPath + File.separator + fileName;
-
-        rv.setCoverImage(fileName); // 백엔드에 저장될 파일 이름 인스턴스에 삽입
+    public boolean saveReview(@RequestBody Review rv) throws IOException {
 
 
         try {
-            // 프로젝트 내 이미지 파일 저장
-            File destinationFile = new File(filePath);
-            destinationFile.getParentFile().mkdirs(); // 디렉터리 생성
-            file.transferTo(destinationFile);
-            logger.info("File saved successfully: {}", destinationFile.getAbsolutePath());
-
             // DB에 여행 경로 데이터 삽입 ********************************************************************************************************************
             boardMapper.insertReview(rv);
-            logger.info("DB update successful for userId={}, saved fileName={}", rv.getUserId(), fileName);
-
             return true;
 
         } catch (IOException e) {
@@ -90,8 +68,6 @@ public class BoardService {
         } catch (RuntimeException e) {
             logger.error("RuntimeException occurred during DB update for userId={}:", rv.getUserId(), e);
             throw e;
-        } catch (java.io.IOException e) {
-            throw new RuntimeException(e);
         }
     }
 

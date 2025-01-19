@@ -35,7 +35,7 @@ public class BoardController {
 
     // 후기 등록
     @PostMapping("/api/private/reviews/enroll")
-    public ResponseEntity<?> travelRouteEnroll(@RequestHeader("Authorization") String authorizationHeader, @ModelAttribute Review review) {
+    public ResponseEntity<?> travelRouteEnroll(@RequestHeader("Authorization") String authorizationHeader, @RequestBody Review review) {
 
         String token = authorizationHeader.replace("Bearer ", ""); // 토큰 추출
         String creator_id = jwtUtil.validateToken(token).getSubject(); // 토큰 검증
@@ -103,7 +103,7 @@ public class BoardController {
             return ResponseEntity.status(200).body(responseData);
         } else {
             responseData.setCode(404);
-            responseData.setMessage("리뷰 전체  출력 실패");
+            responseData.setMessage("리뷰 전체 출력 실패");
             System.out.println("리뷰 전체 출력 실패");
             return ResponseEntity.status(404).body(responseData);
         }
