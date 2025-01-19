@@ -34,6 +34,15 @@
         ORDER BY review_date DESC
     </select>
 
+    <!-- 가게 ID로 평균 별점과 후기 개수 조회 -->
+    <select id="getStoreReviewStats" parameterType="string" resultType="map">
+        SELECT
+            AVG(rating) AS avgRating,
+            COUNT(*) AS reviewCount
+        FROM reviews
+        WHERE phone_number = #{phoneNumber}
+    </select>
+
 <!--  /////////////////////////////////////////////////// -->
 
 

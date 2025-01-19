@@ -35,6 +35,22 @@ public class BoardService {
     private final BoardMapper boardMapper;
     public BoardService(BoardMapper boardMapper) { this.boardMapper = boardMapper; }
 
+    // 가게 ID로 평균 별점과 후기 개수를 가져오는 메서드
+    public Map<String, Object> getStoreReviewStats(String storeId) {
+        Map<String, Object> stats = boardMapper.getStoreReviewStats(storeId);
+
+        if (stats != null && stats.get("avgRating") != null) {
+            // avgRating 값을 소수점 첫째 자리까지만 표시
+            Double avgRating = ((BigDecimal) stats.get("avgRating")).doubleValue();
+            Double roundedAvgRating = Math.round(avgRating * 10) / 10.0;
+
+            // 수정된 avgRating 값을 Map에 다시 설정
+            stats.put("avgRating", roundedAvgRating);
+        }
+
+        return stats;
+    }
+
 
     // 리뷰 저장 (텍스트 및 이미지 파일 저장)
     public boolean saveReview(@ModelAttribute Review rv) throws IOException {

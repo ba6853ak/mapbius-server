@@ -57,7 +57,7 @@ public class BoardController {
     }
 
     // 리뷰 전체 목록 가져오기
-    @PostMapping("/api/private/reviews/entire-list")
+    @PostMapping("/api/public/reviews/entire-list")
     public ResponseEntity<?> reviewEntireList(@RequestHeader("Authorization") String authorizationHeader, HttpServletRequest request) {
 
         ResponseData responseData = new ResponseData();
@@ -83,7 +83,7 @@ public class BoardController {
     }
 
     // 해당 가게 리뷰 검색 가져오기
-    @PostMapping("/api/private/reviews/select-list")
+    @PostMapping("/api/public/reviews/select-list")
     public ResponseEntity<?> reviewSelectList(@RequestHeader("Authorization") String authorizationHeader, HttpServletRequest request, @RequestBody Review review) {
 
         ResponseData responseData = new ResponseData();
@@ -113,6 +113,28 @@ public class BoardController {
         }
 
     }
+
+
+    // 해당 가게에 대한 후기 개수와 평균 가져오기
+    @PostMapping("/api/public/reviews/get")
+    public ResponseEntity<?> reviewGet(@RequestHeader("Authorization") String authorizationHeader, @RequestBody Review review) {
+
+        Map<String, Object> stats = boardService.getStoreReviewStats(review.getPhoneNumber());
+
+        if (stats != null && !stats.isEmpty()) {
+            // 응답 데이터에 storeId 추가
+            stats.put("storeId", review.getPhoneNumber());
+            return ResponseEntity.ok(stats);
+        } else {
+            return ResponseEntity.status(404).body(Map.of(
+                    "message", "해당 가게에 대한 리뷰 통계를 찾을 수 없습니다.",
+                    "storeId", review.getPhoneNumber()
+            ));
+        }
+
+    }
+
+
 
 
 

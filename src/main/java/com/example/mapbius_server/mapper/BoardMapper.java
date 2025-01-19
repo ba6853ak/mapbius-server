@@ -22,6 +22,9 @@ public interface BoardMapper {
     // 해당 리뷰 목록 가져오기
     List<Map<String, Object>> getSelectReviews(HttpServletRequest request, @Param("phoneNumber") String phoneNumber);
 
+    // 가게 ID로 평균 별점과 후기 개수 조회
+    Map<String, Object> getStoreReviewStats(String phoneNumber);
+
     // 1. 여행 루트 삽입
     int insertTravelRoute(TravelRoute travelRoute);
 
