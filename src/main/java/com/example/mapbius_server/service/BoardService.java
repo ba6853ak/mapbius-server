@@ -50,6 +50,8 @@ public class BoardService {
 
             // 수정된 avgRating 값을 Map에 다시 설정
             stats.put("avgRating", roundedAvgRating);
+        } else {
+            stats.put("avgRating", 0);
         }
 
         return stats;
