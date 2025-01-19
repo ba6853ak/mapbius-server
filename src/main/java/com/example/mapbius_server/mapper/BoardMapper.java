@@ -15,7 +15,7 @@ public interface BoardMapper {
     int insertReview(Review review);
 
     // 전체 리뷰 목록 가져오기
-    List<Review> getReviews();
+    List<Map<String, Object>> getReviews();
 
 
     // 1. 여행 루트 삽입

@@ -20,7 +20,7 @@
 
 
     <!-- 후기 전체 목록 가져오기 -->
-    <select id="getReviews" resultType="com.example.mapbius_server.domain.Review">
+    <select id="getReviews" resultType="map">
         SELECT * FROM reviews
     </select>
 
