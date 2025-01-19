@@ -19,7 +19,7 @@ public interface AccountMapper {
     int insertFavorite(Favorite favorite);
 
     // 즐겨찾기 삭제
-    int deleteFavorite(int favIndex);
+    int deleteFavorite(String locationCode);
 
     // 본인만 보여지는 즐겨찾기 리스트
     List<Favorite> getFavoritesByUserId(String userId);

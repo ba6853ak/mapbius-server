@@ -28,6 +28,7 @@ import java.io.File;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.sql.Timestamp;
+import java.util.List;
 import java.util.Map;
 import org.springframework.core.io.Resource; // 리소스 파일 처리
 
@@ -56,6 +57,14 @@ public class AccountController {
 
         fav.setUserId(userId); // 토큰에서 획득한 아이디를 fav 인스턴스에 저장함.
 
+        if(!(fav.getType().equals("지역") || fav.getType().equals("장소"))){
+            responseData.setCode(404);
+            responseData.setMessage("지역과 장소만 type으로 설정하세요.");
+            responseData.setTimestamp(new Timestamp(System.currentTimeMillis()));
+            return ResponseEntity.status(404).body(responseData);
+        }
+
+
 
         int result = accountService.addAndRemoveFavorite(fav);
         if (result == 3) {
@@ -68,17 +77,42 @@ public class AccountController {
             responseData.setMessage("즐겨찾기가 해제 되었습니다.");
             responseData.setTimestamp(new Timestamp(System.currentTimeMillis()));
             return ResponseEntity.status(201).body(responseData);
-        } else {
+        } else if (result == 2 || result == 4) {
             responseData.setCode(202);
             responseData.setMessage("잘못된 요청입니다.");
             responseData.setTimestamp(new Timestamp(System.currentTimeMillis()));
             return ResponseEntity.status(202).body(responseData);
+        } else {
+            return ResponseEntity.status(404).body(responseData);
         }
 
     }
 
     // 즐겨찾기 리스트
+    @PostMapping("/api/private/account/favorite/mylist")
+    public ResponseEntity<ResponseData> faviriteMyList(@RequestHeader("Authorization") String header) {
 
+        ResponseData responseData = new ResponseData();
+
+        String token = header.substring(7).trim(); // Bearer 접두사 및 공백 제거
+        Claims claims = jwtTokenProvider.validateToken(token); // 검증 및 토큰 데이터 집합 추출
+        String userId = (String) claims.get("sub"); // 토큰에서 아이디 추출
+
+        List<Favorite> result = accountService.getFavorites(userId);
+        if (result != null) {
+            responseData.setCode(200);
+            responseData.setMessage("사용자의 개인 즐겨찾기 리스트를 반환합니다.");
+            responseData.setTimestamp(new Timestamp(System.currentTimeMillis()));
+            responseData.setObjData(result);
+            return ResponseEntity.status(200).body(responseData);
+        } else {
+            responseData.setCode(404);
+            responseData.setMessage("즐겨찾기 리스트 요청 실패!");
+            responseData.setTimestamp(new Timestamp(System.currentTimeMillis()));
+            return ResponseEntity.status(404).body(responseData);
+        }
+
+    }
 
 
 

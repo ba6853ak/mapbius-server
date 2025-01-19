@@ -97,7 +97,7 @@ public class BoardController {
 
 
 
-    // 리뷰 전체 목록 가져오기
+    // 리뷰 전체 목록 가져오기 //  사용안해
     @PostMapping("/api/public/reviews/entire-list")
     public ResponseEntity<?> reviewEntireList(HttpServletRequest request) {
 

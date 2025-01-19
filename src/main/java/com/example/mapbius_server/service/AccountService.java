@@ -60,17 +60,21 @@ public class AccountService {
 
         if(accountMapper.checkIfFavoriteExists(favorite)>0){ // 사용자가 해당 장소를 즐겨찾기로 등록했는가?
             // 등록했다면 삭제하기
-            if(removeFavorite(favorite.getFavIndex()) > 0) {
+            if(removeFavorite(favorite.getLocationCode()) > 0) {
+                logger.info("1번 동작");
                 return 1;
             } else {
+                logger.info("2번 동작");
                 return 2;
             }
 
         } else {
             // 등록한 적이 없다면 등록하기
             if(accountMapper.insertFavorite(favorite) > 0) {
+                logger.info("3번 동작");
                 return 3;
             } else {
+                logger.info("4번 동작");
                 return 4;
             }
         }
@@ -79,9 +83,8 @@ public class AccountService {
     }
 
     // 즐겨찾기 삭제
-    public int removeFavorite(int favIndex) {
-        accountMapper.deleteFavorite(favIndex);
-        return favIndex;
+    public int removeFavorite(String locationCode) {
+        return accountMapper.deleteFavorite(locationCode);
     }
 
     // 사용자의 즐겨찾기 리스트 반환
