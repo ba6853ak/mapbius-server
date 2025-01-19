@@ -61,28 +61,35 @@ public class BoardController {
     @PostMapping("/api/private/reviews/heart")
     public ResponseEntity<?> reviewHeart(@RequestHeader("Authorization") String authorizationHeader, @RequestBody Review review) {
 
+        int state = 0;
+
         String token = authorizationHeader.replace("Bearer ", ""); // 토큰 추출
         String creator_id = jwtUtil.validateToken(token).getSubject(); // 토큰 검증
         review.setUserId(creator_id);
 
         ResponseData responseData = new ResponseData();
         if(boardService.reviewitsmine(creator_id, review.getReviewId())){
-            responseData.setCode(201);
+            responseData.setCode(200);
             responseData.setMessage("본인이 작성한 후기는 추천을 누를 수 없습니다.");
             System.out.println("본인이 작성한 후기는 추천을 누를 수 없습니다.");
-            return ResponseEntity.status(201).body(responseData);
+            return ResponseEntity.status(200).body(responseData);
         }
 
 
 
-        if (boardService.reviewHeartAdd(creator_id, review.getReviewId())) {
-            responseData.setCode(200);
-            responseData.setMessage("좋아요 상태 변경 성공");
-            System.out.println("좋아요 상태 변경 성공");
-            return ResponseEntity.status(200).body(responseData);
-        } else {
+        if (boardService.reviewHeartAdd(creator_id, review.getReviewId()) == 1) {
+            responseData.setCode(201);
+            responseData.setMessage("해당 게시글에 대한 좋아요를 해제했습니다.");
+            return ResponseEntity.status(201).body(responseData);
+        }
+        if (boardService.reviewHeartAdd(creator_id, review.getReviewId()) == 3) {
+            responseData.setCode(201);
+            responseData.setMessage("해당 게시글에 대해 좋아요를 눌렀습니다.");
+            return ResponseEntity.status(201).body(responseData);
+        }
+        else {
             responseData.setCode(404);
-            responseData.setMessage("좋아요 상태 변경 실패");
+            responseData.setMessage("변경 실패! 매개변수를 확인하세요.");
             System.out.println("좋아요 상태 변경 실패");
             return ResponseEntity.status(404).body(responseData);
         }
