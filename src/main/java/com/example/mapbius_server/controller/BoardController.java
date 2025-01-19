@@ -38,7 +38,7 @@ public class BoardController {
 
         String token = authorizationHeader.replace("Bearer ", ""); // 토큰 추출
         String creator_id = jwtUtil.validateToken(token).getSubject(); // 토큰 검증
-
+        review.setUserId(creator_id);
 
         ResponseData responseData = new ResponseData();
         if (boardService.saveReview(review)) {
