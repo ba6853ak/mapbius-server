@@ -36,10 +36,51 @@ public class BoardService {
     public BoardService(BoardMapper boardMapper) { this.boardMapper = boardMapper; }
 
 
-    // 후기 저장
-    public int saveReview(Review review) {
-        return boardMapper.insertReview(review);
+    // 여행 경로 저장 (텍스트 및 이미지 파일 저장)
+    public boolean saveReview(@ModelAttribute Review rv) throws IOException {
+
+        MultipartFile file = rv.getImageFile();
+        System.out.println(file);
+
+
+        // 파일명 생성
+        String originalFileName = file.getOriginalFilename();
+        String fileName = UUID.randomUUID().toString() + "_" + originalFileName;
+
+        // 프로젝트 루트 디렉터리 확인 및 경로 생성
+        String rootPath = System.getProperty("user.dir"); //
+        String filePath = rootPath + File.separator + uploadCoverPath + File.separator + fileName;
+
+        rv.setCoverImage(fileName); // 백엔드에 저장될 파일 이름 인스턴스에 삽입
+
+
+        try {
+            // 프로젝트 내 이미지 파일 저장
+            File destinationFile = new File(filePath);
+            destinationFile.getParentFile().mkdirs(); // 디렉터리 생성
+            file.transferTo(destinationFile);
+            logger.info("File saved successfully: {}", destinationFile.getAbsolutePath());
+
+            // DB에 여행 경로 데이터 삽입 ********************************************************************************************************************
+            boardMapper.insertReview(rv);
+            logger.info("DB update successful for userId={}, saved fileName={}", rv.getUserId(), fileName);
+
+            return true;
+
+        } catch (IOException e) {
+            logger.error("IOException occurred during file saving for userId={}:", rv.getUserId(), e);
+            throw e;
+
+        } catch (RuntimeException e) {
+            logger.error("RuntimeException occurred during DB update for userId={}:", rv.getUserId(), e);
+            throw e;
+        } catch (java.io.IOException e) {
+            throw new RuntimeException(e);
+        }
     }
+
+
+
 
     // 전화번호에 대한 모든 후기 조회
     public List<Review> getReviews() {
@@ -48,19 +89,6 @@ public class BoardService {
 
 
 
-    // 여행 루트 등록
-    public boolean travelRouteEnroll(TravelRoute tr) {
-
-        if(boardMapper.insertTravelRoute(tr) > 0){
-            logger.info("2 동작");
-            return true;
-        }
-        else {
-            logger.info("3 동작");
-            return false;
-        }
-    }
-    // 여행 루트 수정
 // 여행 루트 수정
     public boolean updateTravelRoute(TravelRoute tr) {
         MultipartFile file = tr.getImageFile();  // form-data에서 넘어온 파일

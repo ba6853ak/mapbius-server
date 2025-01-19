@@ -14,8 +14,8 @@
 
     <!-- 후기 삽입 -->
     <insert id="insertReview" parameterType="com.example.mapbius_server.domain.Review">
-        INSERT INTO reviews (user_id, phone_number, content, rating)
-        VALUES (#{userId}, #{phoneNumber}, #{content}, #{rating})
+        INSERT INTO reviews (user_id, phone_number, content, rating, cover_image)
+        VALUES (#{userId}, #{phoneNumber}, #{content}, #{rating}, #{coverImage})
     </insert>
 
 

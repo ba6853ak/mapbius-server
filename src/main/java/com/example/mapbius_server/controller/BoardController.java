@@ -34,22 +34,22 @@ public class BoardController {
 
     // 후기 등록
     @PostMapping("/api/private/reviews/enroll")
-    public ResponseEntity<?> travelRouteEnroll(@RequestHeader("Authorization") String authorizationHeader, @RequestBody Review review) {
+    public ResponseEntity<?> travelRouteEnroll(@RequestHeader("Authorization") String authorizationHeader, @ModelAttribute Review review) {
 
         String token = authorizationHeader.replace("Bearer ", ""); // 토큰 추출
         String creator_id = jwtUtil.validateToken(token).getSubject(); // 토큰 검증
-/*        revier(creator_id);*/
+
 
         ResponseData responseData = new ResponseData();
-        if (boardService.saveReview(review) > 0 ) {
+        if (boardService.saveReview(review)) {
             responseData.setCode(200);
-            responseData.setMessage("여행 경로 등록 성공");
-            System.out.println("여행 경로 등록 성공");
+            responseData.setMessage("후기 등록 성공");
+            System.out.println("후기 등록 성공");
             return ResponseEntity.status(200).body(responseData);
         } else {
             responseData.setCode(404);
-            responseData.setMessage("여행 경로 등록 실패");
-            System.out.println("여행 경로 등록 실패");
+            responseData.setMessage("후기 등록 실패");
+            System.out.println("후기 등록 실패");
             return ResponseEntity.status(404).body(responseData);
         }
 

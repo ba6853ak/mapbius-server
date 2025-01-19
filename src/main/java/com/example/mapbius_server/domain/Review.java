@@ -2,6 +2,7 @@ package com.example.mapbius_server.domain;
 
 import lombok.Getter;
 import lombok.Setter;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.Date;
 
@@ -15,6 +16,7 @@ public class Review {
     private String content;
     private String reviewDate;
     private double rating;
-
+    private String coverImage;
+    private MultipartFile imageFile;
 
 }
