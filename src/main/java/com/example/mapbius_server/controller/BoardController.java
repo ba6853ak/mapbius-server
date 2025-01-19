@@ -19,6 +19,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -80,6 +81,39 @@ public class BoardController {
         }
 
     }
+
+    // 해당 가게 리뷰 검색 가져오기
+    @PostMapping("/api/private/reviews/select-list")
+    public ResponseEntity<?> reviewSelectList(@RequestHeader("Authorization") String authorizationHeader, HttpServletRequest request, @RequestBody Review review) {
+
+        ResponseData responseData = new ResponseData();
+
+        String token = authorizationHeader.replace("Bearer ", ""); // 토큰 추출
+        String creator_id = jwtUtil.validateToken(token).getSubject(); // 토큰 검증
+
+        List<Review> receivedData = boardService.getSelectReviews(review.getPhoneNumber(), request);
+
+        if(review.getPhoneNumber().equals("")){
+            receivedData = boardService.getAllReviews(request);
+        }
+
+
+
+        if (receivedData != null) {
+            responseData.setCode(200);
+            responseData.setMessage("리뷰 전체 리스트 출력");
+            responseData.setObjData(receivedData);
+            System.out.println("리뷰 전체 출력 성공");
+            return ResponseEntity.status(200).body(responseData);
+        } else {
+            responseData.setCode(404);
+            responseData.setMessage("리뷰 전체  출력 실패");
+            System.out.println("리뷰 전체 출력 실패");
+            return ResponseEntity.status(404).body(responseData);
+        }
+
+    }
+
 
 
     // 여행 경로 전체 목록 가져오기

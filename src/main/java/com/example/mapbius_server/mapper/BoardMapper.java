@@ -3,7 +3,9 @@ package com.example.mapbius_server.mapper;
 import com.example.mapbius_server.domain.Board;
 import com.example.mapbius_server.domain.Review;
 import com.example.mapbius_server.domain.TravelRoute;
+import jakarta.servlet.http.HttpServletRequest;
 import org.apache.ibatis.annotations.Mapper;
+import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
 import java.util.Map;
@@ -17,6 +19,8 @@ public interface BoardMapper {
     // 전체 리뷰 목록 가져오기
     List<Map<String, Object>> getReviews();
 
+    // 해당 리뷰 목록 가져오기
+    List<Map<String, Object>> getSelectReviews(HttpServletRequest request, @Param("phoneNumber") String phoneNumber);
 
     // 1. 여행 루트 삽입
     int insertTravelRoute(TravelRoute travelRoute);

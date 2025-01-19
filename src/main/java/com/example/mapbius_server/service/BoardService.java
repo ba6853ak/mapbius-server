@@ -165,6 +165,91 @@ public class BoardService {
     }
 
 
+    // 리뷰 일부 목록 가져오기
+    public List<Review> getSelectReviews(String phoneNumber, HttpServletRequest request) {
+
+
+        List<Map<String, Object>> mapData = boardMapper.getSelectReviews(request, phoneNumber);         // 데이터베이스에서 Map 형태로 리뷰 목록 가져오기
+
+        // Map 데이터를 Review 객체로 변환
+        List<Review> data = mapData.stream().map(map -> {
+            Review review = new Review();
+            review.setReviewId((Integer) map.get("review_id")); // 리뷰 ID
+            review.setUserId((String) map.get("user_id")); // 사용자 ID
+            review.setPhoneNumber((String) map.get("phone_number")); // 전화번호
+
+            Random random = new Random();
+            // 0부터 10까지의 난수 생성
+            int randomNumber = random.nextInt(11); // 11은 upper bound로 포함되지 않음
+
+
+            review.setHeartCount(randomNumber); // 좋아요 개수
+
+            // review_date 처리: LocalDateTime -> String 변환
+            Object reviewDateObj = map.get("review_date");
+            if (reviewDateObj instanceof LocalDateTime) {
+                LocalDateTime reviewDate = (LocalDateTime) reviewDateObj;
+                review.setReviewDate(reviewDate.toString());
+            } else if (reviewDateObj instanceof String) {
+                review.setReviewDate((String) reviewDateObj);
+            }
+
+            review.setContent((String) map.get("content")); // 리뷰 내용
+
+            Object ratingObj = map.get("rating");
+            if (ratingObj instanceof BigDecimal) {
+                review.setRating(((BigDecimal) ratingObj).doubleValue());
+            } else if (ratingObj instanceof Double) {
+                review.setRating((Double) ratingObj);
+            }
+
+            review.setCoverImage((String) map.get("cover_image")); // 커버 이미지 파일 이름
+
+            if(review.getCoverImage() == null) {
+                review.setCoverImage("");
+            }
+
+            // 사용자 이름 조회 및 설정
+            String userId = review.getUserId();
+            String userNm = boardMapper.selectUserIdToUserNm(userId); // 사용자 이름 조회
+            review.setUserNm(userNm);
+
+            return review;
+        }).collect(Collectors.toList());
+
+        // 업로드 경로 및 파일 URL 구성
+        String uploadPath = "upload/cover_image";
+
+        for (Review rv : data) {
+            String fileName = rv.getCoverImage();
+
+            if (fileName != null && !fileName.isEmpty()) {
+                String rootDir = System.getProperty("user.dir");
+                String fileDir = rootDir + File.separator + uploadPath;
+
+                try {
+                    Path filePath = Paths.get(fileDir).resolve(fileName).normalize();
+                    Resource resource = new UrlResource(filePath.toUri());
+
+                    if (resource.exists()) {
+                        String baseUrl = String.format("%s://%s:%d",
+                                request.getScheme(),
+                                request.getServerName(),
+                                request.getServerPort()
+                        );
+                        String fileUrl = baseUrl + "/uploads/cover_images/" + fileName;
+                        rv.setCoverImage(fileUrl);
+                    } else {
+                        logger.warn("커버 이미지 파일이 존재하지 않습니다: " + filePath.toString());
+                    }
+                } catch (Exception e) {
+                    logger.error("커버 이미지 파일 처리 중 오류 발생", e);
+                }
+            }
+        }
+
+        return data;
+    }
 
 
 
