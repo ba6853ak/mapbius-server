@@ -66,15 +66,24 @@ public class BoardController {
         review.setUserId(creator_id);
 
         ResponseData responseData = new ResponseData();
-        if (boardService.saveReview(review)) {
+        if(boardService.reviewitsmine(creator_id, review.getReviewId())){
+            responseData.setCode(201);
+            responseData.setMessage("본인이 작성한 후기는 추천을 누를 수 없습니다.");
+            System.out.println("본인이 작성한 후기는 추천을 누를 수 없습니다.");
+            return ResponseEntity.status(201).body(responseData);
+        }
+
+
+
+        if (boardService.reviewHeartAdd(creator_id, review.getReviewId())) {
             responseData.setCode(200);
-            responseData.setMessage("wh성공");
-            System.out.println("후기 등록 성공");
+            responseData.setMessage("좋아요 상태 변경 성공");
+            System.out.println("좋아요 상태 변경 성공");
             return ResponseEntity.status(200).body(responseData);
         } else {
             responseData.setCode(404);
-            responseData.setMessage("후기 등록 실패");
-            System.out.println("후기 등록 실패");
+            responseData.setMessage("좋아요 상태 변경 실패");
+            System.out.println("좋아요 상태 변경 실패");
             return ResponseEntity.status(404).body(responseData);
         }
 

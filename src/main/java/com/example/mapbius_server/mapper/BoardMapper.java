@@ -16,8 +16,21 @@ public interface BoardMapper {
     // 게시판에서 유저 아이디로 이미지 셀렉트
     String selectBoardUserProfileImage(@Param("id") String id);
 
-    // 리뷰 삽입
-    int insertReviewLike(@Param("phoneNumber") String phoneNumber);
+    // 본인의 리뷰인가?
+    int selectIsOwnReview( @Param("userId") String userId, @Param("reviewId") int reviewId);
+
+
+    // 리뷰 좋아요 삽입
+    int insertReviewLike( @Param("userId") String userId, @Param("reviewId") int reviewId);
+
+    // 리뷰 좋아요 삭제
+    int deleteReviewLike( @Param("userId") String userId, @Param("reviewId") int reviewId);
+
+
+    // 리뷰 좋아요 삽입 전 중복 체크
+    int selectReviewLikeCheck( @Param("userId") String userId, @Param("reviewId") int reviewId);
+
+
 
     // 리뷰 삽입
     int insertReview(Review review);

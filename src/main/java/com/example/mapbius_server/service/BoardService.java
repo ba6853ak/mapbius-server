@@ -13,6 +13,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.UrlResource;
+import org.springframework.security.core.parameters.P;
 import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -36,6 +37,58 @@ public class BoardService {
 
     private final BoardMapper boardMapper;
     public BoardService(BoardMapper boardMapper) { this.boardMapper = boardMapper; }
+
+    // 후기 하트 추가
+    public boolean reviewHeartAdd(String userId, int review_id){
+
+        if(reviewHeartCheck(userId, review_id)){ // 좋아요가 존재하는가? Yes
+            int result =  boardMapper.deleteReviewLike(userId, review_id); // 좋아요 삭제
+            if(result > 0){
+                return true;
+            } else {
+                return false;
+            }
+
+        } else { // 좋아요가 존재하는가? No
+            int result = boardMapper.insertReviewLike(userId, review_id); // 좋아요 삽입
+            if(result > 0){
+                return true;
+            } else {
+                return false;
+            }
+        }
+
+
+    }
+
+    // 후기 중복 확인
+    public boolean reviewHeartCheck(String userId, int review_id){
+
+        int result = boardMapper.selectReviewLikeCheck(userId, review_id);
+
+        if(result > 0){
+            return true;
+        }
+        return false;
+
+    }
+
+    // 후기가 본인의 것인지 확인하기
+    public boolean reviewitsmine(String userId, int reviewId){
+        int result = boardMapper.selectIsOwnReview(userId, reviewId);
+        if(result > 0){
+            return true;
+
+        } else {
+            return false;
+        }
+    }
+
+
+
+
+
+
 
     // 가게 ID로 평균 별점과 후기 개수를 가져오는 메서드
     public Map<String, Object> getStoreReviewStats(String storeId) {
