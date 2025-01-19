@@ -27,6 +27,13 @@ public class AdminController {
     private final AdminService adminService;
     private final JwtTokenProvider jwtTokenProvider;
 
+
+
+
+
+
+
+
     // 프로필 이미지, 닉네임. 아이디, 이메일, 생년월일, 가입날짜, 성별, 권한, 계정상태 표시해야함! !!!!
 
     /**

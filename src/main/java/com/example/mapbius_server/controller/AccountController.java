@@ -2,6 +2,7 @@ package com.example.mapbius_server.controller;
 
 
 import com.example.mapbius_server.common.ResponseData;
+import com.example.mapbius_server.domain.Favorite;
 import com.example.mapbius_server.domain.User;
 import com.example.mapbius_server.dto.PIResponse;
 import com.example.mapbius_server.mapper.AccountMapper;
@@ -43,14 +44,51 @@ public class AccountController {
     private final AccountMapper accountMapper;
     private final UserMapper userMapper;
 
+    // 즐겨찾기 등록 및 해제
+    @PostMapping("/api/private/account/favorite/enroll")
+    public ResponseEntity<ResponseData> faviriteEnroll(@RequestHeader("Authorization") String header, @RequestBody Favorite fav) {
+
+        ResponseData responseData = new ResponseData();
+
+        String token = header.substring(7).trim(); // Bearer 접두사 및 공백 제거
+        Claims claims = jwtTokenProvider.validateToken(token); // 검증 및 토큰 데이터 집합 추출
+        String userId = (String) claims.get("sub"); // 토큰에서 아이디 추출
+
+        fav.setUserId(userId); // 토큰에서 획득한 아이디를 fav 인스턴스에 저장함.
+
+
+        int result = accountService.addAndRemoveFavorite(fav);
+        if (result == 3) {
+            responseData.setCode(200);
+            responseData.setMessage("즐겨찾기가 등록 되었습니다.");
+            responseData.setTimestamp(new Timestamp(System.currentTimeMillis()));
+            return ResponseEntity.status(200).body(responseData);
+        } else if(result == 1) {
+            responseData.setCode(201);
+            responseData.setMessage("즐겨찾기가 해제 되었습니다.");
+            responseData.setTimestamp(new Timestamp(System.currentTimeMillis()));
+            return ResponseEntity.status(201).body(responseData);
+        } else {
+            responseData.setCode(202);
+            responseData.setMessage("잘못된 요청입니다.");
+            responseData.setTimestamp(new Timestamp(System.currentTimeMillis()));
+            return ResponseEntity.status(202).body(responseData);
+        }
+
+    }
+
+    // 즐겨찾기 리스트
+
+
+
+
+
+
     // 기존 일반 사용자 카카오 계정 연결
     @PostMapping("/api/private/account/kakao/connect")
     public ResponseEntity<ResponseData> kakaoConnect(@RequestHeader("Authorization") String header, @RequestBody Map<String, String> request) {
         ResponseData responseData = new ResponseData();
         String code = request.get("code");
-
-
-
 
         boolean state = accountService.kakaoAccountConnect(header, code);
         if (state) {

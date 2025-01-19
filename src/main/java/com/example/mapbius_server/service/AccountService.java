@@ -1,5 +1,6 @@
 package com.example.mapbius_server.service;
 
+import com.example.mapbius_server.domain.Favorite;
 import com.example.mapbius_server.domain.User;
 import com.example.mapbius_server.mapper.AccountMapper;
 import com.example.mapbius_server.mapper.FindMapper;
@@ -28,6 +29,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.util.List;
 import java.util.UUID;
 import org.springframework.core.io.Resource; // Resource 인터페이스
 import org.springframework.core.io.UrlResource; // URL로부터 리소스를 생성하기 위한 클래스
@@ -51,6 +53,43 @@ public class AccountService {
     private final FindMapper findMapper;
     private final KakaoAuthService kakaoAuthService;
     private final JwtUtil jwtUtil;
+
+
+    // 즐겨찾기 등록 및 삭제
+    public int addAndRemoveFavorite(Favorite favorite) {
+
+        if(accountMapper.checkIfFavoriteExists(favorite)>0){ // 사용자가 해당 장소를 즐겨찾기로 등록했는가?
+            // 등록했다면 삭제하기
+            if(removeFavorite(favorite.getFavIndex()) > 0) {
+                return 1;
+            } else {
+                return 2;
+            }
+
+        } else {
+            // 등록한 적이 없다면 등록하기
+            if(accountMapper.insertFavorite(favorite) > 0) {
+                return 3;
+            } else {
+                return 4;
+            }
+        }
+
+
+    }
+
+    // 즐겨찾기 삭제
+    public int removeFavorite(int favIndex) {
+        accountMapper.deleteFavorite(favIndex);
+        return favIndex;
+    }
+
+    // 사용자의 즐겨찾기 리스트 반환
+    public List<Favorite> getFavorites(String userId) {
+        return accountMapper.getFavoritesByUserId(userId);
+    }
+
+
 
     // 카카오 계정 연결
     public boolean kakaoAccountConnect(String header, String code){
@@ -145,9 +184,6 @@ public class AccountService {
 
 
     }
-
-
-
 
     // 개인 정보 수정
     public boolean updateInfo(User user) {

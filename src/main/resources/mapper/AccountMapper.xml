@@ -3,6 +3,33 @@
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.example.mapbius_server.mapper.AccountMapper">
 
+
+    <!-- 즐겨찾기한 적이 있는지 확인하는 쿼리 -->
+    <select id="checkIfFavoriteExists" resultType="int">
+        SELECT COUNT(*)
+        FROM favorites
+        WHERE user_id = #{userId} AND location_code = #{locationCode};
+    </select>
+
+    <!-- 즐겨찾기 등록 -->
+    <insert id="insertFavorite" parameterType="com.example.mapbius_server.domain.Favorite">
+        INSERT INTO favorites (user_id, type, location_code)
+        VALUES (#{userId}, #{type}, #{locationCode})
+    </insert>
+
+    <!-- 즐겨찾기 삭제 -->
+    <delete id="deleteFavorite" parameterType="int">
+        DELETE FROM favorites WHERE fav_index = #{favIndex}
+    </delete>
+
+    <!-- 특정 사용자의 즐겨찾기 리스트 반환 -->
+    <select id="getFavoritesByUserId" parameterType="String" resultType="com.example.mapbius_server.domain.Favorite">
+        SELECT fav_index, user_id, type, location_code
+        FROM favorites
+        WHERE user_id = #{userId}
+    </select>
+
+
     <!-- 사용자 계정 삭제 (is_delete 컬럼을 수정하여 상태를 변경함, 0은 정상 / 1은 탈퇴) -->
     <update id="updateDeleteAccount">
         UPDATE users

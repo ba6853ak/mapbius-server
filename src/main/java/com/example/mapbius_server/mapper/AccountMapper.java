@@ -1,11 +1,29 @@
 package com.example.mapbius_server.mapper;
 
+import com.example.mapbius_server.domain.Favorite;
 import com.example.mapbius_server.domain.User;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
+import java.util.List;
+
 @Mapper
 public interface AccountMapper {
+
+
+    // 본인 아이디로 등록한 즐겨찾기가 있는지 확인
+    int checkIfFavoriteExists(Favorite favorite);
+
+
+    // 즐겨찾기 등록
+    int insertFavorite(Favorite favorite);
+
+    // 즐겨찾기 삭제
+    int deleteFavorite(int favIndex);
+
+    // 본인만 보여지는 즐겨찾기 리스트
+    List<Favorite> getFavoritesByUserId(String userId);
+
 
     int updateDeleteAccount(@Param("id") String id);
 
