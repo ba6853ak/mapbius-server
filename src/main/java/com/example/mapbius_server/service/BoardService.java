@@ -447,7 +447,10 @@ public class BoardService {
 
     // 특정 여행 루트 가져오기
     public TravelRoute getTravelRouteById(Long id) {
-        return boardMapper.getTravelRouteById(id);
+        String PROFILE_IMAGE_BASE_URL = "http://58.74.46.219:61061/uploads/cover_images/";
+        TravelRoute result = boardMapper.getTravelRouteById(id);
+        result.setCoverImageName(PROFILE_IMAGE_BASE_URL+result.getCoverImageName());
+        return result;
     }
 
     // 여행 경로 저장 (텍스트 및 이미지 파일 저장)

@@ -28,6 +28,8 @@ public class TravelRoute {
 
     private String locationInfo; // 위치 정보 (문자열로 이어붙임)
 
+    private int heartCount;
+
     private int distances;
 
 }

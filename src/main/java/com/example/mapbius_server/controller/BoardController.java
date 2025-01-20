@@ -178,7 +178,7 @@ public class BoardController {
 
 
 
-    // 여행 경로 전체 목록 가져오기
+    // 여행 경로 전체 목록 가져오기 (자기 자신, 본인이 좋아요 누른 글)
     @PostMapping("/api/private/travel-route/entire-list")
     public ResponseEntity<?> travelRouteEntireList(@RequestHeader("Authorization") String authorizationHeader, HttpServletRequest request) {
 
@@ -205,12 +205,11 @@ public class BoardController {
     }
 
     // 여행 경로 상세보기 가져오기
-    @PostMapping("/api/private/travel-route/detail")
-    public ResponseEntity<?> travelRouteArticleDatail(@RequestHeader("Authorization") String authorizationHeader, @RequestBody TravelRoute tr) {
+    // 만든 사람 프로필 이미지랑 하트 개수
+    @PostMapping("/api/public/travel-route/detail")
+    public ResponseEntity<?> travelRouteArticleDatail( @RequestBody TravelRoute tr) {
 
         ResponseData responseData = new ResponseData();
-
-        logger.info(String.valueOf(tr.getId()));
 
         Object data = boardService.getTravelRouteById(tr.getId());
 
