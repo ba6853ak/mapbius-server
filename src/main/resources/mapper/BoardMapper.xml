@@ -156,6 +156,7 @@
         tr.id,
         tr.creator_id AS creatorId,
         u.nick_name AS creatorNickName,
+        u.profile_image AS profileImage,  <!-- 작성자의 프로필 이미지 -->
         tr.cover_image_name AS coverImageName,
         tr.title,
         tr.content,
@@ -165,7 +166,7 @@
         tr.distances AS distances,
         IFNULL(like_count.like_count, 0) AS heartCount  <!-- 좋아요 개수 -->
         FROM travel_routes tr
-        LEFT JOIN users u ON tr.creator_id = u.id
+        LEFT JOIN users u ON tr.creator_id = u.id  <!-- 작성자의 정보 가져오기 -->
         LEFT JOIN (
         SELECT route_id, COUNT(*) AS like_count
         FROM route_likes
@@ -174,6 +175,7 @@
         WHERE tr.is_deleted = 0 AND tr.is_private = 0
         ORDER BY tr.created_at DESC;
     </select>
+
 
     <!-- 사용자 개인 여행 루트 목록 가져오기 -->
     <select id="getTravelRoutes" resultType="com.example.mapbius_server.domain.TravelRoute">

@@ -403,6 +403,9 @@ public class BoardService {
     // 여행 루트 목록 가져오기
     public List<TravelRoute> getCompleteAllTravelRoutes(HttpServletRequest request) {
 
+
+        String PROFILE_IMAGE_BASE_URL = "http://58.74.46.219:61061/uploads/profiles/";
+
         // 데이터베이스에서 여행 루트 목록 가져오기
         List<TravelRoute> data = boardMapper.getCompleteTravelRoutes();
 
@@ -411,6 +414,10 @@ public class BoardService {
 
         for (TravelRoute tr : data) {
             String fileName = tr.getCoverImageName();
+
+            String profileImageFileName = tr.getProfileImage();
+
+            tr.setProfileImage(PROFILE_IMAGE_BASE_URL + profileImageFileName);
 
             // coverImageName이 null 또는 비어있지 않은 경우에만 처리
             if (fileName != null && !fileName.isEmpty()) {
