@@ -56,8 +56,11 @@ public interface BoardMapper {
     // 3. 여행 루트 삭제
     int deleteTravelRoute(Long id);
 
-    // 4. 사용자 개인 여행 목록 가져오기
+    // 4. 사용자 개인 전체 여행 목록 가져오기
     List<TravelRoute> getTravelRoutes(@Param("creatorId") String creatorId);
+
+    // 4. 모든 사용자 여행 목록 가져오기
+    List<TravelRoute> getCompleteTravelRoutes();
 
     // 5. 여행 루트 개별 가져오기
     TravelRoute getTravelRouteById(Long id);

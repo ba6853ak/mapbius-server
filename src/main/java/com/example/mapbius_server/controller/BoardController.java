@@ -173,7 +173,30 @@ public class BoardController {
         }
     }
 
+    // 여행 경로 전체 목록 가져오기 (모든 글 !)
+    @PostMapping("/api/public/travel-route/entire-list")
+    public ResponseEntity<?> travelRouteCompleteEntireList( HttpServletRequest request) {
 
+        ResponseData responseData = new ResponseData();
+
+
+
+        List<TravelRoute> receivedData = boardService.getCompleteAllTravelRoutes(request);
+
+        if (receivedData != null) {
+            responseData.setCode(200);
+            responseData.setMessage("여행 경로 리스트 출력");
+            responseData.setObjData(receivedData);
+            System.out.println("여행 경로 리스트 출력 성공");
+            return ResponseEntity.status(200).body(responseData);
+        } else {
+            responseData.setCode(404);
+            responseData.setMessage("여행 경로 리스트 출력 실패");
+            System.out.println("여행 경로 리스트 출력 실패");
+            return ResponseEntity.status(404).body(responseData);
+        }
+
+    }
 
 
 

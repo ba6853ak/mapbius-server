@@ -150,6 +150,31 @@
             WHERE id = #{id};
     </delete>
 
+    <!-- 모든 사용자 여행 루트 져오기 -->
+    <select id="getCompleteTravelRoutes" resultType="com.example.mapbius_server.domain.TravelRoute">
+        SELECT
+        tr.id,
+        tr.creator_id AS creatorId,
+        u.nick_name AS creatorNickName,
+        tr.cover_image_name AS coverImageName,
+        tr.title,
+        tr.content,
+        tr.created_at AS createdAt,
+        tr.is_private AS isPrivate,
+        tr.location_info AS locationInfo,
+        tr.distances AS distances,
+        IFNULL(like_count.like_count, 0) AS heartCount  <!-- 좋아요 개수 -->
+        FROM travel_routes tr
+        LEFT JOIN users u ON tr.creator_id = u.id
+        LEFT JOIN (
+        SELECT route_id, COUNT(*) AS like_count
+        FROM route_likes
+        GROUP BY route_id
+        ) AS like_count ON tr.id = like_count.route_id  <!-- 각 루트의 좋아요 개수 -->
+        WHERE tr.is_deleted = 0
+        ORDER BY tr.created_at DESC;
+    </select>
+
     <!-- 사용자 개인 여행 루트 목록 가져오기 -->
     <select id="getTravelRoutes" resultType="com.example.mapbius_server.domain.TravelRoute">
         SELECT
@@ -185,33 +210,6 @@
         ORDER BY tr.created_at DESC;
     </select>
 
-<!--    <select id="getTravelRoutes" resultType="com.example.mapbius_server.domain.TravelRoute">
-        SELECT
-        tr.id,
-        tr.creator_id AS creatorId,
-        u.nick_name AS creatorNickName,
-        tr.cover_image_name AS coverImageName,
-        tr.title,
-        tr.content,
-        tr.created_at AS createdAt,
-        tr.is_private AS isPrivate,
-        tr.location_info AS locationInfo,
-        tr.distances AS distances,
-        CASE
-        WHEN rl.user_id IS NOT NULL THEN 1
-        ELSE 0
-        END AS isLiked,  &lt;!&ndash; 사용자가 좋아요를 누른 경우 1, 아니면 0 &ndash;&gt;
-        CASE
-        WHEN tr.creator_id = #{creatorId} THEN 1
-        ELSE 0
-        END AS isOwnRoute  &lt;!&ndash; 사용자가 작성한 루트인지 확인 &ndash;&gt;
-        FROM travel_routes tr
-        LEFT JOIN users u ON tr.creator_id = u.id
-        LEFT JOIN route_likes rl ON tr.id = rl.route_id AND rl.user_id = #{creatorId}  &lt;!&ndash; 좋아요 여부 확인 &ndash;&gt;
-        WHERE tr.is_deleted = 0
-        AND (tr.creator_id = #{creatorId} OR rl.user_id = #{creatorId})  &lt;!&ndash; 자신이 작성한 루트 또는 좋아요를 누른 루트만 가져옴 &ndash;&gt;
-        ORDER BY tr.created_at DESC;
-    </select>-->
 
     <!-- 여행 루트 개별 가져오기 -->
     <select id="getTravelRouteById" parameterType="long" resultType="com.example.mapbius_server.domain.TravelRoute">

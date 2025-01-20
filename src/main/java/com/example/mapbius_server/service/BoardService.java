@@ -399,7 +399,55 @@ public class BoardService {
         }
     }
 
+    // 여행 루트 목록 가져오기 전체!!!
     // 여행 루트 목록 가져오기
+    public List<TravelRoute> getCompleteAllTravelRoutes(HttpServletRequest request) {
+
+        // 데이터베이스에서 여행 루트 목록 가져오기
+        List<TravelRoute> data = boardMapper.getCompleteTravelRoutes();
+
+        // 업로드 경로 및 파일 URL 구성
+        String uploadPath = "upload/cover_image";
+
+        for (TravelRoute tr : data) {
+            String fileName = tr.getCoverImageName();
+
+            // coverImageName이 null 또는 비어있지 않은 경우에만 처리
+            if (fileName != null && !fileName.isEmpty()) {
+                String rootDir = System.getProperty("user.dir");
+                String fileDir = rootDir + File.separator + uploadPath;
+
+                try {
+                    // 파일 경로 생성
+                    Path filePath = Paths.get(fileDir).resolve(fileName).normalize();
+                    Resource resource = new UrlResource(filePath.toUri());
+
+                    if (resource.exists()) {
+                        // 서버 URL 생성
+                        String baseUrl = String.format("%s://%s:%d",
+                                request.getScheme(),
+                                request.getServerName(),
+                                request.getServerPort()
+                        );
+                        // URL 생성 및 업데이트
+                        String fileUrl = baseUrl + "/uploads/cover_images/" + fileName;
+                        tr.setCoverImageName(fileUrl);
+                    } else {
+                        logger.warn("커버 이미지 파일이 존재하지 않습니다: " + filePath.toString());
+                    }
+                } catch (Exception e) {
+                    logger.error("커버 이미지 파일 처리 중 오류 발생", e);
+                    // coverImageName은 원래 값 유지
+                }
+            }
+        }
+
+        return data;
+    }
+
+
+
+    // 여행 루트 목록 가져오기 (내가 조아요 한거 내꺼)
     public List<TravelRoute> getAllTravelRoutes(HttpServletRequest request, String creatorId) {
 
         // 데이터베이스에서 여행 루트 목록 가져오기
