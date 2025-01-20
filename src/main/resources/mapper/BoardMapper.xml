@@ -171,7 +171,7 @@
         FROM route_likes
         GROUP BY route_id
         ) AS like_count ON tr.id = like_count.route_id  <!-- 각 루트의 좋아요 개수 -->
-        WHERE tr.is_deleted = 0
+        WHERE tr.is_deleted = 0 AND tr.is_private = 0
         ORDER BY tr.created_at DESC;
     </select>
 
